@@ -5,6 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "nodemon src/server.ts",
+    "migrate": "npx prisma migrate",
+    "generate": "npx primsa generate",
     "lint": "eslint .",
     "lint-fix": "eslint . --fix",
     "format": "npx prettier --write .",
