@@ -6,6 +6,7 @@ import { User } from '@prisma/client'
 import { AuthLogin, AuthLogout, AuthRegister, AuthResponse } from '../entities'
 import { AuthRepository } from '../repositories'
 import { RequireAtLeastOne } from '../../utilities/types'
+import { CustomError, NotFound, Conflict } from '../../errors'
 
 export class AuthModel implements AuthRepository {
   private getSignedToken(user: User): string {
@@ -30,21 +31,25 @@ export class AuthModel implements AuthRepository {
     return await compare(passwordToCompare, password)
   }
 
-  async login(data: AuthLogin): Promise<AuthResponse | null> {
+  async login(data: AuthLogin): Promise<AuthResponse | CustomError> {
     const { email, password } = data
     const existUser = await this.existUser({ email })
 
     if (!existUser) {
-      return null
+      return new NotFound(`Usuario con email ${email} no encontrado`)
     }
 
     const isValid = await this.isValidPassword(password, existUser.password)
 
     if (!isValid) {
-      return null
+      return new Conflict('Credenciales inválidas')
     }
 
-    return { ...existUser, token: 'jsgkhl' }
+    const token = this.getSignedToken(existUser)
+
+    const { password: userPassword, ...rest } = existUser
+
+    return { ...rest, token }
   }
 
   async register(data: AuthRegister): Promise<AuthResponse | null> {

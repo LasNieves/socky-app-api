@@ -1,22 +1,33 @@
 import { Request, Response, NextFunction } from 'express'
+import { validationResult } from 'express-validator'
 
 import { AuthModel } from '../core/models'
+import { BadRequest, CustomError } from '../errors'
 
 const authModel = new AuthModel()
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return next(new BadRequest(errors.array()))
+  }
+
   const { email, password } = req.body
 
-  const userCredentials = await authModel.login({ email, password })
+  const credentials = await authModel.login({ email, password })
 
-  if (!userCredentials) {
-    res.status(409).json({ message: 'El usuario no existe' })
+  if (credentials instanceof CustomError) {
+    return next(credentials)
   }
 
   res.status(200).json({
     message: 'Usuario logeado correctamente',
     data: {
-      ...userCredentials,
+      ...credentials,
     },
   })
 }
@@ -42,19 +53,19 @@ export const register = async (req: Request, res: Response) => {
   })
 }
 
-export const logout = async (req: Request, res: Response) => {
-  const { ID } = req.params
-  const { password } = req.body
+// export const logout = async (req: Request, res: Response) => {
+//   const { ID } = req.params
+//   const { password } = req.body
 
-  const deletedUser = await authModel.logout({ id: ID, password })
+//   const deletedUser = await authModel.logout({ id: ID, password })
 
-  if (!deletedUser) {
-    res
-      .status(409)
-      .json({ message: 'El usuario no fue eliminado correctamente' })
-  }
+//   if (!deletedUser) {
+//     res
+//       .status(409)
+//       .json({ message: 'El usuario no fue eliminado correctamente' })
+//   }
 
-  res.status(201).json({
-    message: deletedUser,
-  })
-}
+//   res.status(201).json({
+//     message: deletedUser,
+//   })
+// }

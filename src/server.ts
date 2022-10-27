@@ -3,6 +3,7 @@ import cors from 'cors'
 import * as dotenv from 'dotenv'
 
 import handlers from './routes'
+import { errorHandler } from './middlewares'
 
 dotenv.config()
 
@@ -14,6 +15,8 @@ server.use(json())
 server.use(cors())
 
 server.use('/api/v1', handlers)
+
+server.use(errorHandler)
 
 server.get('/', (_req, res) => {
   res.status(200).send('Iniciar el servidor en el endpoint: /api/v1/entity')
