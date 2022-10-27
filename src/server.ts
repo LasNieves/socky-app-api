@@ -1,6 +1,7 @@
 import express, { json } from 'express'
 import cors from 'cors'
 import * as dotenv from 'dotenv'
+
 import handlers from './routes'
 
 dotenv.config()
