@@ -1,21 +1,56 @@
+import { UserRepository } from './../repositories';
 import { prisma } from '../../config/db'
 
-import { createUserDto, updateUserDto } from '../../dtos/user.dto'
-import { UserEntity } from '../entities'
+import { CustomError, NotFound } from '../../errors';
+import { UserResponse, UsersResponse } from '../entities';
 
-export const getAllUsers = async (): Promise<UserEntity[]> => {
-  const users = await prisma.user.findMany()
 
-  return users
+export class UserModel implements UserRepository {
+ async getAll(): Promise<UsersResponse[]> {
+    const users = await prisma.user.findMany({select: {
+      id: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true        
+        }
+      }
+    }})
+    return users
+  }
+
+  async getById(id: string): Promise<UserResponse | CustomError> {
+    const user = await prisma.user.findUnique({ where: { id },
+    select: {
+      id: true,
+      email: true,
+      createdAt: true,
+      updatedAt: true,
+      profile: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true        
+        }
+      },
+      posts: true
+    } })
+
+    if ( !user) {
+      return new NotFound("Usuario no encontrado")
+    }
+
+    return user
+  }
 }
 
-export const getUserByID = async (id: string): Promise<UserEntity | null> => {
-  const user = await prisma.user.findUnique({ where: { id } })
-
-  return user
-}
-
-export const updateOneUser = async (
+/* export const updateOneUser = async (
   id: string,
   user: updateUserDto
 ): Promise<UserEntity> => {
@@ -28,3 +63,4 @@ export const updateOneUser = async (
 
   return updatedUser
 }
+ */

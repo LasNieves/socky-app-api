@@ -1,7 +1,19 @@
-export interface UserEntity {
+import { Post, Profile, Workspace } from '@prisma/client';
+
+export interface UsersResponse {
   id: string
   email: string
-  password: string
   createdAt: Date
-  updatedAt: Date | null
+  updatedAt: Date 
+  profile : Omit<Profile, "userId">  | null
+}
+
+export interface UserResponse {
+  id: string
+  email: string
+  createdAt: Date
+  updatedAt: Date 
+  posts: Post[]
+/*   workspaces: Workspace[]
+ */  profile : Omit<Profile, "userId"> | null 
 }
