@@ -24,7 +24,7 @@ export interface AuthResponse {
   createdAt: Date
   updatedAt: Date
 
-  profile?: Profile | null
+  profile?: Omit<Profile, "userId"> | null
 
   token: string
 }

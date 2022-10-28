@@ -3,6 +3,6 @@ import { AuthLogin, AuthRegister, AuthLogout, AuthResponse } from '../entities'
 
 export interface AuthRepository {
   login(data: AuthLogin): Promise<AuthResponse | CustomError>
-  register(data: AuthRegister): Promise<AuthResponse | null>
+  register(data: AuthRegister): Promise<AuthResponse | CustomError>
   logout(data: AuthLogout): Promise<string | null>
 }

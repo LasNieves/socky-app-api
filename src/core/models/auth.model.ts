@@ -9,7 +9,7 @@ import { RequireAtLeastOne } from '../../utilities/types'
 import { CustomError, NotFound, Conflict } from '../../errors'
 
 export class AuthModel implements AuthRepository {
-  private getSignedToken(user: User): string {
+  private getSignedToken(user: Omit<User, "password">): string {
     return jwt.sign({ id: user.id }, process.env.JWT_SECRET!)
   }
 
@@ -18,7 +18,14 @@ export class AuthModel implements AuthRepository {
   ): Promise<User | null> {
     const existUser = await prisma.user.findUnique({
       where: { ...field },
-      include: { profile: true },
+      include: { profile: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        }
+      } },
     })
 
     return existUser
@@ -52,13 +59,13 @@ export class AuthModel implements AuthRepository {
     return { ...rest, token }
   }
 
-  async register(data: AuthRegister): Promise<AuthResponse | null> {
+  async register(data: AuthRegister): Promise<AuthResponse | CustomError> {
     const { email, password, ...rest } = data
 
     const existUser = await this.existUser({ email })
 
     if (existUser) {
-      return null
+      return new Conflict(`El email ${email} ya está en uso`)
     }
 
     const salt = await genSalt(10)
@@ -74,16 +81,25 @@ export class AuthModel implements AuthRepository {
           },
         },
       },
-      include: {
-        profile: true,
+      select: {
+        id: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        profile: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          }
+        }
       },
     })
 
     const token = this.getSignedToken(user)
 
-    const { password: userPassword, ...userRest } = user
-
-    return { ...userRest, token }
+    return { ...user, token }
   }
 
   /* Logout cierra la sesión, no elimina la usuario de la DB */

@@ -4,12 +4,19 @@ import { login, register } from '../controllers/auth.controller'
 
 export const authRouter = Router()
 
-authRouter.post('/register', register)
+authRouter.post('/register',
+  body("email").isEmail().withMessage("Email inválido"),
+  body("password").trim().notEmpty().withMessage("Contraseña obligatoria"),
+  body("firstName").trim().isString().notEmpty().withMessage("Campo requerido"),
+  body("lastName").trim().isString().notEmpty().withMessage("Campo requerido"),
+  body("avatar").trim().isString().notEmpty().withMessage("Campo requerido"),
+  register
+)
 
 authRouter.post(
   '/login',
   body('email').isEmail().withMessage('Email inválido'),
-  body('password').trim().notEmpty().withMessage('Password obligatorio'),
+  body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   login
 )
 

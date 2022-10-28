@@ -32,10 +32,15 @@ export const login = async (
   })
 }
 
-export const register = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    return next(new BadRequest(errors.array()))
+  }
+  
   const { email, password, firstName, lastName, avatar } = req.body
 
-  const userCredentials = await authModel.register({
+  const credentials = await authModel.register({
     email,
     password,
     firstName,
@@ -43,13 +48,13 @@ export const register = async (req: Request, res: Response) => {
     avatar,
   })
 
-  if (!userCredentials) {
-    res.status(409).json({ message: 'El usuario ya existe' })
+  if (credentials instanceof CustomError) {
+    return next(credentials)
   }
-
+  
   res.status(201).json({
     message: 'Usuario registrado correctamente',
-    data: { ...userCredentials },
+    data: { ...credentials },
   })
 }
 
