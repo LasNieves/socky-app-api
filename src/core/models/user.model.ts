@@ -49,6 +49,9 @@ export class UserModel implements UserRepository {
           avatar: true        
         }
       },
+      workspaces: {include: {
+        workspace: true,
+      }},
       posts: true
     } })
 

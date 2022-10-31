@@ -80,6 +80,11 @@ export class AuthModel implements AuthRepository {
             ...rest,
           },
         },
+        workspaces: {
+          create: {
+          workspace: {create:{name: `${data.firstName}'s workspace`, icon: "Diego Armando Maradona"}},
+          role: 'ADMIN'
+        }}
       },
       select: {
         id: true,
