@@ -48,19 +48,4 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   })
 }
 
-// export const logout = async (req: Request, res: Response) => {
-//   const { ID } = req.params
-//   const { password } = req.body
-
-//   const deletedUser = await authModel.logout({ id: ID, password })
-
-//   if (!deletedUser) {
-//     res
-//       .status(409)
-//       .json({ message: 'El usuario no fue eliminado correctamente' })
-//   }
-
-//   res.status(201).json({
-//     message: deletedUser,
-//   })
-// }
+ 

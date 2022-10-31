@@ -1,11 +1,20 @@
 import { UserRepository } from './../repositories';
 import { prisma } from '../../config/db'
 
-import { CustomError, NotFound } from '../../errors';
+import { Conflict, CustomError, NotFound } from '../../errors';
 import { UserResponse, UsersResponse } from '../entities';
+import { compare } from 'bcryptjs';
 
 
 export class UserModel implements UserRepository {
+
+  private async isValidPassword(
+    passwordToCompare: string,
+    password: string
+  ): Promise<boolean> {
+    return await compare(passwordToCompare, password)
+  }
+
  async getAll(): Promise<UsersResponse[]> {
     const users = await prisma.user.findMany({select: {
       id: true,
@@ -24,11 +33,12 @@ export class UserModel implements UserRepository {
     return users
   }
 
-  async getById(id: string): Promise<UserResponse | CustomError> {
+  async getById(id: string): Promise<UserResponse | null> {
     const user = await prisma.user.findUnique({ where: { id },
     select: {
       id: true,
       email: true,
+      password: true,
       createdAt: true,
       updatedAt: true,
       profile: {
@@ -42,13 +52,30 @@ export class UserModel implements UserRepository {
       posts: true
     } })
 
-    if ( !user) {
-      return new NotFound("Usuario no encontrado")
-    }
-
     return user
   }
+
+  async delete(id: string, password: string): Promise<string | CustomError> {
+
+  const existUser = await this.getById( id )
+
+  if (!existUser) {
+    return new NotFound(`Usuario con id ${id} no encontrado`)
+  } 
+
+  const isValid = await this.isValidPassword(password, existUser.password)
+
+  if (!isValid) {
+    return new Conflict('Credenciales inválidas')
+  }
+
+  const deletedUser = await prisma.user.delete({where: {id}})
+  return `El usuario con email ${deletedUser.email} fue borrado correctamente` 
+  
+ } 
+
 }
+
 
 /* export const updateOneUser = async (
   id: string,

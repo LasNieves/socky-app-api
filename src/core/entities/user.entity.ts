@@ -1,5 +1,7 @@
 import { Post, Profile } from '@prisma/client';
 
+/* Hay que cambiar la forma en la que usamos las Entities */
+
 export interface UsersResponse {
   id: string
   email: string
@@ -11,6 +13,7 @@ export interface UsersResponse {
 export interface UserResponse {
   id: string
   email: string
+  password: string
   createdAt: Date
   updatedAt: Date 
   posts: Post[]
