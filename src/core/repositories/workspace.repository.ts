@@ -1,6 +1,6 @@
-import { CustomError } from '../../errors';
-import { WorkspaceResponse } from './../entities/workspace.entity';
+import { CustomError } from '../../errors'
+import { WorkspaceDto } from './../dtos'
 
 export interface WorkspaceRepository {
-  getWorkspacesByUser(id: string): Promise<WorkspaceResponse | CustomError>
+  getById(id: string): Promise<WorkspaceDto | null>
 }

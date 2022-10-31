@@ -13,18 +13,13 @@ export interface AuthRegister {
   avatar: string
 }
 
-export interface AuthLogout {
-  id: string
-  password: string
-}
-
-export interface AuthResponse {
+export interface AuthDto {
   id: string
   email: string
   createdAt: Date
   updatedAt: Date
 
-  profile?: Omit<Profile, "userId"> | null
+  profile?: Omit<Profile, 'userId'> | null
 
   token: string
 }

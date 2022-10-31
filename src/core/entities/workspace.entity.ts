@@ -1,7 +1,6 @@
-
-export interface WorkspaceResponse {
-    id: string;
-    name: string;
-    icon: string;
-    personal: boolean;
-  }
+export interface Workspace {
+  id: string
+  name: string
+  icon: string
+  personal: boolean
+}

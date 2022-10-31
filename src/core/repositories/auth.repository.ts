@@ -1,8 +1,8 @@
 import { CustomError } from '../../errors/CustomError'
-import { AuthLogin, AuthRegister, AuthLogout, AuthResponse } from '../entities'
+import { AuthLogin, AuthRegister, AuthDto } from '../dtos'
 
 export interface AuthRepository {
-  login(data: AuthLogin): Promise<AuthResponse | CustomError>
-  register(data: AuthRegister): Promise<AuthResponse | CustomError>
-  logout(data: AuthLogout): Promise<string | null>
+  login(data: AuthLogin): Promise<AuthDto | CustomError>
+  register(data: AuthRegister): Promise<AuthDto | CustomError>
+  // logout(data: AuthLogout): Promise<string | null>
 }

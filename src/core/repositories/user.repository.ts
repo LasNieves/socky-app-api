@@ -1,7 +1,9 @@
-import { CustomError } from '../../errors';
-import { UsersResponse, UserResponse } from './../entities';
+import { CustomError } from '../../errors'
+import { UsersDto, UserDto, UserWorkspacesDto } from './../dtos'
 
 export interface UserRepository {
-  getAll(): Promise<UsersResponse[]>,
-  getById(id: string): Promise<UserResponse | null>
-  delete(id: string, password: string): Promise<string | CustomError>}
+  getAll(): Promise<UsersDto[]>
+  getById(id: string): Promise<UserDto | null>
+  delete(id: string, password: string): Promise<string | CustomError>
+  getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
+}
