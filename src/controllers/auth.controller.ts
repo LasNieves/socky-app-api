@@ -1,8 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
-import { validationResult } from 'express-validator'
+import { NextFunction, Request, Response } from 'express'
 
 import { AuthModel } from '../core/models'
-import { BadRequest, CustomError } from '../errors'
+import { CustomError } from '../errors'
 
 const authModel = new AuthModel()
 
@@ -11,10 +10,6 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return next(new BadRequest(errors.array()))
-  }
 
   const { email, password } = req.body
 
@@ -33,11 +28,6 @@ export const login = async (
 }
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
-  const errors = validationResult(req)
-  if (!errors.isEmpty()) {
-    return next(new BadRequest(errors.array()))
-  }
-  
   const { email, password, firstName, lastName, avatar } = req.body
 
   const credentials = await authModel.register({

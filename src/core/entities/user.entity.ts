@@ -1,4 +1,4 @@
-import { Post, Profile, Workspace } from '@prisma/client';
+import { Post, Profile } from '@prisma/client';
 
 export interface UsersResponse {
   id: string
