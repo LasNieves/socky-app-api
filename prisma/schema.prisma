@@ -16,7 +16,7 @@ model User {
   email String @unique
   password String
   createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   profile Profile?
   posts Post[]
@@ -32,7 +32,7 @@ model Profile {
   lastName String @map("last_name")
   avatar String 
 
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique @map("user_id")
 
   @@map("profiles")  

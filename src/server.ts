@@ -1,7 +1,9 @@
 import express, { json } from 'express'
 import cors from 'cors'
 import * as dotenv from 'dotenv'
-import { router } from './routes/router'
+
+import handlers from './routes'
+import { errorHandler } from './middlewares'
 
 dotenv.config()
 
@@ -12,10 +14,12 @@ const server = express()
 server.use(json())
 server.use(cors())
 
-server.use('/api/v1', router)
+server.use('/api/v1', handlers)
+
+server.use(errorHandler)
 
 server.get('/', (_req, res) => {
-  res.status(200).send('Iniciar el servidor en el endpoint: api/v1/entity')
+  res.status(200).send('Iniciar el servidor en el endpoint: /api/v1/entity')
 })
 
 server.listen(PORT, () => {
