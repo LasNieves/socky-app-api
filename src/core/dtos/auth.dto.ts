@@ -1,4 +1,5 @@
-import { Profile } from '@prisma/client'
+import { Profile } from "../entities"
+
 
 export interface AuthLogin {
   email: string
