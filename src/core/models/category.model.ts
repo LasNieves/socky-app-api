@@ -1,5 +1,5 @@
 import { prisma } from '../../config/db';
-import { Conflict, CustomError, NotFound } from '../../errors';
+import { BadRequest, Conflict, CustomError, NotFound } from '../../errors';
 import { CategoriesDto, CategoryDto } from '../dtos';
 import { Category, Workspace } from '../entities';
 import { CreateCategoryDto } from './../dtos/category.dto';
@@ -69,5 +69,21 @@ export class CategoryModel implements CategoryRepository {
             }
         })
         return category
+    }
+
+    async delete(id: number): Promise<Category | CustomError> {
+        if (isNaN(id)) {
+            return new BadRequest("El id de la categoría debe ser un número")
+        }
+
+        try {
+            const deletedCategory = await prisma.category.delete({ where: { id } })
+            return deletedCategory
+        } catch (error) {
+            console.log(error)
+            return new NotFound("Categoría no encontrada")
+        }
+
+
     }
 }

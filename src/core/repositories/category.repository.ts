@@ -6,4 +6,6 @@ export interface CategoryRepository {
     getCategoriesByWorkspace(id: string): Promise<CategoriesDto[] | CustomError>
     getCategoryByWorkspace(workspaceId: string, categoryId: number): Promise<CategoryDto | CustomError>
     createCategory(data: CreateCategoryDto): Promise<Category | CustomError>
+    delete(id: number): Promise<Category | CustomError>
+
 }

@@ -1,5 +1,4 @@
 import { prisma } from '../../config/db'
-import { CustomError, NotFound } from '../../errors'
 import { WorkspaceDto } from '../dtos'
 import { WorkspaceRepository } from './../repositories/workspace.repository'
 
