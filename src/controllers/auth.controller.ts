@@ -41,11 +41,10 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
   if (credentials instanceof CustomError) {
     return next(credentials)
   }
-  
+
   res.status(201).json({
     message: 'Usuario registrado correctamente',
-    data: { ...credentials },
+    data: credentials,
   })
 }
 
- 

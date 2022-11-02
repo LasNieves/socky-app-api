@@ -14,3 +14,8 @@ export interface CategoriesDto {
   title: string
   createdAt: Date
 }
+
+export interface CreateCategoryDto {
+  title: string
+  workspaceId: string
+}
