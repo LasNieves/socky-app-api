@@ -1,2 +1,5 @@
-export * from './auth.model'
-export * from './user.model'
+export * from './auth.model';
+export * from './category.model';
+export * from './post.model';
+export * from './user.model';
+export * from './workspace.model';
