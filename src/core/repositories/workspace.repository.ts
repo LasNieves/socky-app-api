@@ -1,5 +1,9 @@
+import { CustomError } from '../../errors'
+import { Workspace } from '../entities'
 import { WorkspaceDto } from './../dtos'
 
 export interface WorkspaceRepository {
-  getById(id: string): Promise<WorkspaceDto | null>
+  getAll(): Promise<Workspace[]>
+  get(id: string): Promise<WorkspaceDto | CustomError>
+  delete(id: string): Promise<Workspace | CustomError>
 }

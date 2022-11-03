@@ -81,7 +81,7 @@ model Workspace {
 }
 
 model UsersOnWorkspaces {
-  user   User   @relation(fields: [userId], references: [id])
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @map("user_id")
 
   workspace   Workspace @relation(fields: [workspaceId], references: [id])

@@ -3,6 +3,7 @@ import cors from 'cors'
 import * as dotenv from 'dotenv'
 
 import handlers from './routes'
+import { deleteWorkspacesWithoutUsers } from './cron'
 import { errorHandler } from './middlewares'
 
 dotenv.config()
@@ -24,4 +25,5 @@ server.get('/', (_req, res) => {
 
 server.listen(PORT, () => {
   console.log(`Listen on port ${PORT}`)
+  deleteWorkspacesWithoutUsers.start()
 })

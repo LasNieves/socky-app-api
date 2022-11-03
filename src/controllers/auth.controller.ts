@@ -1,16 +1,16 @@
 import { NextFunction, Request, Response } from 'express'
 
+import { userModel } from './user.controller'
 import { AuthModel } from '../core/models'
 import { CustomError } from '../errors'
 
-const authModel = new AuthModel()
+export const authModel = new AuthModel(userModel)
 
 export const login = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-
   const { email, password } = req.body
 
   const credentials = await authModel.login({ email, password })
@@ -21,13 +21,15 @@ export const login = async (
 
   res.status(200).json({
     message: 'Usuario logeado correctamente',
-    data: {
-      ...credentials,
-    },
+    data: credentials,
   })
 }
 
-export const register = async (req: Request, res: Response, next: NextFunction) => {
+export const register = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { email, password, firstName, lastName, avatar } = req.body
 
   const credentials = await authModel.register({
@@ -47,4 +49,3 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     data: credentials,
   })
 }
-

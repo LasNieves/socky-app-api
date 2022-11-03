@@ -1,21 +1,14 @@
 import { compare } from 'bcryptjs'
-import { UserRepository } from './../repositories'
+
 import { prisma } from '../../config/db'
 
-import { Conflict, CustomError, NotFound } from '../../errors'
+import { UserRepository } from './../repositories'
+import { BadRequest, Conflict, CustomError, NotFound } from '../../errors'
 import { UserDto, UsersDto, UserWorkspacesDto } from '../dtos'
 import { User } from '../entities'
 import { RequireAtLeastOne } from '../../utilities/types'
 
 export class UserModel implements UserRepository {
-  private async existUser(
-    field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<User | null> {
-    const existUser = await prisma.user.findUnique({ where: { ...field } })
-
-    return existUser
-  }
-
   private async isValidPassword(
     passwordToCompare: string,
     password: string
@@ -44,7 +37,35 @@ export class UserModel implements UserRepository {
     return users
   }
 
-  async getById(id: string): Promise<UserDto | null> {
+  async get(
+    field: RequireAtLeastOne<Record<'id' | 'email', string>>
+  ): Promise<User | CustomError> {
+    const user = await prisma.user.findUnique({
+      where: { ...field },
+      include: {
+        profile: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            avatar: true,
+          },
+        },
+      },
+    })
+
+    if (!user) {
+      return new NotFound(
+        `Usuario con ${
+          field.email ? `email ${field.email}` : `id ${field.id}`
+        }  no encontrado`
+      )
+    }
+
+    return user
+  }
+
+  async getById(id: string): Promise<UserDto | CustomError> {
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
@@ -64,14 +85,18 @@ export class UserModel implements UserRepository {
       },
     })
 
+    if (!user) {
+      return new NotFound(`Usuario con id ${id} no encontrado`)
+    }
+
     return user
   }
 
-  async delete(id: string, password: string): Promise<string | CustomError> {
-    const existUser = await this.existUser({ id })
+  async delete(id: string, password: string): Promise<User | CustomError> {
+    const existUser = await this.get({ id })
 
-    if (!existUser) {
-      return new NotFound(`Usuario con id ${id} no encontrado`)
+    if (existUser instanceof CustomError) {
+      return existUser
     }
 
     const isValid = await this.isValidPassword(password, existUser.password)
@@ -80,8 +105,14 @@ export class UserModel implements UserRepository {
       return new Conflict('Credenciales inválidas')
     }
 
-    const deletedUser = await prisma.user.delete({ where: { id } })
-    return `El usuario con email ${deletedUser.email} fue borrado correctamente`
+    try {
+      const deletedUser = await prisma.user.delete({ where: { id } })
+
+      return deletedUser
+    } catch (error) {
+      console.log(error)
+      return new BadRequest('Error al eliminar el usuario')
+    }
   }
 
   async getUserWorkspaces(

@@ -1,4 +1,4 @@
-import { CustomError } from '../../errors/CustomError'
+import { CustomError } from '../../errors'
 import { AuthLogin, AuthRegister, AuthDto } from '../dtos'
 
 export interface AuthRepository {

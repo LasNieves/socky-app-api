@@ -1,84 +1,78 @@
 import { NextFunction, Request, Response } from 'express'
+
 import { CategoryModel } from '../core/models/category.model'
 import { CustomError } from '../errors'
+import { workspaceModel } from './workspace.controller'
 
-const categoryModel = new CategoryModel()
+export const categoryModel = new CategoryModel(workspaceModel)
 
-export const getCategoriesByWorkspace = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+export const getByWorkspace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
+  const { ID } = req.params
+  const category = await categoryModel.getByWorkspace(ID)
 
-    const { ID } = req.params
-    const category = await categoryModel.getCategoriesByWorkspace(ID)
+  if (category instanceof CustomError) {
+    return next(category)
+  }
 
-    if (category instanceof CustomError) {
-        return next(category)
-    }
-
-    res.status(200).json(category)
+  res.status(200).json(category)
 }
 
-
-export const getCategoryByWorkspace = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+export const getOneCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-    const { workspaceId, categoryId } = req.params
-    const category = await categoryModel.getCategoryByWorkspace(workspaceId, +categoryId)
+  const { ID } = req.params
+  const category = await categoryModel.get(+ID)
 
-    if (category instanceof CustomError) {
-        return next(category)
-    }
+  if (category instanceof CustomError) {
+    return next(category)
+  }
 
-    res.status(200).json(category)
+  res.status(200).json(category)
 }
-
-
 
 export const createCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
-    const { title, workspaceId } = req.body
+  const { title, workspaceId } = req.body
 
-    const category = await categoryModel.createCategory({
-        title,
-        workspaceId
-    })
+  const category = await categoryModel.create({
+    title,
+    workspaceId,
+  })
 
-    if (category instanceof CustomError) {
-        return next(category)
-    }
+  if (category instanceof CustomError) {
+    return next(category)
+  }
 
-    res.status(201).json({
-        message: 'Categoria creada correctamente',
-        data: category
-    })
-
+  res.status(201).json({
+    message: 'Categoría creada correctamente',
+    data: category,
+  })
 }
 
 export const deleteCategory = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+  req: Request,
+  res: Response,
+  next: NextFunction
 ) => {
+  const { ID } = req.params
 
-    const { ID } = req.params
+  const category = await categoryModel.delete(+ID)
 
+  if (category instanceof CustomError) {
+    return next(category)
+  }
 
-    const category = await categoryModel.delete(+ID)
-
-    if (category instanceof CustomError) {
-        return next(category)
-    }
-
-    res.status(200).json({
-        message: 'Categoria eliminada correctamente',
-        data: category
-    })
-
+  res.status(200).json({
+    message: 'Categoría eliminada correctamente',
+    data: category,
+  })
 }

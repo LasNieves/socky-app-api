@@ -1,36 +1,18 @@
-import { prisma } from '../../config/db'
 import jwt from 'jsonwebtoken'
 import { hash, genSalt, compare } from 'bcryptjs'
-import { User } from '@prisma/client'
 
+import { prisma } from '../../config/db'
+
+import { User } from '../entities'
 import { AuthLogin, AuthRegister, AuthDto } from '../dtos'
-import { AuthRepository } from '../repositories'
-import { RequireAtLeastOne } from '../../utilities/types'
-import { CustomError, NotFound, Conflict } from '../../errors'
+import { AuthRepository, UserRepository } from '../repositories'
+import { CustomError, Conflict, BadRequest } from '../../errors'
 
 export class AuthModel implements AuthRepository {
+  constructor(private userModel: UserRepository) {}
+
   private getSignedToken(user: Omit<User, 'password'>): string {
     return jwt.sign({ id: user.id }, process.env.JWT_SECRET!)
-  }
-
-  private async existUser(
-    field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<User | null> {
-    const existUser = await prisma.user.findUnique({
-      where: { ...field },
-      include: {
-        profile: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-      },
-    })
-
-    return existUser
   }
 
   private async isValidPassword(
@@ -40,12 +22,29 @@ export class AuthModel implements AuthRepository {
     return await compare(passwordToCompare, password)
   }
 
+  private generateCode(): { code: number; expiresAt: Date } {
+    const currentDate = new Date().getTime()
+
+    // Se deben agregar 15m a la fecha actual
+    // 60 representan los segundos que hay en cada minuto
+    // Y en cada segundo hay 1000ms, por lo que multiplicamos por 15000 para obtener el tiempo total en ms
+
+    const msToAdd = 60 * 15000
+
+    const codeObj = {
+      code: Math.floor(Math.random() * 100000),
+      expiresAt: new Date(currentDate + msToAdd),
+    }
+
+    return codeObj
+  }
+
   async login(data: AuthLogin): Promise<AuthDto | CustomError> {
     const { email, password } = data
-    const existUser = await this.existUser({ email })
+    const existUser = await this.userModel.get({ email })
 
-    if (!existUser) {
-      return new NotFound(`Usuario con email ${email} no encontrado`)
+    if (existUser instanceof CustomError) {
+      return existUser
     }
 
     const isValid = await this.isValidPassword(password, existUser.password)
@@ -64,55 +63,60 @@ export class AuthModel implements AuthRepository {
   async register(data: AuthRegister): Promise<AuthDto | CustomError> {
     const { email, password, ...rest } = data
 
-    const existUser = await this.existUser({ email })
+    const existUser = await this.userModel.get({ email })
 
-    if (existUser) {
+    if (!(existUser instanceof CustomError)) {
       return new Conflict(`El email ${email} ya está en uso`)
     }
 
     const salt = await genSalt(10)
     const hashPassword = await hash(password, salt)
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashPassword,
-        profile: {
-          create: {
-            ...rest,
-          },
-        },
-        workspaces: {
-          create: {
-            workspace: {
-              create: {
-                name: `${data.firstName}'s workspace`,
-                icon: 'Diego Armando Maradona',
-              },
+    try {
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: hashPassword,
+          profile: {
+            create: {
+              ...rest,
             },
-            role: 'ADMIN',
+          },
+          workspaces: {
+            create: {
+              workspace: {
+                create: {
+                  name: `${data.firstName}'s workspace`,
+                  icon: 'Diego Armando Maradona',
+                },
+              },
+              role: 'ADMIN',
+            },
           },
         },
-      },
-      select: {
-        id: true,
-        email: true,
-        createdAt: true,
-        updatedAt: true,
-        profile: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
+        select: {
+          id: true,
+          email: true,
+          createdAt: true,
+          updatedAt: true,
+          profile: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatar: true,
+            },
           },
         },
-      },
-    })
+      })
 
-    const token = this.getSignedToken(user)
+      const token = this.getSignedToken(user)
 
-    return { ...user, token }
+      return { ...user, token }
+    } catch (error) {
+      console.log(error)
+      return new BadRequest('Error al crear el usuario')
+    }
   }
 
   /* Logout cierra la sesión, no elimina la usuario de la DB */

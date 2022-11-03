@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import { getOneWorkspace } from '../controllers/workspace.controller'
 
 export const workspaceRouter = Router()

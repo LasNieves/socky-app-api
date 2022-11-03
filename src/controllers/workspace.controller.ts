@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
-import { WorkspaceModel } from '../core/models/workspace.model'
-import { NotFound } from '../errors'
 
-const workspaceModel = new WorkspaceModel()
+import { WorkspaceModel } from '../core/models'
+import { CustomError } from '../errors'
+
+export const workspaceModel = new WorkspaceModel()
 
 export const getOneWorkspace = async (
   req: Request,
@@ -10,10 +11,10 @@ export const getOneWorkspace = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const workspace = await workspaceModel.getById(ID)
+  const workspace = await workspaceModel.get(ID)
 
-  if (!workspace) {
-    return next(new NotFound('Workspace no encontrado'))
+  if (workspace instanceof CustomError) {
+    return next(workspace)
   }
 
   res.status(200).json(workspace)

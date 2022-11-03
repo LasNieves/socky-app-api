@@ -1,6 +1,7 @@
-import { validateRequest } from './../middlewares/validateRequest'
-import { body } from 'express-validator'
 import { Router } from 'express'
+import { body } from 'express-validator'
+
+import { validateRequest } from './../middlewares'
 import {
   getUsers,
   getOneUser,
@@ -14,17 +15,17 @@ usersRouter.get('/', getUsers)
 
 usersRouter.get('/:ID', getOneUser)
 
+usersRouter.get(
+  '/workspaces/:ID',
+
+  getUserWorkspaces
+)
+
 usersRouter.delete(
   '/:ID',
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
   deleteUser
-)
-
-usersRouter.get(
-  '/workspaces/:ID',
-
-  getUserWorkspaces
 )
 
 /* usersRouter.patch('/:ID', updateUser)

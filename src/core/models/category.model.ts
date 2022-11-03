@@ -1,89 +1,91 @@
-import { prisma } from '../../config/db';
-import { BadRequest, Conflict, CustomError, NotFound } from '../../errors';
-import { CategoriesDto, CategoryDto } from '../dtos';
-import { Category, Workspace } from '../entities';
-import { CreateCategoryDto } from './../dtos/category.dto';
-import { CategoryRepository } from './../repositories/category.repository';
+import { prisma } from '../../config/db'
+
+import { BadRequest, Conflict, CustomError, NotFound } from '../../errors'
+import { WorkspaceRepository, CategoryRepository } from '../repositories'
+import { CategoriesDto, CreateCategoryDto } from '../dtos'
+import { Category } from '../entities'
 
 export class CategoryModel implements CategoryRepository {
-    private async getWorkspace(id: string): Promise<Workspace | null> {
-        const existWorkspace = await prisma.workspace.findUnique({ where: { id }, include: { categories: true, } })
-        return existWorkspace
+  constructor(private workspaceModel: WorkspaceRepository) {}
+
+  async getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
+    const existWorkspace = await this.workspaceModel.get(id)
+
+    if (existWorkspace instanceof CustomError) {
+      return existWorkspace
     }
 
-    async getCategoriesByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
-        const existWorkspace = await this.getWorkspace(id)
+    const categories = await prisma.category.findMany({
+      where: { workspaceId: id },
+      select: {
+        id: true,
+        title: true,
+        createdAt: true,
+      },
+    })
 
-        if (!existWorkspace) {
-            return new NotFound(`Workspace con ${id} no encontrado`)
-        }
+    return categories
+  }
 
-        const categories = await prisma.category.findMany({
-            where: { workspaceId: id },
-            select: {
-                id: true,
-                title: true,
-                createdAt: true,
-            }
-        })
-        return categories
-
-
+  async get(id: number): Promise<Category | CustomError> {
+    if (isNaN(id)) {
+      return new BadRequest('El id de la categoría debe ser un número')
     }
 
-    async getCategoryByWorkspace(workspaceId: string, categoryId: number): Promise<CategoryDto | CustomError> {
-        const existWorkspace = await this.getWorkspace(workspaceId)
+    const category = await prisma.category.findUnique({
+      where: { id },
+      include: { posts: true },
+    })
 
-        if (!existWorkspace) {
-            return new NotFound(`Workspace con id ${workspaceId} no encontrado`)
-        }
-
-        const category = await prisma.category.findUnique({ where: { id: categoryId }, include: { posts: true, } })
-
-        if (!category) {
-            return new NotFound(`Categoría con id ${categoryId} no encontrado`)
-        }
-
-        return category
+    if (!category) {
+      return new NotFound(`Categoría con id ${id} no encontrada`)
     }
 
-    async createCategory(data: CreateCategoryDto): Promise<Category | CustomError> {
-        const { title, workspaceId } = data
-        const existWorkspace = await this.getWorkspace(workspaceId)
+    return category
+  }
 
-        if (!existWorkspace) {
-            return new NotFound(`Workspace con id ${workspaceId} no encontrado`)
-        }
+  async create(data: CreateCategoryDto): Promise<Category | CustomError> {
+    const { title, workspaceId } = data
+    const existWorkspace = await this.workspaceModel.get(workspaceId)
 
-        const categoryTitles = existWorkspace.categories?.map(category => category.title.toLowerCase())
-
-        if (categoryTitles?.includes(title.toLowerCase())) {
-            return new Conflict(`La categoria ${title} ya fue creada`)
-
-        }
-
-        const category = await prisma.category.create({
-            data: {
-                title,
-                workspaceId
-            }
-        })
-        return category
+    if (existWorkspace instanceof CustomError) {
+      return existWorkspace
     }
 
-    async delete(id: number): Promise<Category | CustomError> {
-        if (isNaN(id)) {
-            return new BadRequest("El id de la categoría debe ser un número")
-        }
+    const categoryTitles = existWorkspace.categories?.map((category) =>
+      category.title.toLowerCase()
+    )
 
-        try {
-            const deletedCategory = await prisma.category.delete({ where: { id } })
-            return deletedCategory
-        } catch (error) {
-            console.log(error)
-            return new NotFound("Categoría no encontrada")
-        }
-
-
+    if (categoryTitles?.includes(title.toLowerCase())) {
+      return new Conflict(`La categoria ${title} ya fue creada`)
     }
+
+    try {
+      const category = await prisma.category.create({
+        data: {
+          title,
+          workspaceId,
+        },
+      })
+
+      return category
+    } catch (error) {
+      console.log(error)
+      return new BadRequest('Error al crear la categoría')
+    }
+  }
+
+  async delete(id: number): Promise<Category | CustomError> {
+    if (isNaN(id)) {
+      return new BadRequest('El id de la categoría debe ser un número')
+    }
+
+    try {
+      const deletedCategory = await prisma.category.delete({ where: { id } })
+      return deletedCategory
+    } catch (error) {
+      console.log(error)
+      return new NotFound('Categoría no encontrada')
+    }
+  }
 }

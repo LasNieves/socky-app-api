@@ -1,11 +1,10 @@
-import { CustomError } from '../../errors';
-import { Category } from '../entities';
-import { CategoryDto, CategoriesDto, CreateCategoryDto } from './../dtos/category.dto';
+import { CustomError } from '../../errors'
+import { Category } from '../entities'
+import { CategoriesDto, CreateCategoryDto } from './../dtos'
 
 export interface CategoryRepository {
-    getCategoriesByWorkspace(id: string): Promise<CategoriesDto[] | CustomError>
-    getCategoryByWorkspace(workspaceId: string, categoryId: number): Promise<CategoryDto | CustomError>
-    createCategory(data: CreateCategoryDto): Promise<Category | CustomError>
-    delete(id: number): Promise<Category | CustomError>
-
+  getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError>
+  get(id: number): Promise<Category | CustomError>
+  create(data: CreateCategoryDto): Promise<Category | CustomError>
+  delete(id: number): Promise<Category | CustomError>
 }
