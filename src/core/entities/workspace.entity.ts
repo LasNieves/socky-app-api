@@ -26,6 +26,7 @@ import { Category } from './category.entity'
  *        - icon
  *        - personal
  */
+
 export interface Workspace {
   id: string
   name: string

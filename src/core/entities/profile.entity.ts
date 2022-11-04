@@ -27,6 +27,7 @@
  *        - avatar
  *        - userId
  */
+
 export interface Profile {
   id: string
   firstName: string

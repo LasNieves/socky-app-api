@@ -10,10 +10,10 @@
  *           description: The auto-generated id of the category (auto-increment)
  *        title:
  *           type: string
- *           description: The title of the post
+ *           description: The title of the category
  *        createdAt:
  *           type: date
- *           description: The date of creation of the post (auto-generated too)
+ *           description: The date of creation of the category (auto-generated too)
  *        workspaceId:
  *           type: string
  *           description: What workspace does the category belong to?
