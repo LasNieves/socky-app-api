@@ -4,3 +4,9 @@ export interface CreatePostDto {
   categoryId: number
   userId: string
 }
+
+export interface UpdatePostDto {
+  title?: string
+  description?: string
+  categoryId?: number
+}

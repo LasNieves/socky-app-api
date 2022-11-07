@@ -9,7 +9,7 @@ import { AuthRepository, UserRepository } from '../repositories'
 import { CustomError, Conflict, BadRequest } from '../../errors'
 
 export class AuthModel implements AuthRepository {
-  constructor(private userModel: UserRepository) {}
+  constructor(private readonly userModel: UserRepository) { }
 
   private getSignedToken(user: Omit<User, 'password'>): string {
     return jwt.sign({ id: user.id }, process.env.JWT_SECRET!)

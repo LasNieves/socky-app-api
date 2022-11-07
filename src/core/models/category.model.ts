@@ -6,7 +6,7 @@ import { CategoriesDto, CreateCategoryDto } from '../dtos'
 import { Category } from '../entities'
 
 export class CategoryModel implements CategoryRepository {
-  constructor(private workspaceModel: WorkspaceRepository) {}
+  constructor(private readonly workspaceModel: WorkspaceRepository) { }
 
   async getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
     const existWorkspace = await this.workspaceModel.get(id)
