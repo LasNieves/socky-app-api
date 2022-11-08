@@ -7,7 +7,8 @@
  *      properties:
  *        id:
  *           type: string
- *           description: The auto-generated id of the profile (uuid)
+ *           format: uuid
+ *           description: The auto-generated id of the profile
  *        firstName:
  *           type: string
  *           description: The first name of the user
@@ -16,9 +17,11 @@
  *           description: The last name of the user
  *        avatar:
  *           type: string
+ *           format: uri
  *           description: The user's avatar
  *        userId:
  *           type: string
+ *           format: uuid
  *           description: Who is the user associated with this profile?
  *      required:
  *        - id

@@ -10,7 +10,8 @@ import { Category } from './category.entity'
  *      properties:
  *        id:
  *           type: string
- *           description: The auto-generated id of the workspace (uuid)
+ *           format: uuid
+ *           description: The auto-generated id of the workspace
  *        name:
  *           type: string
  *           description: The name of the workspace

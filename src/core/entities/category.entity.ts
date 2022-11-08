@@ -12,10 +12,12 @@
  *           type: string
  *           description: The title of the category
  *        createdAt:
- *           type: date
+ *           type: string
+ *           format: date-time
  *           description: The date of creation of the category (auto-generated too)
  *        workspaceId:
  *           type: string
+ *           format: uuid
  *           description: What workspace does the category belong to?
  *      required:
  *        - id

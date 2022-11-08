@@ -6,6 +6,24 @@ import { validateRequest } from '../middlewares'
 
 export const authRouter = Router()
 
+/**
+ * @swagger
+ *  /auth/register:
+ *   post:
+ *    summary: create new user
+ *    tags: [User]
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/User'
+ *    responses:
+ *      201:
+ *        description: Nuevo usuario creado
+ */
+
 authRouter.post(
   '/register',
   body('email').isEmail().withMessage('Email inválido'),

@@ -20,9 +20,12 @@ export const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: 'http://localhost:3000/api/v1',
       },
     ],
   },
-  apis: [`${path.join(__dirname, './../core/entities/*.entity.ts')}`],
+  apis: [
+    `${path.join(__dirname, './../core/entities/*.entity.ts')}`,
+    `${path.join(__dirname, './../routes/*.routes.ts')}`,
+  ],
 }
