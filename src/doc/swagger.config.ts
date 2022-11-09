@@ -26,6 +26,7 @@ export const options = {
   },
   apis: [
     `${path.join(__dirname, './../core/entities/*.entity.ts')}`,
+    `${path.join(__dirname, './../core/dtos/*.dto.ts')}`,
     `${path.join(__dirname, './../routes/*.routes.ts')}`,
   ],
 }

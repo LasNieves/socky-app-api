@@ -4,7 +4,7 @@ import { hash, genSalt, compare } from 'bcryptjs'
 import { prisma } from '../../config/db'
 
 import { User } from '../entities'
-import { AuthLogin, AuthRegister, AuthDto } from '../dtos'
+import { AuthLoginDto, AuthRegisterDto, AuthDto } from '../dtos'
 import { AuthRepository, UserRepository } from '../repositories'
 import { CustomError, Conflict, BadRequest } from '../../errors'
 
@@ -39,7 +39,7 @@ export class AuthModel implements AuthRepository {
     return codeObj
   }
 
-  async login(data: AuthLogin): Promise<AuthDto | CustomError> {
+  async login(data: AuthLoginDto): Promise<AuthDto | CustomError> {
     const { email, password } = data
     const existUser = await this.userModel.get({ email })
 
@@ -60,7 +60,7 @@ export class AuthModel implements AuthRepository {
     return { ...rest, token }
   }
 
-  async register(data: AuthRegister): Promise<AuthDto | CustomError> {
+  async register(data: AuthRegisterDto): Promise<AuthDto | CustomError> {
     const { email, password, ...rest } = data
 
     const existUser = await this.userModel.get({ email })
