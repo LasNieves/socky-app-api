@@ -8,6 +8,7 @@ import {
   getByWorkspace,
   getOneCategory,
 } from './../controllers/category.controller'
+import { protect } from '../middlewares/auth'
 
 export const categoryRouter = Router()
 
@@ -17,6 +18,7 @@ categoryRouter.get('/:ID', getOneCategory)
 
 categoryRouter.post(
   '/',
+  protect,
   body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('workspaceId')
     .trim()

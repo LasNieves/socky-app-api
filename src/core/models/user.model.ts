@@ -6,7 +6,7 @@ import { UserRepository } from './../repositories'
 import { BadRequest, Conflict, CustomError, NotFound } from '../../errors'
 import { UserDto, UsersDto, UserWorkspacesDto } from '../dtos'
 import { User } from '../entities'
-import { RequireAtLeastOne } from '../../utilities/types'
+import { RequireAtLeastOne } from '../types'
 
 export class UserModel implements UserRepository {
   private async isValidPassword(

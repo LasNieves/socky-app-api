@@ -1,5 +1,5 @@
 import { CustomError } from '../../errors'
-import { RequireAtLeastOne } from '../../utilities/types'
+import { RequireAtLeastOne } from '../types'
 import { User } from '../entities'
 import { UsersDto, UserDto, UserWorkspacesDto } from './../dtos'
 

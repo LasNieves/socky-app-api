@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 
 import { userModel } from './user.controller'
-import { AuthModel } from '../core/models'
+import { AuthModel, JwtModel } from '../core/models'
 import { CustomError } from '../errors'
 
-export const authModel = new AuthModel(userModel)
+export const jwtModel = new JwtModel()
+export const authModel = new AuthModel(userModel, jwtModel)
 
 export const login = async (
   req: Request,
