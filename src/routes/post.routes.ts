@@ -14,7 +14,7 @@ export const postRouter = Router()
  * @swagger
  *  /posts/{ID}:
  *   get:
- *    summary: Get one Post
+ *    summary: Get one post
  *    tags: [Posts]
  *    parameters:
  *      - in: path
@@ -40,7 +40,7 @@ postRouter.get('/:ID', getOnePost)
  * @swagger
  *  /posts:
  *   post:
- *    summary: Create one Post
+ *    summary: Create one post
  *    tags: [Posts]
  *    requestBody:
  *     required: true
@@ -81,7 +81,7 @@ postRouter.post(
  * @swagger
  *  /posts/{ID}:
  *   delete:
- *    summary: Delete one Post
+ *    summary: Delete one post
  *    tags: [Posts]
  *    parameters:
  *      - in: path
@@ -92,7 +92,7 @@ postRouter.post(
  *        required: true
  *        description: The post id
  *    responses:
- *      20o:
+ *      200:
  *        description: Post deleted successfully
  *        content:
  *          application/json:

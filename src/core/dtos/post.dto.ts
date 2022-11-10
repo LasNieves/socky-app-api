@@ -3,6 +3,7 @@
  * components:
  *  schemas:
  *    CreatePostDto:
+ *      description: Data required for creating a post
  *      type: object
  *      properties:
  *        title:
