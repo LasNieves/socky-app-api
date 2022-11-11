@@ -65,7 +65,7 @@ export interface UsersDto {
  *        posts:
  *            type: array
  *            items:
- *              $ref: '#/components/schemas/CreatePostDto'
+ *              $ref: '#/components/schemas/Post'
  */
 
 export interface UserDto {
@@ -94,7 +94,16 @@ export interface UserDto {
  *           format: email
  *           description: The email of the User
  *        workspaces:
- *           $ref: '#/components/schemas/WorkspaceDto' 
+ *           type: array
+ *           items:
+ *            type: object
+ *            properties:
+ *             role:
+ *              type: string
+ *              enum: [ADMIN]
+ *              description: The role of the user within the workspace
+ *             workspace:
+ *              $ref: '#/components/schemas/Workspace'     
  */
 
 export interface UserWorkspacesDto {
