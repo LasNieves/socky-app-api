@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CategoryModel } from '../core/models/category.model'
+import { CategoryService } from '../services/category.service'
 import { CustomError } from '../errors'
-import { workspaceModel } from './workspace.controller'
+import { workspaceService } from './workspace.controller'
 
-export const categoryModel = new CategoryModel(workspaceModel)
+export const categoryService = new CategoryService(workspaceService)
 
 export const getByWorkspace = async (
   req: Request,
@@ -12,7 +12,7 @@ export const getByWorkspace = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const category = await categoryModel.getByWorkspace(ID)
+  const category = await categoryService.getByWorkspace(ID)
 
   if (category instanceof CustomError) {
     return next(category)
@@ -27,7 +27,7 @@ export const getOneCategory = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const category = await categoryModel.get(+ID)
+  const category = await categoryService.get(+ID)
 
   if (category instanceof CustomError) {
     return next(category)
@@ -43,7 +43,7 @@ export const createCategory = async (
 ) => {
   const { title, workspaceId } = req.body
 
-  const category = await categoryModel.create({
+  const category = await categoryService.create({
     title,
     workspaceId,
   })
@@ -65,7 +65,7 @@ export const deleteCategory = async (
 ) => {
   const { ID } = req.params
 
-  const category = await categoryModel.delete(+ID)
+  const category = await categoryService.delete(+ID)
 
   if (category instanceof CustomError) {
     return next(category)

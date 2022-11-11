@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { WorkspaceModel } from '../core/models'
+import { WorkspaceService } from '../services'
 import { CustomError } from '../errors'
 
-export const workspaceModel = new WorkspaceModel()
+export const workspaceService = new WorkspaceService()
 
 export const getOneWorkspace = async (
   req: Request,
@@ -11,7 +11,7 @@ export const getOneWorkspace = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const workspace = await workspaceModel.get(ID)
+  const workspace = await workspaceService.get(ID)
 
   if (workspace instanceof CustomError) {
     return next(workspace)

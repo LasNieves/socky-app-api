@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { userModel } from './user.controller'
-import { AuthModel, JwtModel } from '../core/models'
+import { userService } from './user.controller'
+import { AuthService, JwtService } from '../services'
 import { CustomError } from '../errors'
 
-export const jwtModel = new JwtModel()
-export const authModel = new AuthModel(userModel, jwtModel)
+export const jwtService = new JwtService()
+export const authService = new AuthService(userService, jwtService)
 
 export const login = async (
   req: Request,
@@ -14,7 +14,7 @@ export const login = async (
 ) => {
   const { email, password } = req.body
 
-  const credentials = await authModel.login({ email, password })
+  const credentials = await authService.login({ email, password })
 
   if (credentials instanceof CustomError) {
     return next(credentials)
@@ -33,7 +33,7 @@ export const register = async (
 ) => {
   const { email, password, firstName, lastName, avatar } = req.body
 
-  const credentials = await authModel.register({
+  const credentials = await authService.register({
     email,
     password,
     firstName,

@@ -1,15 +1,19 @@
 import { hash, genSalt, compare } from 'bcryptjs'
 
-import { prisma } from '../../config/db'
+import { prisma } from '../config/db'
 
-import { AuthLogin, AuthRegister, AuthDto } from '../dtos'
-import { AuthRepository, UserRepository, JwtRepository } from '../repositories'
-import { CustomError, Conflict, BadRequest } from '../../errors'
+import { AuthLogin, AuthRegister, AuthDto } from '../core/dtos'
+import {
+  AuthRepository,
+  UserRepository,
+  JwtRepository,
+} from '../core/repositories'
+import { CustomError, Conflict, BadRequest } from '../errors'
 
-export class AuthModel implements AuthRepository {
+export class AuthService implements AuthRepository {
   constructor(
-    private readonly userModel: UserRepository,
-    private readonly jwtModel: JwtRepository
+    private readonly userService: UserRepository,
+    private readonly jwtService: JwtRepository
   ) {}
 
   private async isValidPassword(
@@ -38,7 +42,7 @@ export class AuthModel implements AuthRepository {
 
   async login(data: AuthLogin): Promise<AuthDto | CustomError> {
     const { email, password } = data
-    const existUser = await this.userModel.get({ email })
+    const existUser = await this.userService.get({ email })
 
     if (existUser instanceof CustomError) {
       return existUser
@@ -50,7 +54,7 @@ export class AuthModel implements AuthRepository {
       return new Conflict('Credenciales inválidas')
     }
 
-    const token = this.jwtModel.sign({ id: existUser.id })
+    const token = this.jwtService.sign({ id: existUser.id })
 
     const { password: userPassword, ...rest } = existUser
 
@@ -60,7 +64,7 @@ export class AuthModel implements AuthRepository {
   async register(data: AuthRegister): Promise<AuthDto | CustomError> {
     const { email, password, ...rest } = data
 
-    const existUser = await this.userModel.get({ email })
+    const existUser = await this.userService.get({ email })
 
     if (!(existUser instanceof CustomError)) {
       return new Conflict(`El email ${email} ya está en uso`)
@@ -107,7 +111,7 @@ export class AuthModel implements AuthRepository {
         },
       })
 
-      const token = this.jwtModel.sign({ id: user.id })
+      const token = this.jwtService.sign({ id: user.id })
 
       return { ...user, token }
     } catch (error) {

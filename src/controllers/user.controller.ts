@@ -1,12 +1,12 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { UserModel } from './../core/models'
+import { UserService } from '../services'
 import { CustomError } from '../errors'
 
-export const userModel = new UserModel()
+export const userService = new UserService()
 
 export const getUsers = async (req: Request, res: Response) => {
-  const users = await userModel.getAll()
+  const users = await userService.getAll()
 
   res.status(200).json(users)
 }
@@ -17,7 +17,7 @@ export const getOneUser = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const user = await userModel.getById(ID)
+  const user = await userService.getById(ID)
 
   if (user instanceof CustomError) {
     return next(user)
@@ -33,7 +33,7 @@ export const getUserWorkspaces = async (
 ) => {
   const { ID } = req.params
 
-  const userWorkspaces = await userModel.getUserWorkspaces(ID)
+  const userWorkspaces = await userService.getUserWorkspaces(ID)
 
   if (userWorkspaces instanceof CustomError) {
     return next(userWorkspaces)
@@ -50,7 +50,7 @@ export const deleteUser = async (
   const { ID } = req.params
   const { password } = req.body
 
-  const deletedUser = await userModel.delete(ID, password)
+  const deletedUser = await userService.delete(ID, password)
 
   if (deletedUser instanceof CustomError) {
     return next(deletedUser)

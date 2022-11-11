@@ -1,6 +1,6 @@
 import { Request, NextFunction, Response } from 'express'
 
-import { jwtModel } from '../controllers/auth.controller'
+import { jwtService } from '../controllers/auth.controller'
 import { NotAuthorized } from '../errors/NotAuthorized'
 
 export const protect = (req: Request, res: Response, next: NextFunction) => {
@@ -17,7 +17,7 @@ export const protect = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    const decoded = jwtModel.verify(token)
+    const decoded = jwtService.verify(token)
     console.log({ decoded })
     next()
   } catch (error) {

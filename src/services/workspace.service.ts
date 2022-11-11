@@ -1,11 +1,11 @@
-import { prisma } from '../../config/db'
+import { prisma } from '../config/db'
 
-import { CustomError, NotFound } from '../../errors'
-import { WorkspaceDto } from '../dtos'
-import { Workspace } from '../entities'
-import { WorkspaceRepository } from './../repositories'
+import { CustomError, NotFound } from '../errors'
+import { WorkspaceDto } from '../core/dtos'
+import { Workspace } from '../core/entities'
+import { WorkspaceRepository } from '../core/repositories'
 
-export class WorkspaceModel implements WorkspaceRepository {
+export class WorkspaceService implements WorkspaceRepository {
   async getAll(): Promise<Workspace[]> {
     const workspaces = await prisma.workspace.findMany({
       include: {

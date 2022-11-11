@@ -1,24 +1,24 @@
-import { prisma } from '../../config/db'
+import { prisma } from '../config/db'
 
-import { BadRequest, CustomError, NotFound } from '../../errors'
-import { CreatePostDto, UpdatePostDto } from '../dtos'
-import { Post } from '../entities'
+import { BadRequest, CustomError, NotFound } from '../errors'
+import { CreatePostDto, UpdatePostDto } from '../core/dtos'
+import { Post } from '../core/entities'
 import {
   CategoryRepository,
   PostRepository,
   UserRepository,
   WorkspaceRepository,
-} from './../repositories'
+} from '../core/repositories'
 
-export class PostModel implements PostRepository {
+export class PostService implements PostRepository {
   constructor(
-    private readonly userModel: UserRepository,
-    private readonly categoryModel: CategoryRepository,
-    private readonly workspaceModel: WorkspaceRepository,
-  ) { }
+    private readonly userService: UserRepository,
+    private readonly categoryService: CategoryRepository,
+    private readonly workspaceService: WorkspaceRepository
+  ) {}
 
   async getByWorkspace(id: string): Promise<Post[] | CustomError> {
-    const existWorkspace = await this.workspaceModel.get(id)
+    const existWorkspace = await this.workspaceService.get(id)
 
     if (existWorkspace instanceof CustomError) {
       return existWorkspace
@@ -27,13 +27,14 @@ export class PostModel implements PostRepository {
     const posts = await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
-        user: true, category: {
+        user: true,
+        category: {
           select: {
             title: true,
-            createdAt: true
-          }
-        }
-      }
+            createdAt: true,
+          },
+        },
+      },
     })
 
     return posts
@@ -62,13 +63,13 @@ export class PostModel implements PostRepository {
   async create(data: CreatePostDto): Promise<Post | CustomError> {
     const { title, description, categoryId, userId } = data
 
-    const existUser = await this.userModel.get({ id: userId })
+    const existUser = await this.userService.get({ id: userId })
 
     if (!existUser) {
       return new NotFound(`Usuario con id ${userId} no encontrado`)
     }
 
-    const existCategory = await this.categoryModel.get(categoryId)
+    const existCategory = await this.categoryService.get(categoryId)
 
     if (existCategory instanceof CustomError) {
       return existCategory
@@ -90,10 +91,9 @@ export class PostModel implements PostRepository {
     }
   }
 
-
   async update(id: string, data: UpdatePostDto): Promise<Post | CustomError> {
     if (data.categoryId) {
-      const existCategory = await this.categoryModel.get(data.categoryId)
+      const existCategory = await this.categoryService.get(data.categoryId)
 
       if (existCategory instanceof CustomError) {
         return existCategory
@@ -109,7 +109,6 @@ export class PostModel implements PostRepository {
     }
   }
 
-
   async delete(id: string): Promise<Post | CustomError> {
     try {
       const deletedPost = await prisma.post.delete({ where: { id } })
@@ -121,6 +120,4 @@ export class PostModel implements PostRepository {
   }
 
   // TODO: GET Posts by Workspace & Update Post
-
-
 }

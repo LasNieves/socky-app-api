@@ -1,15 +1,15 @@
-import { prisma } from '../../config/db'
+import { prisma } from '../config/db'
 
-import { BadRequest, Conflict, CustomError, NotFound } from '../../errors'
-import { WorkspaceRepository, CategoryRepository } from '../repositories'
-import { CategoriesDto, CreateCategoryDto } from '../dtos'
-import { Category } from '../entities'
+import { BadRequest, Conflict, CustomError, NotFound } from '../errors'
+import { WorkspaceRepository, CategoryRepository } from '../core/repositories'
+import { CategoriesDto, CreateCategoryDto } from '../core/dtos'
+import { Category } from '../core/entities'
 
-export class CategoryModel implements CategoryRepository {
-  constructor(private readonly workspaceModel: WorkspaceRepository) { }
+export class CategoryService implements CategoryRepository {
+  constructor(private readonly workspaceService: WorkspaceRepository) {}
 
   async getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
-    const existWorkspace = await this.workspaceModel.get(id)
+    const existWorkspace = await this.workspaceService.get(id)
 
     if (existWorkspace instanceof CustomError) {
       return existWorkspace
@@ -46,7 +46,7 @@ export class CategoryModel implements CategoryRepository {
 
   async create(data: CreateCategoryDto): Promise<Category | CustomError> {
     const { title, workspaceId } = data
-    const existWorkspace = await this.workspaceModel.get(workspaceId)
+    const existWorkspace = await this.workspaceService.get(workspaceId)
 
     if (existWorkspace instanceof CustomError) {
       return existWorkspace

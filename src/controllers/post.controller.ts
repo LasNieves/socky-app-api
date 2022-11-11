@@ -1,12 +1,17 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { PostModel } from '../core/models'
+import { PostService } from '../services'
 import { CustomError } from '../errors'
-import { categoryModel } from './category.controller'
-import { userModel } from './user.controller'
-import { workspaceModel } from './workspace.controller'
 
-export const postModel = new PostModel(userModel, categoryModel, workspaceModel)
+import { categoryService } from './category.controller'
+import { userService } from './user.controller'
+import { workspaceService } from './workspace.controller'
+
+export const postService = new PostService(
+  userService,
+  categoryService,
+  workspaceService
+)
 
 export const getByWorkspace = async (
   req: Request,
@@ -14,7 +19,7 @@ export const getByWorkspace = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const posts = await postModel.getByWorkspace(ID)
+  const posts = await postService.getByWorkspace(ID)
 
   if (posts instanceof CustomError) {
     return next(posts)
@@ -29,7 +34,7 @@ export const getOnePost = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const post = await postModel.get(ID)
+  const post = await postService.get(ID)
 
   if (post instanceof CustomError) {
     return next(post)
@@ -45,7 +50,7 @@ export const createPost = async (
 ) => {
   const { title, description, categoryId, userId } = req.body
 
-  const post = await postModel.create({
+  const post = await postService.create({
     title,
     description,
     categoryId,
@@ -70,7 +75,7 @@ export const updatePost = async (
   const { ID } = req.params
   const data = req.body
 
-  const post = await postModel.update(ID, data)
+  const post = await postService.update(ID, data)
 
   if (post instanceof CustomError) {
     return next(post)
@@ -82,7 +87,6 @@ export const updatePost = async (
   })
 }
 
-
 export const deletePost = async (
   req: Request,
   res: Response,
@@ -90,7 +94,7 @@ export const deletePost = async (
 ) => {
   const { ID } = req.params
 
-  const post = await postModel.delete(ID)
+  const post = await postService.delete(ID)
 
   if (post instanceof CustomError) {
     return next(post)

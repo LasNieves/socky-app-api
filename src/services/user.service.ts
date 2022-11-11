@@ -1,14 +1,14 @@
 import { compare } from 'bcryptjs'
 
-import { prisma } from '../../config/db'
+import { prisma } from '../config/db'
 
-import { UserRepository } from './../repositories'
-import { BadRequest, Conflict, CustomError, NotFound } from '../../errors'
-import { UserDto, UsersDto, UserWorkspacesDto } from '../dtos'
-import { User } from '../entities'
-import { RequireAtLeastOne } from '../types'
+import { UserRepository } from '../core/repositories'
+import { BadRequest, Conflict, CustomError, NotFound } from '../errors'
+import { UserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
+import { User } from '../core/entities'
+import { RequireAtLeastOne } from '../core/types'
 
-export class UserModel implements UserRepository {
+export class UserService implements UserRepository {
   private async isValidPassword(
     passwordToCompare: string,
     password: string
