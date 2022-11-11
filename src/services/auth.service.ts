@@ -54,7 +54,10 @@ export class AuthService implements AuthRepository {
       return new Conflict('Credenciales inválidas')
     }
 
-    const token = this.jwtService.sign({ id: existUser.id })
+    const token = this.jwtService.sign({
+      id: existUser.id,
+      email: existUser.email,
+    })
 
     const { password: userPassword, ...rest } = existUser
 
@@ -111,7 +114,10 @@ export class AuthService implements AuthRepository {
         },
       })
 
-      const token = this.jwtService.sign({ id: user.id })
+      const token = this.jwtService.sign({
+        id: user.id,
+        email: user.email,
+      })
 
       return { ...user, token }
     } catch (error) {

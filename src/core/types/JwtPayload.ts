@@ -1,3 +1,3 @@
 import { User } from '../entities'
 
-export type JwtPayload = Partial<Omit<User, 'password'>>
+export type JwtPayload = Pick<User, 'id' | 'email'>
