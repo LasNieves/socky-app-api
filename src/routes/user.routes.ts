@@ -61,7 +61,7 @@ usersRouter.get('/:ID', getOneUser)
  * @swagger
  *  /users/workspaces/{ID}:
  *   get:
- *    summary: Get the workspaces of that user
+ *    summary: Get the workspaces of one user
  *    tags: [Users]
  *    parameters:
  *      - in: path
@@ -128,6 +128,3 @@ usersRouter.delete(
   validateRequest,
   deleteUser
 )
-
-/* usersRouter.patch('/:ID', updateUser)
- */
