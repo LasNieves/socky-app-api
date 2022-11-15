@@ -16,7 +16,7 @@ export const postRouter = Router()
  * @swagger
  *  /posts/workspaces/{ID}:
  *   get:
- *    summary: Get the posts by Workspace
+ *    summary: Get all the posts of one workspace
  *    tags: [Posts]
  *    parameters:
  *      - in: path
@@ -32,8 +32,10 @@ export const postRouter = Router()
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Post'
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/Post'
  */
 
 postRouter.get('/workspaces/:ID', getByWorkspace)
@@ -82,9 +84,13 @@ postRouter.get('/:ID', getOnePost)
  *        description: Post created succesfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Post'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
  */
 
 postRouter.post(
@@ -95,21 +101,17 @@ postRouter.post(
     .isString()
     .notEmpty()
     .withMessage('Campo requerido'),
-  body('categoryId')
-    .isNumeric()
-    .notEmpty()
-    .withMessage('Campo requerido'),
+  body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   body('userId').trim().isString().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   createPost
 )
 
-
 /**
  * @swagger
  *  /{ID}:
  *   patch:
- *    summary: Update one post 
+ *    summary: Update one post
  *    tags: [Posts]
  *    parameters:
  *      - in: path
@@ -140,19 +142,28 @@ postRouter.post(
  *                  $ref: '#/components/schemas/Post'
  */
 
-postRouter.patch('/:ID',
-  body('title').trim().isString().notEmpty().optional().withMessage('El título debe ser un string y no puede estar vacío'),
+postRouter.patch(
+  '/:ID',
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .optional()
+    .withMessage('El título debe ser un string y no puede estar vacío'),
   body('description')
     .trim()
     .isString()
     .notEmpty()
-    .optional().withMessage('La descripción debe ser un string y no puede estar vacía'),
+    .optional()
+    .withMessage('La descripción debe ser un string y no puede estar vacía'),
   body('categoryId')
     .isNumeric()
     .notEmpty()
-    .optional().withMessage('El categoryId debe ser un número'),
+    .optional()
+    .withMessage('El categoryId debe ser un número'),
   validateRequest,
-  updatePost)
+  updatePost
+)
 
 /**
  * @swagger
@@ -173,9 +184,13 @@ postRouter.patch('/:ID',
  *        description: Post deleted successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Post'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
  */
 
 postRouter.delete('/:ID', deletePost)

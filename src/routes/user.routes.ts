@@ -11,7 +11,6 @@ import {
 
 export const usersRouter = Router()
 
-
 /**
  * @swagger
  *  /users:
@@ -24,8 +23,10 @@ export const usersRouter = Router()
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#/components/schemas/UsersDto'
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/UsersDto'
  */
 
 usersRouter.get('/', getUsers)
@@ -60,7 +61,7 @@ usersRouter.get('/:ID', getOneUser)
  * @swagger
  *  /users/workspaces/{ID}:
  *   get:
- *    summary: Get the workspaces of that user
+ *    summary: Get the workspaces of one user
  *    tags: [Users]
  *    parameters:
  *      - in: path
@@ -80,11 +81,7 @@ usersRouter.get('/:ID', getOneUser)
  *              $ref: '#/components/schemas/UserWorkspacesDto'
  */
 
-usersRouter.get(
-  '/workspaces/:ID',
-
-  getUserWorkspaces
-)
+usersRouter.get('/workspaces/:ID', getUserWorkspaces)
 
 /**
  * @swagger
@@ -131,6 +128,3 @@ usersRouter.delete(
   validateRequest,
   deleteUser
 )
-
-/* usersRouter.patch('/:ID', updateUser)
- */

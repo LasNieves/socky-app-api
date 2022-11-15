@@ -32,8 +32,10 @@ export const categoryRouter = Router()
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#/components/schemas/CategoriesDto'
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/CategoriesDto'
  */
 
 categoryRouter.get('/workspace/:ID', getByWorkspace)
@@ -81,9 +83,13 @@ categoryRouter.get('/:ID', getOneCategory)
  *        description: Category created successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Category'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Category'
  */
 
 categoryRouter.post(
@@ -117,9 +123,13 @@ categoryRouter.post(
  *        description: Category deleted successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Category'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Category'
  */
 
 categoryRouter.delete('/:ID', deleteCategory)
