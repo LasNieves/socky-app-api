@@ -28,7 +28,7 @@ export const categoryRouter = Router()
  *        description: The workspace id
  *    responses:
  *      200:
- *        description: Categories founded
+ *        description: Categories found
  *        content:
  *          application/json:
  *            schema:
@@ -53,7 +53,7 @@ categoryRouter.get('/workspace/:ID', getByWorkspace)
  *        description: The category id
  *    responses:
  *      200:
- *        description: Category founded
+ *        description: Category found
  *        content:
  *          application/json:
  *            schema:

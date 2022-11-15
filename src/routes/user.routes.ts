@@ -20,7 +20,7 @@ export const usersRouter = Router()
  *    tags: [Users]
  *    responses:
  *      200:
- *        description: Users founded
+ *        description: Users found
  *        content:
  *          application/json:
  *            schema:
@@ -46,7 +46,7 @@ usersRouter.get('/', getUsers)
  *        description: The user id
  *    responses:
  *      200:
- *        description: User founded
+ *        description: User found
  *        content:
  *          application/json:
  *            schema:
@@ -72,7 +72,7 @@ usersRouter.get('/:ID', getOneUser)
  *        description: The user id
  *    responses:
  *      200:
- *        description: User Workspace founded
+ *        description: User Workspace found
  *        content:
  *          application/json:
  *            schema:

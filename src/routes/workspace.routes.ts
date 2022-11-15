@@ -20,7 +20,7 @@ export const workspaceRouter = Router()
  *        description: The workspace id
  *    responses:
  *      200:
- *        description: Workspace founded
+ *        description: Workspace found
  *        content:
  *          application/json:
  *            schema:
