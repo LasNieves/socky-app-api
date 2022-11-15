@@ -2,7 +2,7 @@ import { hash, genSalt, compare } from 'bcryptjs'
 
 import { prisma } from '../config/db'
 
-import { AuthLogin, AuthRegister, AuthDto } from '../core/dtos'
+import { AuthLoginDto, AuthRegisterDto, AuthDto } from '../core/dtos'
 import {
   AuthRepository,
   UserRepository,
@@ -14,7 +14,7 @@ export class AuthService implements AuthRepository {
   constructor(
     private readonly userService: UserRepository,
     private readonly jwtService: JwtRepository
-  ) {}
+  ) { }
 
   private async isValidPassword(
     passwordToCompare: string,
@@ -40,7 +40,7 @@ export class AuthService implements AuthRepository {
     return codeObj
   }
 
-  async login(data: AuthLogin): Promise<AuthDto | CustomError> {
+  async login(data: AuthLoginDto): Promise<AuthDto | CustomError> {
     const { email, password } = data
     const existUser = await this.userService.get({ email })
 
@@ -64,7 +64,7 @@ export class AuthService implements AuthRepository {
     return { ...rest, token }
   }
 
-  async register(data: AuthRegister): Promise<AuthDto | CustomError> {
+  async register(data: AuthRegisterDto): Promise<AuthDto | CustomError> {
     const { email, password, ...rest } = data
 
     const existUser = await this.userService.get({ email })
