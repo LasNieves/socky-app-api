@@ -3,6 +3,16 @@ import { Profile } from '../entities'
 /**
  * @swagger
  * components:
+ *  securitySchemes:
+ *    bearerAuth:
+ *      type: http
+ *      scheme: bearer
+ *      bearerFormat: JWT
+ */
+
+/**
+ * @swagger
+ * components:
  *  schemas:
  *    AuthLoginDto:
  *      description: Data required for login

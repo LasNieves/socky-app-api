@@ -63,9 +63,9 @@ export const deleteCategory = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { categoryId } = req.params
+  const { ID } = req.params
 
-  const category = await categoryService.delete(+categoryId)
+  const category = await categoryService.delete(+ID)
 
   if (category instanceof CustomError) {
     return next(category)

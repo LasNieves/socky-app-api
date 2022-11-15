@@ -38,7 +38,7 @@ export const protect = async (
 export const authorization =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const { workspaceId } = req.params
+    const { workspaceId } = req.body
 
     const userRole = await userService.getUserRole(
       req.user?.id ?? '',

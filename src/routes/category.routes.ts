@@ -9,7 +9,6 @@ import {
   getOneCategory,
 } from './../controllers/category.controller'
 import { authorization, protect } from '../middlewares/auth'
-import { Roles } from '../core/enums'
 
 export const categoryRouter = Router()
 
@@ -72,6 +71,8 @@ categoryRouter.get('/:ID', getOneCategory)
  *   post:
  *    summary: Create one category
  *    tags: [Categories]
+ *    security:
+ *     - bearerAuth: []
  *    requestBody:
  *     required: true
  *     content:
@@ -103,6 +104,7 @@ categoryRouter.post(
     .notEmpty()
     .withMessage('Campo requerido'),
   validateRequest,
+  authorization('OWNER', 'ADMIN', 'MEMBER'),
   createCategory
 )
 
@@ -112,6 +114,8 @@ categoryRouter.post(
  *   delete:
  *    summary: Delete one category
  *    tags: [Categories]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -119,6 +123,16 @@ categoryRouter.post(
  *          type: number
  *        required: true
  *        description: The category id
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           properties:
+ *              workspaceId:
+ *                 type: string
+ *                 format: uuid
  *    responses:
  *      200:
  *        description: Category deleted successfully
@@ -134,8 +148,14 @@ categoryRouter.post(
  */
 
 categoryRouter.delete(
-  '/:workspaceId/:categoryId',
+  '/:ID',
   protect,
+  body('workspaceId')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido'),
+  validateRequest,
   authorization('OWNER', 'ADMIN'),
   deleteCategory
 )
