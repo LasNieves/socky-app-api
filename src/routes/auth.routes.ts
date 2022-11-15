@@ -24,9 +24,13 @@ export const authRouter = Router()
  *        description: New user created
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/AuthDto'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/AuthDto'
  */
 
 authRouter.post(
@@ -58,9 +62,13 @@ authRouter.post(
  *        description: The user has been login successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/AuthDto'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/AuthDto'
  */
 
 authRouter.post(

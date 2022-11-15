@@ -58,9 +58,13 @@ postRouter.get('/:ID', getOnePost)
  *        description: Post created successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Post'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
  */
 
 postRouter.post(
@@ -71,28 +75,34 @@ postRouter.post(
     .isString()
     .notEmpty()
     .withMessage('Campo requerido'),
-  body('categoryId')
-    .isNumeric()
-    .notEmpty()
-    .withMessage('Campo requerido'),
+  body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   body('userId').trim().isString().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   createPost
 )
 
-postRouter.patch('/:ID',
-  body('title').trim().isString().notEmpty().optional().withMessage('El título debe ser un string y no puede estar vacío'),
+postRouter.patch(
+  '/:ID',
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .optional()
+    .withMessage('El título debe ser un string y no puede estar vacío'),
   body('description')
     .trim()
     .isString()
     .notEmpty()
-    .optional().withMessage('La descripción debe ser un string y no puede estar vacía'),
+    .optional()
+    .withMessage('La descripción debe ser un string y no puede estar vacía'),
   body('categoryId')
     .isNumeric()
     .notEmpty()
-    .optional().withMessage('El categoryId debe ser un número'),
+    .optional()
+    .withMessage('El categoryId debe ser un número'),
   validateRequest,
-  updatePost)
+  updatePost
+)
 /**
  * @swagger
  *  /posts/{ID}:
@@ -112,9 +122,13 @@ postRouter.patch('/:ID',
  *        description: Post deleted successfully
  *        content:
  *          application/json:
- *            schema:
- *              type: object
- *              $ref: '#/components/schemas/Post'
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
  */
 
 postRouter.delete('/:ID', deletePost)

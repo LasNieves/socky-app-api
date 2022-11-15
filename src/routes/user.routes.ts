@@ -11,7 +11,6 @@ import {
 
 export const usersRouter = Router()
 
-
 /**
  * @swagger
  *  /users:
@@ -24,8 +23,10 @@ export const usersRouter = Router()
  *        content:
  *          application/json:
  *            schema:
- *              type: object
- *              $ref: '#/components/schemas/UsersDto'
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/UsersDto'
  */
 
 usersRouter.get('/', getUsers)
@@ -80,11 +81,7 @@ usersRouter.get('/:ID', getOneUser)
  *              $ref: '#/components/schemas/UserWorkspacesDto'
  */
 
-usersRouter.get(
-  '/workspaces/:ID',
-
-  getUserWorkspaces
-)
+usersRouter.get('/workspaces/:ID', getUserWorkspaces)
 
 /**
  * @swagger
