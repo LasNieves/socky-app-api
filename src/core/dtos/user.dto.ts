@@ -1,4 +1,5 @@
 import { Post, Profile, Workspace } from '../entities'
+import { Roles } from '../enums'
 
 /**
  * @swagger
@@ -99,9 +100,7 @@ export interface UserDto {
  *            type: object
  *            properties:
  *             role:
- *              type: string
- *              enum: [ADMIN]
- *              description: The role of the user within the workspace
+ *              $ref: '#/components/schemas/Roles'     
  *             workspace:
  *              $ref: '#/components/schemas/Workspace'     
  */

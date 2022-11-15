@@ -94,5 +94,8 @@ model UsersOnWorkspaces {
 }
 
 enum Role {
+  OWNER
   ADMIN
+  MEMBER
+  CAN_VIEW
 }

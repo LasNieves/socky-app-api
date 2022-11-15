@@ -1,3 +1,5 @@
+import { Roles } from "../enums"
+
 /**
  * @swagger
  * components:
@@ -19,9 +21,7 @@
  *           format: uuid
  *           description: The specific worksapce id
  *        role:
- *           type: string
- *           enum: [ADMIN]
- *           description: The role of the user within the workspace
+ *           $ref: '#/components/schemas/Roles'    
  *      required:
  *        - id
  *        - userId
@@ -29,13 +29,11 @@
  *        - role
  */
 
-enum Role {
-  ADMIN,
-}
+
 
 export interface UsersOnWorkspaces {
   id: string
   userId: string
   workspaceId: string
-  role: Role
+  role: Roles
 }
