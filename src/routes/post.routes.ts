@@ -12,6 +12,30 @@ import {
 
 export const postRouter = Router()
 
+/**
+ * @swagger
+ *  /posts/workspaces/{ID}:
+ *   get:
+ *    summary: Get the posts by Workspace
+ *    tags: [Posts]
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The workspace id
+ *    responses:
+ *      200:
+ *        description: Posts of workspace found successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              $ref: '#/components/schemas/Post'
+ */
+
 postRouter.get('/workspaces/:ID', getByWorkspace)
 
 /**
@@ -30,7 +54,7 @@ postRouter.get('/workspaces/:ID', getByWorkspace)
  *        description: The post id
  *    responses:
  *      200:
- *        description: Post founded
+ *        description: Post found succesfully
  *        content:
  *          application/json:
  *            schema:
@@ -55,7 +79,7 @@ postRouter.get('/:ID', getOnePost)
  *           $ref: '#/components/schemas/CreatePostDto'
  *    responses:
  *      201:
- *        description: Post created successfully
+ *        description: Post created succesfully
  *        content:
  *          application/json:
  *            schema:
@@ -80,6 +104,42 @@ postRouter.post(
   createPost
 )
 
+
+/**
+ * @swagger
+ *  /{ID}:
+ *   patch:
+ *    summary: Update one post 
+ *    tags: [Posts]
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    requestBody:
+ *     required: false
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdatePostDto'
+ *    responses:
+ *      200:
+ *        description: Post updated succesfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ *                data:
+ *                  $ref: '#/components/schemas/Post'
+ */
+
 postRouter.patch('/:ID',
   body('title').trim().isString().notEmpty().optional().withMessage('El título debe ser un string y no puede estar vacío'),
   body('description')
@@ -93,6 +153,7 @@ postRouter.patch('/:ID',
     .optional().withMessage('El categoryId debe ser un número'),
   validateRequest,
   updatePost)
+
 /**
  * @swagger
  *  /posts/{ID}:
