@@ -2,13 +2,21 @@ import { compare } from 'bcryptjs'
 
 import { prisma } from '../config/db'
 
-import { UserRepository } from '../core/repositories'
-import { BadRequest, Conflict, CustomError, NotFound } from '../errors'
+import { UserRepository, WorkspaceRepository } from '../core/repositories'
+import {
+  BadRequest,
+  Conflict,
+  CustomError,
+  NotFound,
+  NotAuthorized,
+} from '../errors'
 import { UserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
 import { User } from '../core/entities'
 import { RequireAtLeastOne } from '../core/types'
 
 export class UserService implements UserRepository {
+  constructor(private readonly workspaceService: WorkspaceRepository) {}
+
   private async isValidPassword(
     passwordToCompare: string,
     password: string
@@ -138,19 +146,28 @@ export class UserService implements UserRepository {
 
     return userWorkspaces
   }
+
+  async getUserRole(
+    userId: string,
+    workspaceId: string
+  ): Promise<string | CustomError> {
+    const exist = await this.workspaceService.get(workspaceId)
+
+    if (exist instanceof CustomError) {
+      return exist
+    }
+
+    const role = await prisma.usersOnWorkspaces.findUnique({
+      where: { userId_workspaceId: { userId, workspaceId } },
+      select: { role: true },
+    })
+
+    if (!role) {
+      return new NotAuthorized(
+        `El usuario no pertenece al workspace con id ${workspaceId}`
+      )
+    }
+
+    return role.role
+  }
 }
-
-/* export const updateOneUser = async (
-  id: string,
-  user: updateUserDto
-): Promise<UserEntity> => {
-  const { ...rest } = user
-
-  const updatedUser = await prisma.user.update({
-    where: { id },
-    data: { ...rest },
-  })
-
-  return updatedUser
-}
- */

@@ -14,7 +14,7 @@ export class AuthService implements AuthRepository {
   constructor(
     private readonly userService: UserRepository,
     private readonly jwtService: JwtRepository
-  ) { }
+  ) {}
 
   private async isValidPassword(
     passwordToCompare: string,
@@ -94,7 +94,7 @@ export class AuthService implements AuthRepository {
                   icon: 'Diego Armando Maradona',
                 },
               },
-              role: 'ADMIN',
+              role: 'OWNER',
             },
           },
         },

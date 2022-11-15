@@ -8,7 +8,8 @@ import {
   getByWorkspace,
   getOneCategory,
 } from './../controllers/category.controller'
-import { protect } from '../middlewares/auth'
+import { authorization, protect } from '../middlewares/auth'
+import { Roles } from '../core/enums'
 
 export const categoryRouter = Router()
 
@@ -38,7 +39,7 @@ export const categoryRouter = Router()
  *                $ref: '#/components/schemas/CategoriesDto'
  */
 
-categoryRouter.get('/workspace/:ID', getByWorkspace)
+categoryRouter.get('/workspace/:ID', protect, getByWorkspace)
 
 /**
  * @swagger
@@ -132,4 +133,9 @@ categoryRouter.post(
  *                 $ref: '#/components/schemas/Category'
  */
 
-categoryRouter.delete('/:ID', deleteCategory)
+categoryRouter.delete(
+  '/:workspaceId/:categoryId',
+  protect,
+  authorization('OWNER', 'ADMIN'),
+  deleteCategory
+)

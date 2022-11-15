@@ -11,4 +11,8 @@ export interface UserRepository {
   getById(id: string): Promise<UserDto | CustomError>
   delete(id: string, password: string): Promise<User | CustomError>
   getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
+  getUserRole(
+    userId: string,
+    workspaceId: string
+  ): Promise<string | CustomError>
 }

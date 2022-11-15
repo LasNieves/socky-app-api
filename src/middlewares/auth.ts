@@ -3,6 +3,7 @@ import { Request, NextFunction, Response } from 'express'
 import { jwtService } from '../controllers/auth.controller'
 import { userService } from '../controllers/user.controller'
 import { User } from '../core/entities'
+import { CustomError } from '../errors'
 import { NotAuthorized } from '../errors/NotAuthorized'
 
 export const protect = async (
@@ -33,3 +34,24 @@ export const protect = async (
 }
 
 //TODO: Authorization
+
+export const authorization =
+  (...roles: string[]) =>
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { workspaceId } = req.params
+
+    const userRole = await userService.getUserRole(
+      req.user?.id ?? '',
+      workspaceId
+    )
+
+    if (userRole instanceof CustomError) {
+      return next(userRole)
+    }
+
+    if (roles.includes(userRole)) {
+      return next()
+    }
+
+    return next(new NotAuthorized('Usuario no autorizado'))
+  }
