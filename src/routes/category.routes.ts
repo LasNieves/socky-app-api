@@ -7,6 +7,7 @@ import {
   deleteCategory,
   getByWorkspace,
   getOneCategory,
+  updateCategory,
 } from './../controllers/category.controller'
 import { authorization, protect } from '../middlewares/auth'
 
@@ -106,6 +107,56 @@ categoryRouter.post(
   validateRequest,
   authorization('OWNER', 'ADMIN', 'MEMBER'),
   createCategory
+)
+
+/**
+ * @swagger
+ *  /categories/{ID}:
+ *   patch:
+ *    summary: Update one category
+ *    tags: [Categories]
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: number
+ *        required: true
+ *        description: The category id
+ *    security:
+ *     - bearerAuth: []
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdateCategoryDto'
+ *    responses:
+ *      200:
+ *        description: Category updated successfully
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Category'
+ */
+
+categoryRouter.patch(
+  '/:ID',
+  protect,
+  body('title').isString().trim().optional(),
+  body('workspaceId')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido'),
+  validateRequest,
+  authorization('OWNER', 'ADMIN', 'MEMBER'),
+  updateCategory
 )
 
 /**

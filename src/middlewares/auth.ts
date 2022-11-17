@@ -33,8 +33,6 @@ export const protect = async (
   }
 }
 
-//TODO: Authorization
-
 export const authorization =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {

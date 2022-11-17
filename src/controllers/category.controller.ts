@@ -58,14 +58,35 @@ export const createCategory = async (
   })
 }
 
+export const updateCategory = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+  const data = req.body
+
+  const category = await categoryService.update(+ID, data)
+
+  if (category instanceof CustomError) {
+    return next(category)
+  }
+
+  res.status(200).json({
+    message: 'Categoría actualizada correctamente',
+    data: category,
+  })
+}
+
 export const deleteCategory = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   const { ID } = req.params
+  const { workspaceId } = req.body
 
-  const category = await categoryService.delete(+ID)
+  const category = await categoryService.delete(+ID, workspaceId)
 
   if (category instanceof CustomError) {
     return next(category)

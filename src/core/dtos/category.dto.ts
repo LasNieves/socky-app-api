@@ -80,9 +80,36 @@ export interface CategoriesDto {
  *           type: string
  *           format: uuid
  *           description: What workspace does the category belong to?
+ *      required:
+ *        - title
+ *        - workspaceId
  */
 
 export interface CreateCategoryDto {
   title: string
+  workspaceId: string
+}
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    UpdateCategoryDto:
+ *      description: Data required for update a category
+ *      type: object
+ *      properties:
+ *        title:
+ *           type: string
+ *           description: The title of the category
+ *        workspaceId:
+ *           type: string
+ *           format: uuid
+ *           description: What workspace does the category belongs to?
+ *      required:
+ *        - workspaceId
+ */
+
+export interface UpdateCategoryDto {
+  title?: string
   workspaceId: string
 }
