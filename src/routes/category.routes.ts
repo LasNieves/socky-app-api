@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { validateRequest } from './../middlewares/validateRequest'
+import { validateRequest, authorization, protect } from './../middlewares'
+
 import {
   createCategory,
   deleteCategory,
@@ -9,7 +10,6 @@ import {
   getOneCategory,
   updateCategory,
 } from './../controllers/category.controller'
-import { authorization, protect } from '../middlewares/auth'
 
 export const categoryRouter = Router()
 

@@ -112,7 +112,9 @@ export class CategoryService implements CategoryRepository {
       return exist
     }
 
-    const canUpdate = await this.categoyBelongsToWorkspace(data.workspaceId, id)
+    const { workspaceId, title } = data
+
+    const canUpdate = await this.categoyBelongsToWorkspace(workspaceId, id)
 
     if (!canUpdate) {
       return new NotAuthorized(
@@ -123,7 +125,9 @@ export class CategoryService implements CategoryRepository {
     try {
       const updatedCategory = await prisma.category.update({
         where: { id },
-        data,
+        data: {
+          title,
+        },
       })
       return updatedCategory
     } catch (error) {

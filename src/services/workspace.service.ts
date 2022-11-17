@@ -1,7 +1,7 @@
 import { prisma } from '../config/db'
 
-import { CustomError, NotFound } from '../errors'
-import { WorkspaceDto } from '../core/dtos'
+import { BadRequest, CustomError, NotFound } from '../errors'
+import { CreateWorkspaceDto, WorkspaceDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
 import { WorkspaceRepository } from '../core/repositories'
 
@@ -50,6 +50,34 @@ export class WorkspaceService implements WorkspaceRepository {
     }
 
     return workspace
+  }
+
+  async create(
+    data: CreateWorkspaceDto,
+    userId: string
+  ): Promise<Workspace | CustomError> {
+    const { name, icon } = data
+
+    try {
+      const newWorkspace = prisma.workspace.create({
+        data: {
+          name,
+          icon,
+          personal: false,
+          users: {
+            create: {
+              userId,
+              role: 'OWNER',
+            },
+          },
+        },
+      })
+
+      return newWorkspace
+    } catch (error) {
+      console.log(error)
+      return new BadRequest('Error al crear el workspace')
+    }
   }
 
   async delete(id: string): Promise<Workspace | CustomError> {

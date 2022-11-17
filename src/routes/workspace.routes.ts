@@ -1,6 +1,12 @@
 import { Router } from 'express'
+import { body } from 'express-validator'
 
-import { getOneWorkspace } from '../controllers/workspace.controller'
+import { protect, validateRequest } from '../middlewares'
+
+import {
+  getOneWorkspace,
+  createWorkspace,
+} from '../controllers/workspace.controller'
 
 export const workspaceRouter = Router()
 
@@ -29,3 +35,41 @@ export const workspaceRouter = Router()
  */
 
 workspaceRouter.get('/:ID', getOneWorkspace)
+
+/**
+ * @swagger
+ *  /workspaces:
+ *   post:
+ *    summary: Create one workspace
+ *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/CreateWorkspaceDto'
+ *    responses:
+ *      201:
+ *        description: Workspace created successfully
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Workspace'
+ */
+
+workspaceRouter.post(
+  '/',
+  protect,
+  body('name').isString().trim().notEmpty().withMessage('Campo requerido'),
+  body('icon').isString().trim().notEmpty().withMessage('Campo requerido'),
+  validateRequest,
+  createWorkspace
+)

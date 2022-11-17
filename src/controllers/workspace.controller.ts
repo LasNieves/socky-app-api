@@ -19,3 +19,20 @@ export const getOneWorkspace = async (
 
   res.status(200).json(workspace)
 }
+
+export const createWorkspace = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { name, icon } = req.body
+  const { id } = req.user!
+
+  const workspace = await workspaceService.create({ name, icon }, id)
+
+  if (workspace instanceof CustomError) {
+    return next(workspace)
+  }
+
+  res.status(201).json(workspace)
+}
