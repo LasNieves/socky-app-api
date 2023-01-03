@@ -9,6 +9,7 @@ import {
   getOnePost,
   updatePost,
 } from './../controllers/post.controller'
+import { authorization, protect } from '../middlewares'
 
 export const postRouter = Router()
 
@@ -95,6 +96,7 @@ postRouter.get('/:ID', getOnePost)
 
 postRouter.post(
   '/',
+  protect,
   body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('description')
     .trim()
@@ -104,6 +106,7 @@ postRouter.post(
   body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   body('userId').trim().isString().notEmpty().withMessage('Campo requerido'),
   validateRequest,
+  authorization('OWNER', 'ADMIN', 'MEMBER'),
   createPost
 )
 
