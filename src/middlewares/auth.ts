@@ -1,8 +1,9 @@
 import { Request, NextFunction, Response } from 'express'
 
 import { jwtService } from '../controllers/auth.controller'
+import { categoryService } from '../controllers/category.controller'
 import { userService } from '../controllers/user.controller'
-import { User } from '../core/entities'
+import { Category, User } from '../core/entities'
 import { CustomError } from '../errors'
 import { NotAuthorized } from '../errors/NotAuthorized'
 
@@ -36,11 +37,21 @@ export const protect = async (
 export const authorization =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const { workspaceId } = req.body
+    const { workspaceId, categoryId } = req.body
+
+    let category: CustomError | Category | null = null
+
+    if (!workspaceId && categoryId) {
+      category = await categoryService.get(categoryId)
+    }
+
+    if (category instanceof CustomError) {
+      return next(category)
+    }
 
     const userRole = await userService.getUserRole(
       req.user?.id ?? '',
-      workspaceId
+      workspaceId ?? category?.workspaceId
     )
 
     if (userRole instanceof CustomError) {
