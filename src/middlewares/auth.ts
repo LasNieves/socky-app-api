@@ -27,7 +27,12 @@ export const protect = async (
   try {
     const decoded = jwtService.verify(token)
     const user = await userService.get({ id: decoded.id })
-    req.user = user as User
+
+    if (user instanceof CustomError) {
+      return next(user)
+    }
+
+    req.user = user
     next()
   } catch (error) {
     next(error)
