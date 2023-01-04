@@ -6,13 +6,11 @@ import { Post } from '../core/entities'
 import {
   CategoryRepository,
   PostRepository,
-  UserRepository,
   WorkspaceRepository,
 } from '../core/repositories'
 
 export class PostService implements PostRepository {
   constructor(
-    private readonly userService: UserRepository,
     private readonly categoryService: CategoryRepository,
     private readonly workspaceService: WorkspaceRepository
   ) {}
@@ -62,12 +60,6 @@ export class PostService implements PostRepository {
 
   async create(data: CreatePostDto): Promise<Post | CustomError> {
     const { title, description, categoryId, userId } = data
-
-    const existUser = await this.userService.get({ id: userId })
-
-    if (!existUser) {
-      return new NotFound(`Usuario con id ${userId} no encontrado`)
-    }
 
     const existCategory = await this.categoryService.get(categoryId)
 

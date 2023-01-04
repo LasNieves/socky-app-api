@@ -104,7 +104,6 @@ postRouter.post(
     .notEmpty()
     .withMessage('Campo requerido'),
   body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
-  body('userId').trim().isString().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   authorization('OWNER', 'ADMIN', 'MEMBER'),
   createPost
