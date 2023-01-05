@@ -15,10 +15,12 @@ export const postRouter = Router()
 
 /**
  * @swagger
- *  /posts/workspaces/{ID}:
+ *  /posts/workspace/{ID}:
  *   get:
  *    summary: Get all the posts of one workspace
  *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -39,7 +41,12 @@ export const postRouter = Router()
  *                $ref: '#/components/schemas/Post'
  */
 
-postRouter.get('/workspaces/:ID', getByWorkspace)
+postRouter.get(
+  '/workspace/:ID',
+  protect,
+  authorization('OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getByWorkspace
+)
 
 /**
  * @swagger
@@ -47,6 +54,8 @@ postRouter.get('/workspaces/:ID', getByWorkspace)
  *   get:
  *    summary: Get one post
  *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -65,7 +74,7 @@ postRouter.get('/workspaces/:ID', getByWorkspace)
  *              $ref: '#/components/schemas/Post'
  */
 
-postRouter.get('/:ID', getOnePost)
+postRouter.get('/:ID', protect, getOnePost)
 
 /**
  * @swagger
@@ -73,6 +82,8 @@ postRouter.get('/:ID', getOnePost)
  *   post:
  *    summary: Create one post
  *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
  *    requestBody:
  *     required: true
  *     content:
@@ -112,7 +123,7 @@ postRouter.post(
 
 /**
  * @swagger
- *  /{ID}:
+ *  /posts/{ID}:
  *   patch:
  *    summary: Update one post
  *    tags: [Posts]
