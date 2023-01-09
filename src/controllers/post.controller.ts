@@ -4,14 +4,9 @@ import { PostService } from '../services'
 import { CustomError } from '../errors'
 
 import { categoryService } from './category.controller'
-import { userService } from './user.controller'
 import { workspaceService } from './workspace.controller'
 
-export const postService = new PostService(
-  userService,
-  categoryService,
-  workspaceService
-)
+export const postService = new PostService(categoryService, workspaceService)
 
 export const getByWorkspace = async (
   req: Request,
@@ -48,13 +43,14 @@ export const createPost = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, description, categoryId, userId } = req.body
+  const { title, description, categoryId } = req.body
+  const { id } = req.user!
 
   const post = await postService.create({
     title,
     description,
     categoryId,
-    userId,
+    userId: id,
   })
 
   if (post instanceof CustomError) {
