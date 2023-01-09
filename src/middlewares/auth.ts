@@ -43,6 +43,7 @@ export const authorization =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
     const { workspaceId, categoryId } = req.body
+    const { ID } = req.params
 
     let category: CustomError | Category | null = null
 
@@ -56,7 +57,7 @@ export const authorization =
 
     const userRole = await userService.getUserRole(
       req.user?.id ?? '',
-      workspaceId ?? category?.workspaceId
+      workspaceId ?? category?.workspaceId ?? ID
     )
 
     if (userRole instanceof CustomError) {
