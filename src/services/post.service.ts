@@ -13,7 +13,7 @@ export class PostService implements PostRepository {
   constructor(
     private readonly categoryService: CategoryRepository,
     private readonly workspaceService: WorkspaceRepository
-  ) {}
+  ) { }
 
   async getByWorkspace(id: string): Promise<Post[] | CustomError> {
     const existWorkspace = await this.workspaceService.get(id)
@@ -25,7 +25,6 @@ export class PostService implements PostRepository {
     const posts = await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
-        user: true,
         category: {
           select: {
             title: true,
