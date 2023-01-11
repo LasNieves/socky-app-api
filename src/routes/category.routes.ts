@@ -19,6 +19,8 @@ export const categoryRouter = Router()
  *   get:
  *    summary: Get all categories of one specific workspace
  *    tags: [Categories]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -47,6 +49,8 @@ categoryRouter.get('/workspace/:ID', protect, getByWorkspace)
  *   get:
  *    summary: Get one specific category with its details
  *    tags: [Categories]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -64,7 +68,7 @@ categoryRouter.get('/workspace/:ID', protect, getByWorkspace)
  *              $ref: '#/components/schemas/CategoryDto'
  */
 
-categoryRouter.get('/:ID', getOneCategory)
+categoryRouter.get('/:ID', protect, getOneCategory)
 
 /**
  * @swagger
