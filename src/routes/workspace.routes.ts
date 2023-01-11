@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { protect, validateRequest } from '../middlewares'
+import { authorization, protect, validateRequest } from '../middlewares'
 
 import {
   getOneWorkspace,
@@ -16,6 +16,8 @@ export const workspaceRouter = Router()
  *   get:
  *    summary: Get one Workspace by id
  *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -34,7 +36,8 @@ export const workspaceRouter = Router()
  *              $ref: '#/components/schemas/WorkspaceDto'
  */
 
-workspaceRouter.get('/:ID', getOneWorkspace)
+workspaceRouter.get('/:ID', protect,
+  authorization('OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'), getOneWorkspace)
 
 /**
  * @swagger
