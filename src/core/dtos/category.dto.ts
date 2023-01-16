@@ -101,15 +101,8 @@ export interface CreateCategoryDto {
  *        title:
  *           type: string
  *           description: The title of the category
- *        workspaceId:
- *           type: string
- *           format: uuid
- *           description: What workspace does the category belongs to?
- *      required:
- *        - workspaceId
  */
 
 export interface UpdateCategoryDto {
   title?: string
-  workspaceId: string
 }

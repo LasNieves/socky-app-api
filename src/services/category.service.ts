@@ -1,12 +1,6 @@
 import { prisma } from '../config/db'
 
-import {
-  BadRequest,
-  Conflict,
-  CustomError,
-  NotAuthorized,
-  NotFound,
-} from '../errors'
+import { BadRequest, Conflict, CustomError, NotFound } from '../errors'
 import { WorkspaceRepository, CategoryRepository } from '../core/repositories'
 import {
   CategoriesDto,
@@ -17,19 +11,6 @@ import { Category } from '../core/entities'
 
 export class CategoryService implements CategoryRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
-
-  private async categoyBelongsToWorkspace(
-    workspaceId: string,
-    categoryId: number
-  ): Promise<CategoriesDto | undefined> {
-    const categories = await this.getByWorkspace(workspaceId)
-
-    const categoryBelongsToWorkspace = (categories as CategoriesDto[]).find(
-      (category) => category.id === categoryId
-    )
-
-    return categoryBelongsToWorkspace
-  }
 
   async getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
     const existWorkspace = await this.workspaceService.get(id)
@@ -112,15 +93,7 @@ export class CategoryService implements CategoryRepository {
       return exist
     }
 
-    const { workspaceId, title } = data
-
-    const canUpdate = await this.categoyBelongsToWorkspace(workspaceId, id)
-
-    if (!canUpdate) {
-      return new NotAuthorized(
-        'El usuario no está autorizado para editar una categoría de otro workspace'
-      )
-    }
+    const { title } = data
 
     try {
       const updatedCategory = await prisma.category.update({
@@ -136,10 +109,7 @@ export class CategoryService implements CategoryRepository {
     }
   }
 
-  async delete(
-    id: number,
-    workspaceId: string
-  ): Promise<Category | CustomError> {
+  async delete(id: number): Promise<Category | CustomError> {
     if (isNaN(id)) {
       return new BadRequest('El id de la categoría debe ser un número')
     }
@@ -148,14 +118,6 @@ export class CategoryService implements CategoryRepository {
 
     if (exist instanceof CustomError) {
       return exist
-    }
-
-    const canDelete = await this.categoyBelongsToWorkspace(workspaceId, id)
-
-    if (!canDelete) {
-      return new NotAuthorized(
-        'El usuario no está autorizado para borrar una categoría de otro workspace'
-      )
     }
 
     try {

@@ -84,9 +84,8 @@ export const deleteCategory = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const { workspaceId } = req.body
 
-  const category = await categoryService.delete(+ID, workspaceId)
+  const category = await categoryService.delete(+ID)
 
   if (category instanceof CustomError) {
     return next(category)

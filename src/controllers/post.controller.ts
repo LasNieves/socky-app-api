@@ -71,7 +71,7 @@ export const updatePost = async (
   const { ID } = req.params
   const data = req.body
 
-  const post = await postService.update(ID, data)
+  const post = await postService.update(ID, req.workspaceId, data)
 
   if (post instanceof CustomError) {
     return next(post)

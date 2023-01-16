@@ -42,31 +42,8 @@ export const protect = async (
 export const authorization =
   (...roles: string[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
-    const { workspaceId, categoryId } = req.body
-    const { ID } = req.params
-
-    let category: CustomError | Category | null = null
-
-    if (!workspaceId && categoryId) {
-      category = await categoryService.get(categoryId)
-    }
-
-    if (category instanceof CustomError) {
-      return next(category)
-    }
-
-    const userRole = await userService.getUserRole(
-      req.user?.id ?? '',
-      workspaceId ?? category?.workspaceId ?? ID
-    )
-
-    if (userRole instanceof CustomError) {
-      return next(userRole)
-    }
-
-    if (roles.includes(userRole)) {
-      return next()
-    }
-
-    return next(new NotAuthorized('Usuario no autorizado'))
+    // if (roles.includes(userRole)) {
+    //   return next()
+    // }
+    // return next(new NotAuthorized('Usuario no autorizado'))
   }

@@ -7,5 +7,5 @@ export interface CategoryRepository {
   get(id: number): Promise<Category | CustomError>
   create(data: CreateCategoryDto): Promise<Category | CustomError>
   update(id: number, data: UpdateCategoryDto): Promise<Category | CustomError>
-  delete(id: number, workspaceId: string): Promise<Category | CustomError>
+  delete(id: number): Promise<Category | CustomError>
 }
