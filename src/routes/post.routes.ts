@@ -1,7 +1,12 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { validateRequest } from './../middlewares/validateRequest'
+import {
+  validateRequest,
+  protect,
+  workspaceAuthorization,
+} from '../middlewares'
+
 import {
   createPost,
   deletePost,
@@ -9,7 +14,6 @@ import {
   getOnePost,
   updatePost,
 } from './../controllers/post.controller'
-import { authorization, protect } from '../middlewares'
 
 export const postRouter = Router()
 
@@ -44,7 +48,7 @@ export const postRouter = Router()
 postRouter.get(
   '/workspace/:ID',
   protect,
-  authorization('OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getByWorkspace
 )
 
@@ -71,10 +75,15 @@ postRouter.get(
  *          application/json:
  *            schema:
  *              type: object
- *              $ref: '#/components/schemas/Post'
+ *              $ref: '#/components/schemas/PostDto'
  */
 
-postRouter.get('/:ID', protect, getOnePost)
+postRouter.get(
+  '/:ID',
+  protect,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getOnePost
+)
 
 /**
  * @swagger
@@ -116,7 +125,7 @@ postRouter.post(
     .withMessage('Campo requerido'),
   body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   validateRequest,
-  authorization('OWNER', 'ADMIN', 'MEMBER'),
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
   createPost
 )
 
@@ -126,6 +135,8 @@ postRouter.post(
  *   patch:
  *    summary: Update one post
  *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -157,6 +168,7 @@ postRouter.post(
 
 postRouter.patch(
   '/:ID',
+  protect,
   body('title')
     .trim()
     .isString()
@@ -175,6 +187,7 @@ postRouter.patch(
     .optional()
     .withMessage('El categoryId debe ser un número'),
   validateRequest,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
   updatePost
 )
 
@@ -184,6 +197,8 @@ postRouter.patch(
  *   delete:
  *    summary: Delete one post
  *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -206,4 +221,9 @@ postRouter.patch(
  *                 $ref: '#/components/schemas/Post'
  */
 
-postRouter.delete('/:ID', deletePost)
+postRouter.delete(
+  '/:ID',
+  protect,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  deletePost
+)

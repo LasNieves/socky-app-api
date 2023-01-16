@@ -1,7 +1,11 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { validateRequest, authorization, protect } from './../middlewares'
+import {
+  validateRequest,
+  protect,
+  workspaceAuthorization,
+} from './../middlewares'
 
 import {
   createCategory,
@@ -41,7 +45,12 @@ export const categoryRouter = Router()
  *                $ref: '#/components/schemas/CategoriesDto'
  */
 
-categoryRouter.get('/workspace/:ID', protect, getByWorkspace)
+categoryRouter.get(
+  '/workspace/:ID',
+  protect,
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getByWorkspace
+)
 
 /**
  * @swagger
@@ -68,7 +77,12 @@ categoryRouter.get('/workspace/:ID', protect, getByWorkspace)
  *              $ref: '#/components/schemas/CategoryDto'
  */
 
-categoryRouter.get('/:ID', protect, getOneCategory)
+categoryRouter.get(
+  '/:ID',
+  protect,
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getOneCategory
+)
 
 /**
  * @swagger
@@ -109,7 +123,7 @@ categoryRouter.post(
     .notEmpty()
     .withMessage('Campo requerido'),
   validateRequest,
-  authorization('OWNER', 'ADMIN', 'MEMBER'),
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER'),
   createCategory
 )
 
@@ -153,13 +167,8 @@ categoryRouter.patch(
   '/:ID',
   protect,
   body('title').isString().trim().optional(),
-  body('workspaceId')
-    .trim()
-    .isString()
-    .notEmpty()
-    .withMessage('Campo requerido'),
   validateRequest,
-  authorization('OWNER', 'ADMIN', 'MEMBER'),
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
   updateCategory
 )
 
@@ -178,16 +187,6 @@ categoryRouter.patch(
  *          type: number
  *        required: true
  *        description: The category id
- *    requestBody:
- *     required: true
- *     content:
- *       application/json:
- *         schema:
- *           type: object
- *           properties:
- *              workspaceId:
- *                 type: string
- *                 format: uuid
  *    responses:
  *      200:
  *        description: Category deleted successfully
@@ -205,12 +204,6 @@ categoryRouter.patch(
 categoryRouter.delete(
   '/:ID',
   protect,
-  body('workspaceId')
-    .trim()
-    .isString()
-    .notEmpty()
-    .withMessage('Campo requerido'),
-  validateRequest,
-  authorization('OWNER', 'ADMIN'),
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN'),
   deleteCategory
 )
