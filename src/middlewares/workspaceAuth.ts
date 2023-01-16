@@ -4,7 +4,7 @@ import { categoryService } from '../controllers/category.controller'
 import { postService } from '../controllers/post.controller'
 import { userService } from '../controllers/user.controller'
 
-import { BadRequest, CustomError, NotAuthorized } from '../errors'
+import { CustomError, NotAuthorized } from '../errors'
 
 type ValidateBy = 'workspaceId' | 'categoryId' | 'postId'
 
@@ -24,11 +24,7 @@ export const workspaceAuthorization =
     if (validateBy === 'categoryId') {
       const { categoryId } = req.body
 
-      if (!categoryId && !Number(ID)) {
-        return next(new BadRequest('El id de la categoría debe ser un número'))
-      }
-
-      const category = await categoryService.get(categoryId ?? Number(ID))
+      const category = await categoryService.get(categoryId ?? +ID)
 
       if (category instanceof CustomError) {
         return next(category)
@@ -41,6 +37,7 @@ export const workspaceAuthorization =
       const { postId } = req.body
 
       const post = await postService.get(postId ?? ID)
+
       if (post instanceof CustomError) {
         return next(post)
       }

@@ -14,10 +14,6 @@ export const getByWorkspace = async (
   const { ID } = req.params
   const category = await categoryService.getByWorkspace(ID)
 
-  if (category instanceof CustomError) {
-    return next(category)
-  }
-
   res.status(200).json(category)
 }
 

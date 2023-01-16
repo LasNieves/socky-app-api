@@ -12,13 +12,15 @@ import { Category } from '../core/entities'
 export class CategoryService implements CategoryRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
 
-  async getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError> {
-    const existWorkspace = await this.workspaceService.get(id)
-
-    if (existWorkspace instanceof CustomError) {
-      return existWorkspace
+  private validateIdType(id: number): CustomError | true {
+    if (isNaN(id)) {
+      return new BadRequest('El id de la categoría debe ser un número')
     }
 
+    return true
+  }
+
+  async getByWorkspace(id: string): Promise<CategoriesDto[]> {
     const categories = await prisma.category.findMany({
       where: { workspaceId: id },
       select: {
@@ -32,8 +34,10 @@ export class CategoryService implements CategoryRepository {
   }
 
   async get(id: number): Promise<Category | CustomError> {
-    if (isNaN(id)) {
-      return new BadRequest('El id de la categoría debe ser un número')
+    const isNumber = this.validateIdType(id)
+
+    if (isNumber instanceof CustomError) {
+      return isNumber
     }
 
     const category = await prisma.category.findUnique({
@@ -83,16 +87,6 @@ export class CategoryService implements CategoryRepository {
     id: number,
     data: UpdateCategoryDto
   ): Promise<Category | CustomError> {
-    if (isNaN(id)) {
-      return new BadRequest('El id de la categoría debe ser un número')
-    }
-
-    const exist = await this.get(id)
-
-    if (exist instanceof CustomError) {
-      return exist
-    }
-
     const { title } = data
 
     try {
@@ -110,16 +104,6 @@ export class CategoryService implements CategoryRepository {
   }
 
   async delete(id: number): Promise<Category | CustomError> {
-    if (isNaN(id)) {
-      return new BadRequest('El id de la categoría debe ser un número')
-    }
-
-    const exist = await this.get(id)
-
-    if (exist instanceof CustomError) {
-      return exist
-    }
-
     try {
       const deletedCategory = await prisma.category.delete({ where: { id } })
 

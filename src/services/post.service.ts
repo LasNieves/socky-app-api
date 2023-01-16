@@ -8,17 +8,10 @@ import {
   UpdatePostDto,
 } from '../core/dtos'
 import { Post } from '../core/entities'
-import {
-  CategoryRepository,
-  PostRepository,
-  WorkspaceRepository,
-} from '../core/repositories'
+import { CategoryRepository, PostRepository } from '../core/repositories'
 
 export class PostService implements PostRepository {
-  constructor(
-    private readonly categoryService: CategoryRepository,
-    private readonly workspaceService: WorkspaceRepository
-  ) {}
+  constructor(private readonly categoryService: CategoryRepository) {}
 
   private async categoryBelongsToWorkspace(
     workspaceId: string,
@@ -40,12 +33,6 @@ export class PostService implements PostRepository {
   }
 
   async getByWorkspace(id: string): Promise<Post[] | CustomError> {
-    const existWorkspace = await this.workspaceService.get(id)
-
-    if (existWorkspace instanceof CustomError) {
-      return existWorkspace
-    }
-
     const posts = await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
@@ -86,24 +73,11 @@ export class PostService implements PostRepository {
     return post
   }
 
-  async create(data: CreatePostDto): Promise<Post | CustomError> {
-    const { title, description, categoryId, userId } = data
-
-    const existCategory = await this.categoryService.get(categoryId)
-
-    if (existCategory instanceof CustomError) {
-      return existCategory
-    }
-
+  async create(
+    data: CreatePostDto & { userId: string }
+  ): Promise<Post | CustomError> {
     try {
-      const post = await prisma.post.create({
-        data: {
-          title,
-          description,
-          categoryId,
-          userId,
-        },
-      })
+      const post = await prisma.post.create({ data })
       return post
     } catch (error) {
       console.log(error)
@@ -142,7 +116,7 @@ export class PostService implements PostRepository {
       return updatePost
     } catch (error) {
       console.log(error)
-      return new NotFound(`Post con id ${postId} no encontrado`)
+      return new BadRequest(`Error al actualizar un post`)
     }
   }
 
@@ -152,7 +126,7 @@ export class PostService implements PostRepository {
       return deletedPost
     } catch (error) {
       console.log(error)
-      return new NotFound(`Post con id ${id} no encontrado`)
+      return new BadRequest(`Error al eliminar un post`)
     }
   }
 }

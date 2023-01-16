@@ -5,7 +5,7 @@ import { Post } from '../entities'
 export interface PostRepository {
   getByWorkspace(id: string): Promise<Post[] | CustomError>
   get(id: string): Promise<PostDto | CustomError>
-  create(data: CreatePostDto): Promise<Post | CustomError>
+  create(data: CreatePostDto & { userId: string }): Promise<Post | CustomError>
   update(
     postId: string,
     workspaceId: string,

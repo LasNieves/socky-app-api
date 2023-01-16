@@ -1,11 +1,8 @@
 import { Request, NextFunction, Response } from 'express'
 
 import { jwtService } from '../controllers/auth.controller'
-import { categoryService } from '../controllers/category.controller'
 import { userService } from '../controllers/user.controller'
-import { Category, User } from '../core/entities'
-import { CustomError } from '../errors'
-import { NotAuthorized } from '../errors/NotAuthorized'
+import { CustomError, NotAuthorized } from '../errors'
 
 export const protect = async (
   req: Request,

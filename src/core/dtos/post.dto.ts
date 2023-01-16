@@ -42,22 +42,16 @@ export interface PostDto extends Post {
  *        categoryId:
  *           type: number
  *           description: What category does the post belong to?
- *        userId:
- *           type: string
- *           format: uuid
- *           description: Who created the post?
  *      required:
  *        - title
  *        - description
  *        - categoryId
- *        - userId
  */
 
 export interface CreatePostDto {
   title: string
   description: string
   categoryId: number
-  userId: string
 }
 
 /**
@@ -77,10 +71,6 @@ export interface CreatePostDto {
  *        categoryId:
  *           type: number
  *           description: What category does the post belong to?
- *        userId:
- *           type: string
- *           format: uuid
- *           description: Who created the post?
  */
 
 export interface UpdatePostDto {
