@@ -17,6 +17,9 @@
  *           type: string
  *           format: password
  *           description: The password of the user
+ *        verified:
+ *           type: boolean
+ *           description: Is the user verified?
  *        createdAt:
  *           type: string
  *           format: date-time
@@ -29,6 +32,7 @@
  *        - id
  *        - email
  *        - password
+ *        - verified
  *        - createdAt
  *        - updatedAt
  */
@@ -37,6 +41,7 @@ export interface User {
   id: string
   email: string
   password: string
+  verified: boolean
   createdAt: Date
   updatedAt: Date
 }

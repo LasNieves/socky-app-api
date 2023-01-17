@@ -7,8 +7,8 @@ export interface UserRepository {
   getAll(): Promise<UsersDto[]>
   get(
     field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<User | CustomError>
-  getById(id: string): Promise<UserDto | CustomError>
+  ): Promise<Omit<UserDto, 'posts'> | CustomError>
+  getById(id: string): Promise<Omit<UserDto, 'password'> | CustomError>
   delete(id: string, password: string): Promise<User | CustomError>
   getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
   getUserRole(
