@@ -5,7 +5,7 @@ import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
 
 import handlers from './routes'
-import { deleteWorkspacesWithoutUsers } from './cron'
+import { deleteWorkspacesWithoutUsers, deleteUsedOrExpiresCodes } from './crons'
 import { errorHandler } from './middlewares'
 import { options } from './doc/swagger.config'
 
@@ -38,4 +38,5 @@ server.use(
 server.listen(PORT, () => {
   console.log(`Listen on port ${PORT}`)
   deleteWorkspacesWithoutUsers.start()
+  deleteUsedOrExpiresCodes.start()
 })

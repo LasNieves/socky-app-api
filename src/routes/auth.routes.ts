@@ -1,7 +1,12 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { login, register } from '../controllers/auth.controller'
+import {
+  login,
+  register,
+  resendvalidationCode,
+  validateCode,
+} from '../controllers/auth.controller'
 import { validateRequest } from '../middlewares'
 
 export const authRouter = Router()
@@ -77,4 +82,69 @@ authRouter.post(
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
   login
+)
+
+/**
+ * @swagger
+ *  /auth/validate-code:
+ *   post:
+ *    summary: Verify a user
+ *    tags: [Auth]
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/AuthValidateCodeDto'
+ *    responses:
+ *      200:
+ *        description: The user has been verified successfully
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ */
+
+authRouter.post(
+  '/validate-code',
+  body('email').isEmail().withMessage('Email inválido'),
+  body('code').isNumeric().notEmpty().withMessage('Código obligatorio'),
+  validateRequest,
+  validateCode
+)
+
+/**
+ * @swagger
+ *  /auth/resend-code:
+ *   post:
+ *    summary: Resend the validation code
+ *    tags: [Auth]
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/AuthResendValidationCodeDto'
+ *    responses:
+ *      200:
+ *        description: The email has been sent successfully
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ */
+
+authRouter.post(
+  '/resend-code',
+  body('email').isEmail().withMessage('Email inválido'),
+  validateRequest,
+  resendvalidationCode
 )

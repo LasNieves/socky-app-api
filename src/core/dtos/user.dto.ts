@@ -6,7 +6,7 @@ import { Roles } from '../enums'
  * components:
  *  schemas:
  *    UsersDto:
- *      description: Data returned when you request for all the Users 
+ *      description: Data returned when you request for all the Users
  *      type: object
  *      properties:
  *        id:
@@ -17,6 +17,9 @@ import { Roles } from '../enums'
  *           type: string
  *           format: email
  *           description: The email of the User
+ *        verified:
+ *           type: boolean
+ *           description: Is the user verified?
  *        createdAt:
  *           type: string
  *           format: date-time
@@ -26,12 +29,13 @@ import { Roles } from '../enums'
  *           format: date-time
  *           description: The date of updated of the User
  *        profile:
- *           $ref: '#/components/schemas/Profile' 
+ *           $ref: '#/components/schemas/Profile'
  */
 
 export interface UsersDto {
   id: string
   email: string
+  verified: boolean
   createdAt: Date
   updatedAt: Date
   profile: Omit<Profile, 'userId'> | null
@@ -42,7 +46,7 @@ export interface UsersDto {
  * components:
  *  schemas:
  *    UserDto:
- *      description: Data returned when you request for one User 
+ *      description: Data returned when you request for one User
  *      type: object
  *      properties:
  *        id:
@@ -53,6 +57,13 @@ export interface UsersDto {
  *           type: string
  *           format: email
  *           description: The email of the User
+ *        password:
+ *           type: string
+ *           format: password
+ *           description: The password of the user
+ *        verified:
+ *           type: boolean
+ *           description: Is the user verified?
  *        createdAt:
  *           type: string
  *           format: date-time
@@ -62,7 +73,7 @@ export interface UsersDto {
  *           format: date-time
  *           description: The date of updated of the User
  *        profile:
- *           $ref: '#/components/schemas/Profile' 
+ *           $ref: '#/components/schemas/Profile'
  *        posts:
  *            type: array
  *            items:
@@ -72,6 +83,8 @@ export interface UsersDto {
 export interface UserDto {
   id: string
   email: string
+  password: string
+  verified: boolean
   createdAt: Date
   updatedAt: Date
   profile: Omit<Profile, 'userId'> | null
@@ -100,9 +113,9 @@ export interface UserDto {
  *            type: object
  *            properties:
  *             role:
- *              $ref: '#/components/schemas/Roles'     
+ *              $ref: '#/components/schemas/Roles'
  *             workspace:
- *              $ref: '#/components/schemas/Workspace'     
+ *              $ref: '#/components/schemas/Workspace'
  */
 
 export interface UserWorkspacesDto {

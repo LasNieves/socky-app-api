@@ -29,6 +29,7 @@ export class UserService implements UserRepository {
       select: {
         id: true,
         email: true,
+        verified: true,
         createdAt: true,
         updatedAt: true,
         profile: {
@@ -47,7 +48,7 @@ export class UserService implements UserRepository {
 
   async get(
     field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<User | CustomError> {
+  ): Promise<Omit<UserDto, 'posts'> | CustomError> {
     const user = await prisma.user.findUnique({
       where: { ...field },
       include: {
@@ -73,12 +74,13 @@ export class UserService implements UserRepository {
     return user
   }
 
-  async getById(id: string): Promise<UserDto | CustomError> {
+  async getById(id: string): Promise<Omit<UserDto, 'password'> | CustomError> {
     const user = await prisma.user.findUnique({
       where: { id },
       select: {
         id: true,
         email: true,
+        verified: true,
         createdAt: true,
         updatedAt: true,
         profile: {
