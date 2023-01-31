@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { compare } from 'bcryptjs'
 
 import { prisma } from '../config/db'
@@ -10,9 +11,8 @@ import {
   NotFound,
   NotAuthorized,
 } from '../errors'
-import { UserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
 import { User } from '../core/entities'
-import { RequireAtLeastOne } from '../core/types'
+import { UsersDto, UserWorkspacesDto } from '../core/dtos'
 
 export class UserService implements UserRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
@@ -46,27 +46,23 @@ export class UserService implements UserRepository {
     return users
   }
 
+  async getFirstUserOrThrow(where: Prisma.UserWhereUniqueInput) {
+    return await prisma.user.findFirstOrThrow({ where })
+  }
+
   async get(
-    field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<Omit<UserDto, 'posts'> | CustomError> {
+    where: Prisma.UserWhereUniqueInput,
+    include?: Prisma.UserInclude
+  ): Promise<CustomError | User> {
     const user = await prisma.user.findUnique({
-      where: { ...field },
-      include: {
-        profile: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-      },
+      where,
+      include,
     })
 
     if (!user) {
       return new NotFound(
         `Usuario con ${
-          field.email ? `email ${field.email}` : `id ${field.id}`
+          where.email ? `email ${where.email}` : `id ${where.id}`
         }  no encontrado`
       )
     }
@@ -74,42 +70,13 @@ export class UserService implements UserRepository {
     return user
   }
 
-  async getById(id: string): Promise<Omit<UserDto, 'password'> | CustomError> {
-    const user = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        email: true,
-        verified: true,
-        createdAt: true,
-        updatedAt: true,
-        profile: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-        posts: true,
-      },
+  async delete(id: string, password: string): Promise<User | CustomError> {
+    const user = await this.getFirstUserOrThrow({ id }).catch((error) => {
+      console.log(error)
+      throw new NotFound(`Usuario con id ${id} no encontrado`)
     })
 
-    if (!user) {
-      return new NotFound(`Usuario con id ${id} no encontrado`)
-    }
-
-    return user
-  }
-
-  async delete(id: string, password: string): Promise<User | CustomError> {
-    const existUser = await this.get({ id })
-
-    if (existUser instanceof CustomError) {
-      return existUser
-    }
-
-    const isValid = await this.isValidPassword(password, existUser.password)
+    const isValid = await this.isValidPassword(password, user.password)
 
     if (!isValid) {
       return new Conflict('Credenciales inválidas')
@@ -153,11 +120,12 @@ export class UserService implements UserRepository {
     userId: string,
     workspaceId: string
   ): Promise<string | CustomError> {
-    const exist = await this.workspaceService.get(workspaceId)
-
-    if (exist instanceof CustomError) {
-      return exist
-    }
+    await this.workspaceService
+      .getFirstWorkspaceOrThrow({ id: workspaceId })
+      .catch((error) => {
+        console.log(error)
+        throw new NotFound(`Workspace con id ${workspaceId} no encontrado`)
+      })
 
     const role = await prisma.usersOnWorkspaces.findUnique({
       where: { userId_workspaceId: { userId, workspaceId } },

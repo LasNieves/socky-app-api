@@ -53,7 +53,7 @@ usersRouter.get('/', getUsers)
  *          application/json:
  *            schema:
  *              type: object
- *              $ref: '#/components/schemas/UserDto'
+ *              $ref: '#/components/schemas/User'
  */
 
 usersRouter.get('/:ID', getOneUser)

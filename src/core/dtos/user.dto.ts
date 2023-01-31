@@ -45,56 +45,6 @@ export interface UsersDto {
  * @swagger
  * components:
  *  schemas:
- *    UserDto:
- *      description: Data returned when you request for one User
- *      type: object
- *      properties:
- *        id:
- *           type: string
- *           format: uuid
- *           description: The auto-generated id for the User
- *        email:
- *           type: string
- *           format: email
- *           description: The email of the User
- *        password:
- *           type: string
- *           format: password
- *           description: The password of the user
- *        verified:
- *           type: boolean
- *           description: Is the user verified?
- *        createdAt:
- *           type: string
- *           format: date-time
- *           description: The date of creation of the User (auto-generated)
- *        updatedAt:
- *           type: string
- *           format: date-time
- *           description: The date of updated of the User
- *        profile:
- *           $ref: '#/components/schemas/Profile'
- *        posts:
- *            type: array
- *            items:
- *              $ref: '#/components/schemas/Post'
- */
-
-export interface UserDto {
-  id: string
-  email: string
-  password: string
-  verified: boolean
-  createdAt: Date
-  updatedAt: Date
-  profile: Omit<Profile, 'userId'> | null
-  posts: Post[]
-}
-
-/**
- * @swagger
- * components:
- *  schemas:
  *    UserWorkspacesDto:
  *      description: Data returned when you request for one User and yours Workspaces
  *      type: object

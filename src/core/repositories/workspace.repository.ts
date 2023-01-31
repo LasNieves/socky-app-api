@@ -1,10 +1,16 @@
+import { Prisma } from '@prisma/client'
 import { CustomError } from '../../errors'
 import { Workspace } from '../entities'
 import { CreateWorkspaceDto, WorkspaceDto } from './../dtos'
 
 export interface WorkspaceRepository {
   getAll(): Promise<Workspace[]>
-  get(id: string): Promise<WorkspaceDto | CustomError>
+  getFirstWorkspaceOrThrow(
+    where: Prisma.WorkspaceWhereUniqueInput
+  ): Promise<Workspace>
+  get(
+    where: Prisma.WorkspaceWhereUniqueInput
+  ): Promise<WorkspaceDto | CustomError>
   create(
     data: CreateWorkspaceDto,
     userId: string
