@@ -27,7 +27,6 @@
  *        - id
  *        - firstName
  *        - lastName
- *        - avatar
  *        - userId
  */
 
@@ -35,6 +34,6 @@ export interface Profile {
   id: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string | null
   userId: string
 }
