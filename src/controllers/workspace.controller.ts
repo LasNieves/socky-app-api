@@ -11,7 +11,7 @@ export const getOneWorkspace = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const workspace = await workspaceService.get(ID)
+  const workspace = await workspaceService.get({ id: ID })
 
   if (workspace instanceof CustomError) {
     return next(workspace)

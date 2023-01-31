@@ -2,7 +2,7 @@ import { Request, NextFunction, Response } from 'express'
 
 import { jwtService } from '../controllers/auth.controller'
 import { userService } from '../controllers/user.controller'
-import { CustomError, NotAuthorized } from '../errors'
+import { CustomError, NotAuthorized, NotFound } from '../errors'
 
 export const protect = async (
   req: Request,
@@ -23,11 +23,12 @@ export const protect = async (
 
   try {
     const decoded = jwtService.verify(token)
-    const user = await userService.get({ id: decoded.id })
-
-    if (user instanceof CustomError) {
-      return next(user)
-    }
+    const user = await userService
+      .getFirstUserOrThrow({ id: decoded.id })
+      .catch((error) => {
+        console.log(error)
+        throw new NotFound(`Usuario con id ${decoded.id} no encontrado`)
+      })
 
     req.user = user
     next()

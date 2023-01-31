@@ -54,7 +54,7 @@ export class CategoryService implements CategoryRepository {
 
   async create(data: CreateCategoryDto): Promise<Category | CustomError> {
     const { title, workspaceId } = data
-    const existWorkspace = await this.workspaceService.get(workspaceId)
+    const existWorkspace = await this.workspaceService.get({ id: workspaceId })
 
     if (existWorkspace instanceof CustomError) {
       return existWorkspace

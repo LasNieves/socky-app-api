@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client'
+
 import { prisma } from '../config/db'
 
 import { BadRequest, CustomError, NotFound } from '../errors'
@@ -21,9 +23,15 @@ export class WorkspaceService implements WorkspaceRepository {
     return workspaces
   }
 
-  async get(id: string): Promise<WorkspaceDto | CustomError> {
+  async getFirstWorkspaceOrThrow(where: Prisma.WorkspaceWhereUniqueInput) {
+    return await prisma.workspace.findFirstOrThrow({ where })
+  }
+
+  async get(
+    where: Prisma.WorkspaceWhereUniqueInput
+  ): Promise<WorkspaceDto | CustomError> {
     const workspace = await prisma.workspace.findUnique({
-      where: { id },
+      where,
       include: {
         categories: true,
         users: {
@@ -46,7 +54,7 @@ export class WorkspaceService implements WorkspaceRepository {
     })
 
     if (!workspace) {
-      return new NotFound(`Workspace con id ${id} no encontrado`)
+      return new NotFound(`Workspace con id ${where.id} no encontrado`)
     }
 
     return workspace

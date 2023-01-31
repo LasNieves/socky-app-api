@@ -9,7 +9,7 @@ export const categoryService = new CategoryService(workspaceService)
 export const getByWorkspace = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) => {
   const { ID } = req.params
   const category = await categoryService.getByWorkspace(ID)

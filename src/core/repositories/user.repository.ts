@@ -1,14 +1,16 @@
+import { Prisma } from '@prisma/client'
+
 import { CustomError } from '../../errors'
-import { RequireAtLeastOne } from '../types'
-import { User } from '../entities'
-import { UsersDto, UserDto, UserWorkspacesDto } from './../dtos'
+import { Profile, User, Post } from '../entities'
+import { UsersDto, UserWorkspacesDto } from './../dtos'
 
 export interface UserRepository {
   getAll(): Promise<UsersDto[]>
   get(
-    field: RequireAtLeastOne<Record<'id' | 'email', string>>
-  ): Promise<Omit<UserDto, 'posts'> | CustomError>
-  getById(id: string): Promise<Omit<UserDto, 'password'> | CustomError>
+    where: Prisma.UserWhereUniqueInput,
+    include?: Prisma.UserInclude
+  ): Promise<CustomError | (User & { profile?: Profile; posts?: Post[] })>
+  getFirstUserOrThrow(where: Prisma.UserWhereUniqueInput): Promise<User>
   delete(id: string, password: string): Promise<User | CustomError>
   getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
   getUserRole(

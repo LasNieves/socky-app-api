@@ -18,7 +18,10 @@ export const getOneUser = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const user = await userService.getById(ID)
+  const user = await userService.get(
+    { id: ID },
+    { profile: true, workspaces: true }
+  )
 
   if (user instanceof CustomError) {
     return next(user)

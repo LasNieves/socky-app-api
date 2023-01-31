@@ -204,7 +204,7 @@ export class AuthService implements AuthRepository {
   async resendValidationCode({
     email,
   }: AuthResendValidationCodeDto): Promise<string | CustomError> {
-    const existUser = await this.userService.get({ email })
+    const existUser = await this.userService.get({ email }, { profile: true })
 
     if (existUser instanceof CustomError) {
       return existUser
@@ -225,7 +225,7 @@ export class AuthService implements AuthRepository {
         ...this.mailObj,
         to: 'francomusolino55@gmail.com',
         dynamicTemplateData: {
-          firstname: existUser.profile?.firstName,
+          firstname: existUser.profile!.firstName,
           code,
         },
       }
