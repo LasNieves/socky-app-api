@@ -1,4 +1,5 @@
 import { Profile } from '../entities'
+import { ApplicationRole } from '../enums'
 
 /**
  * @swagger
@@ -62,6 +63,9 @@ export interface AuthLoginDto {
  *           type: string
  *           format: uri
  *           description: The user's avatar
+ *        isSuperAdmin:
+ *           type: boolean
+ *           description: Is the user SUPERADMIN or not?
  *      required:
  *        - email
  *        - password
@@ -75,6 +79,7 @@ export interface AuthRegisterDto {
   firstName: string
   lastName: string
   avatar?: string
+  isSuperAdmin?: boolean
 }
 
 /**
@@ -151,6 +156,8 @@ export interface AuthResendValidationCodeDto {
  *           description: The authentication token
  *        profile:
  *           $ref: '#/components/schemas/Profile'
+ *        role:
+ *           $ref: '#/components/schemas/ApplicationRole'
  */
 
 export interface AuthDto {
@@ -159,6 +166,7 @@ export interface AuthDto {
   createdAt: Date
   updatedAt: Date
   verified: boolean
+  role: ApplicationRole
 
   profile?: Profile | null
 

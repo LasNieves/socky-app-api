@@ -2,7 +2,8 @@ import { Request, NextFunction, Response } from 'express'
 
 import { jwtService } from '../controllers/auth.controller'
 import { userService } from '../controllers/user.controller'
-import { CustomError, NotAuthorized, NotFound } from '../errors'
+import { ApplicationRole } from '../core/enums'
+import { NotAuthorized, NotFound } from '../errors'
 
 export const protect = async (
   req: Request,
@@ -30,6 +31,10 @@ export const protect = async (
         throw new NotFound(`Usuario con id ${decoded.id} no encontrado`)
       })
 
+    if (!user.verified) {
+      throw new NotAuthorized("Usuario no verificado")
+    }
+
     req.user = user
     next()
   } catch (error) {
@@ -38,10 +43,11 @@ export const protect = async (
 }
 
 export const authorization =
-  (...roles: string[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
-    // if (roles.includes(userRole)) {
-    //   return next()
-    // }
-    // return next(new NotAuthorized('Usuario no autorizado'))
-  }
+  (...roles: ApplicationRole[]) =>
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { user } = req
+      if (roles.includes(user!.role)) {
+        return next()
+      }
+      return next(new NotAuthorized('Usuario no autorizado'))
+    }

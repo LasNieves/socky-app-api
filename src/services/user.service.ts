@@ -13,9 +13,10 @@ import {
 } from '../errors'
 import { User } from '../core/entities'
 import { UsersDto, UserWorkspacesDto } from '../core/dtos'
+import { WorkspaceRole } from '../core/enums'
 
 export class UserService implements UserRepository {
-  constructor(private readonly workspaceService: WorkspaceRepository) {}
+  constructor(private readonly workspaceService: WorkspaceRepository) { }
 
   private async isValidPassword(
     passwordToCompare: string,
@@ -61,8 +62,7 @@ export class UserService implements UserRepository {
 
     if (!user) {
       return new NotFound(
-        `Usuario con ${
-          where.email ? `email ${where.email}` : `id ${where.id}`
+        `Usuario con ${where.email ? `email ${where.email}` : `id ${where.id}`
         }  no encontrado`
       )
     }
@@ -116,10 +116,10 @@ export class UserService implements UserRepository {
     return userWorkspaces
   }
 
-  async getUserRole(
+  async getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<string | CustomError> {
+  ): Promise<WorkspaceRole | CustomError> {
     await this.workspaceService
       .getFirstWorkspaceOrThrow({ id: workspaceId })
       .catch((error) => {

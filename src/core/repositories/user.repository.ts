@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client'
 
 import { CustomError } from '../../errors'
 import { Profile, User, Post } from '../entities'
+import { WorkspaceRole } from '../enums'
 import { UsersDto, UserWorkspacesDto } from './../dtos'
 
 export interface UserRepository {
@@ -13,8 +14,8 @@ export interface UserRepository {
   getFirstUserOrThrow(where: Prisma.UserWhereUniqueInput): Promise<User>
   delete(id: string, password: string): Promise<User | CustomError>
   getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
-  getUserRole(
+  getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<string | CustomError>
+  ): Promise<WorkspaceRole | CustomError>
 }

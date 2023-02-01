@@ -28,6 +28,8 @@
  *           type: string
  *           format: date-time
  *           description: Last user update (change automatically to the current date when any other field is updated)
+ *        role:
+ *           $ref: '#/components/schemas/ApplicationRole'
  *      required:
  *        - id
  *        - email
@@ -35,7 +37,10 @@
  *        - verified
  *        - createdAt
  *        - updatedAt
+ *        - role
  */
+
+import { ApplicationRole } from "../enums"
 
 export interface User {
   id: string
@@ -44,4 +49,5 @@ export interface User {
   verified: boolean
   createdAt: Date
   updatedAt: Date
+  role: ApplicationRole
 }
