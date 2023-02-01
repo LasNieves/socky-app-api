@@ -125,14 +125,8 @@ export class AuthService implements AuthRepository {
           email: true,
           createdAt: true,
           updatedAt: true,
-          profile: {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              avatar: true,
-            },
-          },
+          verified: true,
+          profile: true,
         },
       })
 

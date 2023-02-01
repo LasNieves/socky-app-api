@@ -46,7 +46,7 @@ model Profile {
 
   firstName String @map("first_name")
   lastName  String @map("last_name")
-  avatar    String
+  avatar    String?
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId String @unique @map("user_id")

@@ -44,7 +44,7 @@ authRouter.post(
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   body('firstName').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('lastName').trim().isString().notEmpty().withMessage('Campo requerido'),
-  body('avatar').trim().isString().notEmpty().withMessage('Campo requerido'),
+  body('avatar').trim().isString().optional(),
   validateRequest,
   register
 )

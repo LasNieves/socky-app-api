@@ -67,7 +67,6 @@ export interface AuthLoginDto {
  *        - password
  *        - firstName
  *        - lastName
- *        - avatar
  */
 
 export interface AuthRegisterDto {
@@ -75,7 +74,7 @@ export interface AuthRegisterDto {
   password: string
   firstName: string
   lastName: string
-  avatar: string
+  avatar?: string
 }
 
 /**
@@ -159,8 +158,9 @@ export interface AuthDto {
   email: string
   createdAt: Date
   updatedAt: Date
+  verified: boolean
 
-  profile?: Omit<Profile, 'userId'> | null
+  profile?: Profile | null
 
   token: string
 }
