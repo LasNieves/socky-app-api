@@ -103,13 +103,13 @@ model UsersOnWorkspaces {
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   workspaceId String    @map("workspace_id")
 
-  role Role
+  role WorkspaceRole
 
   @@id([userId, workspaceId])
   @@map("users_workspaces")
 }
 
-enum Role {
+enum WorkspaceRole {
   OWNER
   ADMIN
   MEMBER

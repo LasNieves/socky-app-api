@@ -1,5 +1,5 @@
-import { Post, Profile, Workspace } from '../entities'
-import { Roles } from '../enums'
+import { Profile, Workspace } from '../entities'
+import { WorkspaceRole } from '../enums'
 
 /**
  * @swagger
@@ -72,7 +72,7 @@ export interface UserWorkspacesDto {
   id: string
   email: string
   workspaces: {
-    role: string
+    role: WorkspaceRole
     workspace: Workspace
   }[]
 }

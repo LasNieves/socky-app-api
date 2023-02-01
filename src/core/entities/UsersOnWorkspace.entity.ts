@@ -1,4 +1,4 @@
-import { Roles } from "../enums"
+import { WorkspaceRole } from '../enums'
 
 /**
  * @swagger
@@ -21,7 +21,7 @@ import { Roles } from "../enums"
  *           format: uuid
  *           description: The specific worksapce id
  *        role:
- *           $ref: '#/components/schemas/Roles'    
+ *           $ref: '#/components/schemas/WorkspaceRoles'
  *      required:
  *        - id
  *        - userId
@@ -29,11 +29,9 @@ import { Roles } from "../enums"
  *        - role
  */
 
-
-
 export interface UsersOnWorkspaces {
   id: string
   userId: string
   workspaceId: string
-  role: Roles
+  role: WorkspaceRole
 }
