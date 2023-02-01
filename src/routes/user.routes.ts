@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { validateRequest } from './../middlewares'
+import { authorization, protect, validateRequest } from './../middlewares'
 
 import {
   getUsers,
@@ -30,7 +30,7 @@ export const usersRouter = Router()
  *                $ref: '#/components/schemas/UsersDto'
  */
 
-usersRouter.get('/', getUsers)
+usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
 
 /**
  * @swagger
@@ -56,7 +56,7 @@ usersRouter.get('/', getUsers)
  *              $ref: '#/components/schemas/User'
  */
 
-usersRouter.get('/:ID', getOneUser)
+usersRouter.get('/:ID', protect, getOneUser)
 
 /**
  * @swagger
@@ -82,7 +82,7 @@ usersRouter.get('/:ID', getOneUser)
  *              $ref: '#/components/schemas/UserWorkspacesDto'
  */
 
-usersRouter.get('/workspaces/:ID', getUserWorkspaces)
+usersRouter.get('/workspaces/:ID', protect, getUserWorkspaces)
 
 /**
  * @swagger
@@ -125,6 +125,7 @@ usersRouter.get('/workspaces/:ID', getUserWorkspaces)
 
 usersRouter.delete(
   '/:ID',
+  protect,
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
   deleteUser

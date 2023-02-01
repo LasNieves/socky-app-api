@@ -1,1 +1,2 @@
-export * from './workspaceRole.enum'
+export * from './applicationRole.enum';
+export * from './workspaceRole.enum';
