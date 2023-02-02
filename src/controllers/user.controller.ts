@@ -46,6 +46,25 @@ export const getUserWorkspaces = async (
   res.status(200).send(userWorkspaces)
 }
 
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+
+  const updatedUser = await userService.update(ID, req.body)
+
+  if (updatedUser instanceof CustomError) {
+    return next(updatedUser)
+  }
+
+  res.status(200).json({
+    message: 'Usuario actualizado correctamente',
+    data: updatedUser,
+  })
+}
+
 export const deleteUser = async (
   req: Request,
   res: Response,

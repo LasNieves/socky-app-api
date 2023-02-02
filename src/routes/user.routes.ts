@@ -1,13 +1,19 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
 
-import { authorization, protect, validateRequest } from './../middlewares'
+import {
+  authorization,
+  protect,
+  validateRequest,
+  verifyUserIdentity,
+} from './../middlewares'
 
 import {
   getUsers,
   getOneUser,
   deleteUser,
   getUserWorkspaces,
+  updateUser,
 } from '../controllers/user.controller'
 
 export const usersRouter = Router()
@@ -56,7 +62,7 @@ usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
  *              $ref: '#/components/schemas/User'
  */
 
-usersRouter.get('/:ID', protect, getOneUser)
+usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
 
 /**
  * @swagger
@@ -82,7 +88,58 @@ usersRouter.get('/:ID', protect, getOneUser)
  *              $ref: '#/components/schemas/UserWorkspacesDto'
  */
 
-usersRouter.get('/workspaces/:ID', protect, getUserWorkspaces)
+usersRouter.get(
+  '/workspaces/:ID',
+  protect,
+  verifyUserIdentity,
+  getUserWorkspaces
+)
+
+/**
+ * @swagger
+ *  /users/{ID}:
+ *   patch:
+ *    summary: Update one User
+ *    tags: [Users]
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The user id
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdateUserDto'
+ *    responses:
+ *      200:
+ *        description: User updated successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/User'
+ */
+
+usersRouter.patch(
+  '/:ID',
+  protect,
+  verifyUserIdentity,
+  body('firstName').trim().isString().optional(),
+  body('lastName').trim().isString().optional(),
+  body('avatar').trim().isString().optional(),
+  validateRequest,
+  updateUser
+)
 
 /**
  * @swagger
@@ -126,6 +183,7 @@ usersRouter.get('/workspaces/:ID', protect, getUserWorkspaces)
 usersRouter.delete(
   '/:ID',
   protect,
+  verifyUserIdentity,
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
   deleteUser

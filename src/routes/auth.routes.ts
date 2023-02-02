@@ -41,7 +41,12 @@ export const authRouter = Router()
 authRouter.post(
   '/register',
   body('email').isEmail().withMessage('Email inválido'),
-  body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
+  body('password')
+    .trim()
+    .notEmpty()
+    .withMessage('Contraseña obligatoria')
+    .isLength({ min: 6 })
+    .withMessage('Mínimo 6 caracteres'),
   body('firstName').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('lastName').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('avatar').trim().isString().optional(),
