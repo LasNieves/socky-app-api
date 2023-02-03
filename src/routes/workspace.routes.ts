@@ -22,6 +22,8 @@ export const workspaceRouter = Router()
  *   get:
  *    summary: Get all Workspaces from the app
  *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
  *    responses:
  *      200:
  *        description: Workspaces found
