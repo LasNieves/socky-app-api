@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { body } from 'express-validator'
 
 import {
+  authorization,
   protect,
   validateRequest,
   workspaceAuthorization,
@@ -10,9 +11,30 @@ import {
 import {
   getOneWorkspace,
   createWorkspace,
+  getWorkspaces,
 } from '../controllers/workspace.controller'
 
 export const workspaceRouter = Router()
+
+/**
+ * @swagger
+ *  /users:
+ *   get:
+ *    summary: Get all Users from the app
+ *    tags: [Users]
+ *    responses:
+ *      200:
+ *        description: Users found
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/UsersDto'
+ */
+
+workspaceRouter.get('/', protect, authorization('SUPERADMIN'), getWorkspaces)
 
 /**
  * @swagger
