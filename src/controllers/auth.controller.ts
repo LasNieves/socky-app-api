@@ -1,8 +1,8 @@
-import { application, NextFunction, Request, Response } from 'express'
+import { NextFunction, Request, Response } from 'express'
 
 import { userService } from './user.controller'
 import { AuthService, JwtService } from '../services'
-import { CustomError, NotAuthorized } from '../errors'
+import { CustomError } from '../errors'
 import { MailerService } from '../services/mailer.service'
 
 export const jwtService = new JwtService()
@@ -24,8 +24,9 @@ export const register = async (
 
   let isSuperAdmin = false
 
-  if (headers["application-secret"]) {
-    isSuperAdmin = headers["application-secret"] === process.env.APPLICATION_SECRET
+  if (headers['application-secret']) {
+    isSuperAdmin =
+      headers['application-secret'] === process.env.APPLICATION_SECRET
   }
 
   const credentials = await authService.register({
@@ -34,7 +35,7 @@ export const register = async (
     firstName,
     lastName,
     avatar,
-    isSuperAdmin
+    isSuperAdmin,
   })
 
   if (credentials instanceof CustomError) {

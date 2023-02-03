@@ -1,2 +1,2 @@
 export * from './JwtPayload'
-export * from './RequireAtLeastOne'
+export * from './UserWithoutPassword'

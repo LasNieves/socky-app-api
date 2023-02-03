@@ -32,7 +32,7 @@ export const protect = async (
       })
 
     if (!user.verified) {
-      throw new NotAuthorized("Usuario no verificado")
+      throw new NotAuthorized('Usuario no verificado')
     }
 
     req.user = user
@@ -44,10 +44,10 @@ export const protect = async (
 
 export const authorization =
   (...roles: ApplicationRole[]) =>
-    async (req: Request, res: Response, next: NextFunction) => {
-      const { user } = req
-      if (roles.includes(user!.role)) {
-        return next()
-      }
-      return next(new NotAuthorized('Usuario no autorizado'))
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { user } = req
+    if (roles.includes(user!.role)) {
+      return next()
     }
+    return next(new NotAuthorized('Usuario no autorizado'))
+  }
