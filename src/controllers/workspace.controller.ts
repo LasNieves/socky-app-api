@@ -5,6 +5,12 @@ import { CustomError } from '../errors'
 
 export const workspaceService = new WorkspaceService()
 
+export const getWorkspaces = async (req: Request, res: Response) => {
+  const workspaces = await workspaceService.getAll()
+
+  res.status(200).json(workspaces)
+}
+
 export const getOneWorkspace = async (
   req: Request,
   res: Response,
