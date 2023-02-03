@@ -31,7 +31,7 @@ export const workspaceRouter = Router()
  *              type: array
  *              items:
  *                type: object
- *                $ref: '#/components/schemas/WorkspaceDto'
+ *                $ref: '#/components/schemas/Workspace'
  */
 
 workspaceRouter.get('/', protect, authorization('SUPERADMIN'), getWorkspaces)
