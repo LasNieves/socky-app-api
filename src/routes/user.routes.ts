@@ -24,6 +24,8 @@ export const usersRouter = Router()
  *   get:
  *    summary: Get all Users from the app
  *    tags: [Users]
+ *    security:
+ *     - bearerAuth: []
  *    responses:
  *      200:
  *        description: Users found
@@ -44,6 +46,8 @@ usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
  *   get:
  *    summary: Get one user by id
  *    tags: [Users]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -70,6 +74,8 @@ usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
  *   get:
  *    summary: Get the workspaces of one user
  *    tags: [Users]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -101,6 +107,8 @@ usersRouter.get(
  *   patch:
  *    summary: Update one User
  *    tags: [Users]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
@@ -147,6 +155,8 @@ usersRouter.patch(
  *   delete:
  *    summary: Delete one User
  *    tags: [Users]
+ *    security:
+ *     - bearerAuth: []
  *    parameters:
  *      - in: path
  *        name: ID
