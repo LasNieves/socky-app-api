@@ -18,20 +18,20 @@ export const workspaceRouter = Router()
 
 /**
  * @swagger
- *  /users:
+ *  /workspaces:
  *   get:
- *    summary: Get all Users from the app
- *    tags: [Users]
+ *    summary: Get all Workspaces from the app
+ *    tags: [Workspaces]
  *    responses:
  *      200:
- *        description: Users found
+ *        description: Workspaces found
  *        content:
  *          application/json:
  *            schema:
  *              type: array
  *              items:
  *                type: object
- *                $ref: '#/components/schemas/UsersDto'
+ *                $ref: '#/components/schemas/WorkspaceDto'
  */
 
 workspaceRouter.get('/', protect, authorization('SUPERADMIN'), getWorkspaces)
