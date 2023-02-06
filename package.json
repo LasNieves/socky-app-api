@@ -4,7 +4,8 @@
   "description": "",
   "main": "src/server.ts",
   "scripts": {
-    "start": "node ./src/server.ts",
+    "build": "tsc --build",
+    "start": "node ./dist/server.js",
     "dev": "nodemon ./src/server.ts",
     "migrate": "prisma migrate dev",
     "generate": "prisma generate",
