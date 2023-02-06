@@ -1,5 +1,3 @@
-import { WorkspaceRole } from '../enums'
-
 /**
  * @swagger
  * components:
@@ -28,6 +26,8 @@ import { WorkspaceRole } from '../enums'
  *        - workspaceId
  *        - role
  */
+
+import { WorkspaceRole } from '../enums'
 
 export interface UsersOnWorkspaces {
   id: string

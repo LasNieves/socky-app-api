@@ -63,7 +63,7 @@ export interface UsersDto {
  *            type: object
  *            properties:
  *             role:
- *              $ref: '#/components/schemas/Roles'
+ *              $ref: '#/components/schemas/WorkspaceRole'
  *             workspace:
  *              $ref: '#/components/schemas/Workspace'
  */

@@ -1,6 +1,7 @@
 import path from 'path'
+import swaggerJSDoc from 'swagger-jsdoc'
 
-export const options = {
+export const options: swaggerJSDoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
@@ -22,12 +23,15 @@ export const options = {
       {
         url: 'http://localhost:3000/api/v1',
       },
+      {
+        url: 'https://socky-app-api-production.up.railway.app/api/v1',
+      },
     ],
   },
   apis: [
-    `${path.join(__dirname, './../core/entities/*.entity.ts')}`,
-    `${path.join(__dirname, './../core/dtos/*.dto.ts')}`,
-    `${path.join(__dirname, './../core/enums/*.enum.ts')}`,
-    `${path.join(__dirname, './../routes/*.routes.ts')}`,
+    `${path.join(__dirname, './../core/entities/*.entity.{ts,js,d.ts}')}`,
+    `${path.join(__dirname, './../core/dtos/*.dto.{ts,js,d.ts}')}`,
+    `${path.join(__dirname, './../core/enums/*.enum.{ts,js,d.ts}')}`,
+    `${path.join(__dirname, './../routes/*.routes.{ts,js,d.ts}')}`,
   ],
 }
