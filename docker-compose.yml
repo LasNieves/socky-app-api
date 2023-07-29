@@ -8,6 +8,7 @@ services:
     ports:
       - ${DB_PORT}:5432
     environment:
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
   pgadmin:
