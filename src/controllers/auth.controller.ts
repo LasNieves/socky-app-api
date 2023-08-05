@@ -1,17 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { userService } from './user.controller'
-import { AuthService, JwtService } from '../services'
 import { CustomError } from '../errors'
-import { MailerService } from '../services/mailer.service'
-
-export const jwtService = new JwtService()
-export const mailerService = new MailerService()
-export const authService = new AuthService(
-  userService,
-  jwtService,
-  mailerService
-)
+import { authService } from '../services'
 
 export const register = async (
   req: Request,

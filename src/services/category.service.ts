@@ -8,8 +8,9 @@ import {
   UpdateCategoryDto,
 } from '../core/dtos'
 import { Category } from '../core/entities'
+import { workspaceService } from './workspace.service'
 
-export class CategoryService implements CategoryRepository {
+class CategoryService implements CategoryRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
 
   private validateIdType(id: number): CustomError | true {
@@ -114,3 +115,5 @@ export class CategoryService implements CategoryRepository {
     }
   }
 }
+
+export const categoryService = new CategoryService(workspaceService)

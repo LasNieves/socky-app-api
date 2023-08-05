@@ -7,7 +7,7 @@ import { CreateWorkspaceDto, WorkspaceDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
 import { WorkspaceRepository } from '../core/repositories'
 
-export class WorkspaceService implements WorkspaceRepository {
+class WorkspaceService implements WorkspaceRepository {
   async getAll(): Promise<Workspace[]> {
     const workspaces = await prisma.workspace.findMany({
       include: {
@@ -99,3 +99,5 @@ export class WorkspaceService implements WorkspaceRepository {
     }
   }
 }
+
+export const workspaceService = new WorkspaceService()

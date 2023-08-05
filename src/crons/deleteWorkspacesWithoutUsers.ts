@@ -1,7 +1,6 @@
 import cron from 'node-cron'
 import { prisma } from '../config/db'
-
-import { workspaceService } from '../controllers/workspace.controller'
+import { workspaceService } from '../services'
 
 export const deleteWorkspacesWithoutUsers = cron.schedule(
   '0 1 * * Saturday',

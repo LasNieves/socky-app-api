@@ -4,7 +4,7 @@ import { NotAuthorized } from '../errors/NotAuthorized'
 import { JwtRepository } from '../core/repositories/jwt.repository'
 import { JwtPayload } from '../core/types'
 
-export class JwtService implements JwtRepository {
+class JwtService implements JwtRepository {
   private signature: string
 
   constructor() {
@@ -24,3 +24,5 @@ export class JwtService implements JwtRepository {
     }
   }
 }
+
+export const jwtService = new JwtService()
