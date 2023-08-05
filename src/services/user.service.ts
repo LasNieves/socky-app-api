@@ -9,8 +9,9 @@ import { User } from '../core/entities'
 import { UpdateUserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
 import { WorkspaceRole } from '../core/enums'
 import { UserWithoutPassword } from '../core/types'
+import { workspaceService } from './workspace.service'
 
-export class UserService implements UserRepository {
+class UserService implements UserRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
 
   private async isValidPassword(
@@ -162,3 +163,5 @@ export class UserService implements UserRepository {
     return role.role
   }
 }
+
+export const userService = new UserService(workspaceService)

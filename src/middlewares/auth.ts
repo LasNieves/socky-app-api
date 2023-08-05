@@ -1,9 +1,8 @@
 import { Request, NextFunction, Response } from 'express'
 
-import { jwtService } from '../controllers/auth.controller'
-import { userService } from '../controllers/user.controller'
 import { ApplicationRole } from '../core/enums'
 import { NotAuthorized, NotFound } from '../errors'
+import { jwtService, userService } from '../services'
 
 export const protect = async (
   req: Request,

@@ -18,8 +18,11 @@ import {
 } from '../core/repositories'
 import { CustomError, Conflict, BadRequest } from '../errors'
 import { getNumericCode } from '../utils'
+import { userService } from './user.service'
+import { jwtService } from './jwt.service'
+import { mailerService } from './mailer.service'
 
-export class AuthService implements AuthRepository {
+class AuthService implements AuthRepository {
   constructor(
     private readonly userService: UserRepository,
     private readonly jwtService: JwtRepository,
@@ -28,7 +31,7 @@ export class AuthService implements AuthRepository {
       from: 'giulianodamico2019@gmail.com',
       templateId: process.env.VERIFY_USER_TEMPLATE!,
     }
-  ) { }
+  ) {}
 
   private async isValidPassword(
     passwordToCompare: string,
@@ -97,7 +100,7 @@ export class AuthService implements AuthRepository {
         data: {
           email,
           password: hashPassword,
-          role: isSuperAdmin ? "SUPERADMIN" : "USER",
+          role: isSuperAdmin ? 'SUPERADMIN' : 'USER',
           profile: {
             create: {
               ...rest,
@@ -238,3 +241,9 @@ export class AuthService implements AuthRepository {
     }
   }
 }
+
+export const authService = new AuthService(
+  userService,
+  jwtService,
+  mailerService
+)

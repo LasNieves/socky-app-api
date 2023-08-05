@@ -9,8 +9,9 @@ import {
 } from '../core/dtos'
 import { Post } from '../core/entities'
 import { CategoryRepository, PostRepository } from '../core/repositories'
+import { categoryService } from './category.service'
 
-export class PostService implements PostRepository {
+class PostService implements PostRepository {
   constructor(private readonly categoryService: CategoryRepository) {}
 
   private async categoryBelongsToWorkspace(
@@ -130,3 +131,5 @@ export class PostService implements PostRepository {
     }
   }
 }
+
+export const postService = new PostService(categoryService)

@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CategoryService } from '../services/category.service'
 import { CustomError } from '../errors'
-import { workspaceService } from './workspace.controller'
-
-export const categoryService = new CategoryService(workspaceService)
+import { categoryService } from '../services'
 
 export const getByWorkspace = async (
   req: Request,

@@ -1,9 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { WorkspaceService } from '../services'
 import { CustomError } from '../errors'
-
-export const workspaceService = new WorkspaceService()
+import { workspaceService } from '../services'
 
 export const getWorkspaces = async (req: Request, res: Response) => {
   const workspaces = await workspaceService.getAll()

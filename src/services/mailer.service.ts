@@ -2,7 +2,7 @@ import SendGrid from '@sendgrid/mail'
 
 import { MailerRepository } from '../core/repositories'
 
-export class MailerService implements MailerRepository {
+class MailerService implements MailerRepository {
   constructor() {
     SendGrid.setApiKey(process.env.SENDGRID_API_KEY!)
   }
@@ -11,3 +11,5 @@ export class MailerService implements MailerRepository {
     await SendGrid.send(mail)
   }
 }
+
+export const mailerService = new MailerService()

@@ -1,10 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { UserService } from '../services'
 import { CustomError } from '../errors'
-import { workspaceService } from './workspace.controller'
-
-export const userService = new UserService(workspaceService)
+import { userService } from '../services'
 
 export const getUsers = async (req: Request, res: Response) => {
   const users = await userService.getAll()
