@@ -16,7 +16,7 @@ import {
   JwtRepository,
   MailerRepository,
 } from '../core/repositories'
-import { CustomError, Conflict, BadRequest } from '../errors'
+import { Conflict, BadRequest, UserEmailNotFound } from '../errors'
 import { getNumericCode } from '../utils'
 import { userService } from './user.service'
 import { jwtService } from './jwt.service'
@@ -32,13 +32,6 @@ class AuthService implements AuthRepository {
       templateId: process.env.VERIFY_USER_TEMPLATE!,
     }
   ) {}
-
-  private async isValidPassword(
-    passwordToCompare: string,
-    password: string
-  ): Promise<boolean> {
-    return await compare(passwordToCompare, password)
-  }
 
   private generateCode(): { code: number; expiresAt: Date } {
     const currentDate = new Date().getTime()
@@ -57,18 +50,16 @@ class AuthService implements AuthRepository {
     return codeObj
   }
 
-  async login(data: AuthLoginDto): Promise<AuthDto | CustomError> {
-    const { email, password } = data
+  async login({ email, password }: AuthLoginDto): Promise<AuthDto> {
     const existUser = await this.userService.get({ email })
 
-    if (existUser instanceof CustomError) {
-      return existUser
+    if (!existUser) {
+      throw new UserEmailNotFound(email)
     }
 
-    const isValid = await this.isValidPassword(password, existUser.password)
-
+    const isValid = await compare(password, existUser.password)
     if (!isValid) {
-      return new Conflict('Credenciales inválidas')
+      throw new Conflict('Credenciales inválidas')
     }
 
     const token = this.jwtService.sign({
@@ -81,13 +72,13 @@ class AuthService implements AuthRepository {
     return { ...rest, token }
   }
 
-  async register(data: AuthRegisterDto): Promise<AuthDto | CustomError> {
+  async register(data: AuthRegisterDto): Promise<AuthDto> {
     const { email, password, isSuperAdmin = false, ...rest } = data
 
     const existUser = await this.userService.get({ email })
 
-    if (!(existUser instanceof CustomError)) {
-      return new Conflict(`El email ${email} ya está en uso`)
+    if (existUser) {
+      throw new Conflict(`El email ${email} ya está en uso`)
     }
 
     const salt = await genSalt(10)
@@ -157,18 +148,15 @@ class AuthService implements AuthRepository {
       return { ...user, token }
     } catch (error) {
       console.log(error)
-      return new BadRequest('Error al crear el usuario')
+      throw new BadRequest('Error al crear el usuario')
     }
   }
 
-  async validateCode({
-    code,
-    email,
-  }: AuthValidateCodeDto): Promise<string | CustomError> {
+  async validateCode({ code, email }: AuthValidateCodeDto): Promise<string> {
     const existUser = await this.userService.get({ email })
 
-    if (existUser instanceof CustomError) {
-      return existUser
+    if (!existUser) {
+      throw new UserEmailNotFound(email)
     }
 
     const userVerficationCode = await prisma.code.findFirst({
@@ -180,33 +168,33 @@ class AuthService implements AuthRepository {
       userVerficationCode?.expiresAt! < new Date() ||
       userVerficationCode?.used
     ) {
-      return new Conflict('El código ha expirado o ya ha sido utilizado')
+      throw new Conflict('El código ha expirado o ya ha sido utilizado')
     }
 
-    if (userVerficationCode?.code === code) {
-      await prisma.user.update({
-        where: { email },
-        data: { verified: true },
-      })
-
-      await prisma.code.update({
-        where: { id: userVerficationCode.id },
-        data: { used: true },
-      })
-
-      return `Usuario ${email} verificado correctamente`
+    if (userVerficationCode?.code !== code) {
+      throw new BadRequest('El código es inválido')
     }
 
-    return new BadRequest('El código es inválido')
+    await prisma.user.update({
+      where: { email },
+      data: { verified: true },
+    })
+
+    await prisma.code.update({
+      where: { id: userVerficationCode.id },
+      data: { used: true },
+    })
+
+    return `Usuario ${email} verificado correctamente`
   }
 
   async resendValidationCode({
     email,
-  }: AuthResendValidationCodeDto): Promise<string | CustomError> {
+  }: AuthResendValidationCodeDto): Promise<string> {
     const existUser = await this.userService.get({ email }, { profile: true })
 
-    if (existUser instanceof CustomError) {
-      return existUser
+    if (!existUser) {
+      throw new UserEmailNotFound(email)
     }
 
     try {
@@ -237,7 +225,7 @@ class AuthService implements AuthRepository {
       return `Código reenviado a ${email}`
     } catch (error) {
       console.log(error)
-      return new BadRequest('Error al reenviar el código de verificación')
+      throw new BadRequest('Error al reenviar el código de verificación')
     }
   }
 }

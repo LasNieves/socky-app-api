@@ -1,11 +1,14 @@
-import { CustomError } from '../../errors'
+import { Prisma } from '@prisma/client'
 import { Category } from '../entities'
 import { CategoriesDto, CreateCategoryDto, UpdateCategoryDto } from './../dtos'
 
 export interface CategoryRepository {
-  getByWorkspace(id: string): Promise<CategoriesDto[] | CustomError>
-  get(id: number): Promise<Category | CustomError>
-  create(data: CreateCategoryDto): Promise<Category | CustomError>
-  update(id: number, data: UpdateCategoryDto): Promise<Category | CustomError>
-  delete(id: number): Promise<Category | CustomError>
+  getByWorkspace(id: string): Promise<CategoriesDto[]>
+  get(
+    where: Prisma.CategoryWhereUniqueInput,
+    include?: Prisma.CategoryInclude
+  ): Promise<Category | null>
+  create(data: CreateCategoryDto): Promise<Category>
+  update(id: number, data: UpdateCategoryDto): Promise<Category>
+  delete(id: number): Promise<string>
 }

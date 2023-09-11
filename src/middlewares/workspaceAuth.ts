@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 
 import { WorkspaceRole } from '../core/enums'
 
-import { CustomError, NotAuthorized } from '../errors'
+import { CustomError, NotAuthorized, NotFound } from '../errors'
 import { categoryService, postService, userService } from '../services'
 
 type ValidateBy = 'workspaceId' | 'categoryId' | 'postId'
@@ -25,8 +25,10 @@ export const workspaceAuthorization =
 
       const category = await categoryService.get(categoryId ?? +ID)
 
-      if (category instanceof CustomError) {
-        return next(category)
+      if (!category) {
+        return next(
+          new NotFound(`La categoría con id ${ID} no se ha encontrado`)
+        )
       }
 
       id = category.workspaceId
@@ -46,16 +48,16 @@ export const workspaceAuthorization =
 
     const { id: userId } = req.user!
 
-    const userRole = await userService.getUserRoleInWorkspace(userId, id)
+    try {
+      const userRole = await userService.getUserRoleInWorkspace(userId, id)
 
-    if (userRole instanceof CustomError) {
-      return next(userRole)
-    }
+      if (!roles.includes(userRole)) {
+        throw new NotAuthorized('Usuario no autorizado')
+      }
 
-    if (roles.includes(userRole)) {
       req.workspaceId = id
       return next()
+    } catch (err) {
+      return next(err)
     }
-
-    return next(new NotAuthorized('Usuario no autorizado'))
   }

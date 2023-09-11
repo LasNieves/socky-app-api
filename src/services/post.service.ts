@@ -93,7 +93,7 @@ class PostService implements PostRepository {
   ): Promise<Post | CustomError> {
     const { categoryId } = data
     if (categoryId) {
-      const existCategory = await this.categoryService.get(categoryId)
+      const existCategory = await this.categoryService.get({ id: categoryId })
 
       if (existCategory instanceof CustomError) {
         return existCategory

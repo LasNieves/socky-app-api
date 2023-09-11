@@ -8,9 +8,7 @@ export interface WorkspaceRepository {
   getFirstWorkspaceOrThrow(
     where: Prisma.WorkspaceWhereUniqueInput
   ): Promise<Workspace>
-  get(
-    where: Prisma.WorkspaceWhereUniqueInput
-  ): Promise<WorkspaceDto | CustomError>
+  get(where: Prisma.WorkspaceWhereUniqueInput): Promise<WorkspaceDto | null>
   create(
     data: CreateWorkspaceDto,
     userId: string

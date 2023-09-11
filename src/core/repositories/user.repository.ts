@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client'
 
-import { CustomError } from '../../errors'
 import { Profile, User, Post } from '../entities'
 import { WorkspaceRole } from '../enums'
 import { UserWithoutPassword } from '../types'
@@ -11,16 +10,13 @@ export interface UserRepository {
   get(
     where: Prisma.UserWhereUniqueInput,
     include?: Prisma.UserInclude
-  ): Promise<CustomError | (User & { profile?: Profile; posts?: Post[] })>
+  ): Promise<(User & { profile?: Profile; posts?: Post[] }) | null>
   getFirstUserOrThrow(where: Prisma.UserWhereUniqueInput): Promise<User>
-  update(
-    id: string,
-    data: UpdateUserDto
-  ): Promise<UserWithoutPassword | CustomError>
-  delete(id: string, password: string): Promise<User | CustomError>
-  getUserWorkspaces(id: string): Promise<UserWorkspacesDto | CustomError>
+  update(id: string, data: UpdateUserDto): Promise<UserWithoutPassword>
+  delete(id: string, password: string): Promise<User>
+  getUserWorkspaces(id: string): Promise<UserWorkspacesDto>
   getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<WorkspaceRole | CustomError>
+  ): Promise<WorkspaceRole>
 }

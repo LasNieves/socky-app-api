@@ -1,9 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CustomError } from '../errors'
 import { userService } from '../services'
 
-export const getUsers = async (req: Request, res: Response) => {
+export const getUsers = async (_req: Request, res: Response) => {
   const users = await userService.getAll()
 
   res.status(200).json(users)
@@ -15,16 +14,17 @@ export const getOneUser = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const user = await userService.get(
-    { id: ID },
-    { profile: true, workspaces: true }
-  )
 
-  if (user instanceof CustomError) {
-    return next(user)
+  try {
+    const user = await userService.get(
+      { id: ID },
+      { profile: true, workspaces: true }
+    )
+
+    res.status(200).json(user)
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json(user)
 }
 
 export const getUserWorkspaces = async (
@@ -34,13 +34,13 @@ export const getUserWorkspaces = async (
 ) => {
   const { ID } = req.params
 
-  const userWorkspaces = await userService.getUserWorkspaces(ID)
+  try {
+    const userWorkspaces = await userService.getUserWorkspaces(ID)
 
-  if (userWorkspaces instanceof CustomError) {
-    return next(userWorkspaces)
+    res.status(200).send(userWorkspaces)
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).send(userWorkspaces)
 }
 
 export const updateUser = async (
@@ -50,16 +50,16 @@ export const updateUser = async (
 ) => {
   const { ID } = req.params
 
-  const updatedUser = await userService.update(ID, req.body)
+  try {
+    const updatedUser = await userService.update(ID, req.body)
 
-  if (updatedUser instanceof CustomError) {
-    return next(updatedUser)
+    res.status(200).json({
+      message: 'Usuario actualizado correctamente',
+      data: updatedUser,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: 'Usuario actualizado correctamente',
-    data: updatedUser,
-  })
 }
 
 export const deleteUser = async (
@@ -68,16 +68,15 @@ export const deleteUser = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const { password } = req.body
 
-  const deletedUser = await userService.delete(ID, password)
+  try {
+    const deletedUser = await userService.delete(ID, req.body)
 
-  if (deletedUser instanceof CustomError) {
-    return next(deletedUser)
+    res.status(200).json({
+      message: 'Usuario eliminado correctamente',
+      data: deletedUser,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: 'Usuario eliminado correctamente',
-    data: deletedUser,
-  })
 }

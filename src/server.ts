@@ -1,5 +1,6 @@
 import express, { json } from 'express'
 import cors from 'cors'
+import morgan from 'morgan'
 import * as dotenv from 'dotenv'
 import swaggerUi from 'swagger-ui-express'
 import swaggerJsdoc from 'swagger-jsdoc'
@@ -17,6 +18,7 @@ const server = express()
 
 server.use(json())
 server.use(cors())
+server.use(morgan('tiny'))
 
 server.use('/api/v1', handlers)
 

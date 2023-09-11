@@ -29,8 +29,8 @@ class WorkspaceService implements WorkspaceRepository {
 
   async get(
     where: Prisma.WorkspaceWhereUniqueInput
-  ): Promise<WorkspaceDto | CustomError> {
-    const workspace = await prisma.workspace.findUnique({
+  ): Promise<WorkspaceDto | null> {
+    return await prisma.workspace.findUnique({
       where,
       include: {
         categories: true,
@@ -52,12 +52,6 @@ class WorkspaceService implements WorkspaceRepository {
         },
       },
     })
-
-    if (!workspace) {
-      return new NotFound(`Workspace con id ${where.id} no encontrado`)
-    }
-
-    return workspace
   }
 
   async create(
