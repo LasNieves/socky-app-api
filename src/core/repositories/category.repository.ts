@@ -8,6 +8,10 @@ export interface CategoryRepository {
     where: Prisma.CategoryWhereUniqueInput,
     include?: Prisma.CategoryInclude
   ): Promise<Category | null>
+  categoryBelongsToWorkspace(
+    categoryId: number,
+    workspaceId: string
+  ): Promise<boolean>
   create(data: CreateCategoryDto): Promise<Category>
   update(id: number, data: UpdateCategoryDto): Promise<Category>
   delete(id: number): Promise<string>

@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '../config/db'
 
 import { BadRequest, Conflict, NotFound } from '../errors'
@@ -9,7 +10,6 @@ import {
 } from '../core/dtos'
 import { Category } from '../core/entities'
 import { workspaceService } from './workspace.service'
-import { Prisma } from '@prisma/client'
 
 class CategoryService implements CategoryRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
@@ -33,6 +33,17 @@ class CategoryService implements CategoryRepository {
       where,
       include,
     })
+  }
+
+  async categoryBelongsToWorkspace(
+    categoryId: number,
+    workspaceId: string
+  ): Promise<boolean> {
+    const foundCategory = await prisma.category.findFirst({
+      where: { AND: [{ id: categoryId, workspaceId }] },
+    })
+
+    return !!foundCategory
   }
 
   async create({ title, workspaceId }: CreateCategoryDto): Promise<Category> {

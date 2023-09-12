@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express'
 
 import { WorkspaceRole } from '../core/enums'
 
-import { CustomError, NotAuthorized, NotFound } from '../errors'
+import { NotAuthorized, NotFound } from '../errors'
 import { categoryService, postService, userService } from '../services'
 
 type ValidateBy = 'workspaceId' | 'categoryId' | 'postId'
@@ -39,8 +39,8 @@ export const workspaceAuthorization =
 
       const post = await postService.get(postId ?? ID)
 
-      if (post instanceof CustomError) {
-        return next(post)
+      if (!post) {
+        return next(new NotFound(`El post con id ${ID} no se ha encontrado`))
       }
 
       id = post.category.workspaceId
