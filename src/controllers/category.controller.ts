@@ -2,9 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 
 import { BadRequest, NotFound } from '../errors'
 import { categoryService } from '../services'
-
-const canCoerceToNumber = (value: any): value is number =>
-  !Object.is(Number(value), NaN)
+import { canCoerceToNumber } from '../utils'
 
 export const getByWorkspace = async (
   req: Request,
@@ -24,7 +22,7 @@ export const getOneCategory = async (
 ) => {
   const { ID } = req.params
   if (!canCoerceToNumber(ID)) {
-    throw new BadRequest(`El ID de la categoría debe ser un número`)
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
   }
 
   const category = await categoryService.get({ id: +ID }, { posts: true })
@@ -60,7 +58,7 @@ export const updateCategory = async (
 ) => {
   const { ID } = req.params
   if (!canCoerceToNumber(ID)) {
-    throw new BadRequest(`El ID de la categoría debe ser un número`)
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
   }
 
   try {
@@ -82,7 +80,7 @@ export const deleteCategory = async (
 ) => {
   const { ID } = req.params
   if (!canCoerceToNumber(ID)) {
-    throw new BadRequest(`El ID de la categoría debe ser un número`)
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
   }
 
   try {

@@ -18,5 +18,5 @@ export interface UserRepository {
   getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<WorkspaceRole>
+  ): Promise<WorkspaceRole | null>
 }

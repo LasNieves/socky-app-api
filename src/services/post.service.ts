@@ -42,9 +42,11 @@ class PostService implements PostRepository {
     })
   }
 
-  async create(data: CreatePostDto & { userId: string }): Promise<Post> {
+  async create(post: CreatePostDto & { userId: string }): Promise<Post> {
     try {
-      return await prisma.post.create({ data })
+      return await prisma.post.create({
+        data: post,
+      })
     } catch (error) {
       console.log(error)
       throw new BadRequest('Error al crear el post')

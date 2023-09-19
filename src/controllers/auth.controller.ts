@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import crypto from 'crypto'
 
 import { authService } from '../services'
 
@@ -9,12 +10,17 @@ export const register = async (
 ) => {
   const { headers } = req
 
-  //FIX super admin use crypto package
   let isSuperAdmin = false
+  const appSecret = process.env.APPLICATION_SECRET
+  const secretSended = headers['application-secret']
 
-  if (headers['application-secret']) {
-    isSuperAdmin =
-      headers['application-secret'] === process.env.APPLICATION_SECRET
+  if (appSecret && secretSended && typeof secretSended === 'string') {
+    const a = Buffer.from(appSecret)
+    const b = Buffer.from(secretSended)
+
+    if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+      isSuperAdmin = true
+    }
   }
 
   try {

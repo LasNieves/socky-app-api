@@ -1,15 +1,15 @@
-import { Prisma } from '@prisma/client'
+import { Prisma, WorkspaceRole } from '@prisma/client'
 
 import { prisma } from '../config/db'
 
-import { BadRequest, CustomError, NotFound } from '../errors'
+import { BadRequest, Conflict, NotFound } from '../errors'
 import { CreateWorkspaceDto, WorkspaceDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
 import { WorkspaceRepository } from '../core/repositories'
 
 class WorkspaceService implements WorkspaceRepository {
   async getAll(): Promise<Workspace[]> {
-    const workspaces = await prisma.workspace.findMany({
+    return await prisma.workspace.findMany({
       include: {
         users: true,
         _count: {
@@ -19,8 +19,6 @@ class WorkspaceService implements WorkspaceRepository {
         },
       },
     })
-
-    return workspaces
   }
 
   async getFirstWorkspaceOrThrow(where: Prisma.WorkspaceWhereUniqueInput) {
@@ -55,41 +53,39 @@ class WorkspaceService implements WorkspaceRepository {
   }
 
   async create(
-    data: CreateWorkspaceDto,
+    workspace: CreateWorkspaceDto,
     userId: string
-  ): Promise<Workspace | CustomError> {
-    const { name, icon } = data
-
+  ): Promise<Workspace> {
     try {
-      const newWorkspace = prisma.workspace.create({
+      return prisma.workspace.create({
         data: {
-          name,
-          icon,
+          ...workspace,
           personal: false,
           users: {
             create: {
               userId,
-              role: 'OWNER',
+              role: WorkspaceRole.OWNER,
             },
           },
         },
       })
-
-      return newWorkspace
     } catch (error) {
       console.log(error)
-      return new BadRequest('Error al crear el workspace')
+      throw new BadRequest('Error al crear el workspace')
     }
   }
 
-  async delete(id: string): Promise<Workspace | CustomError> {
-    try {
-      const deletedWorkspace = await prisma.workspace.delete({ where: { id } })
+  async delete(id: string): Promise<string> {
+    await this.getFirstWorkspaceOrThrow({ id }).catch(() => {
+      throw new NotFound(`Workspace con id ${id} no encontrado`)
+    })
 
-      return deletedWorkspace
+    try {
+      await prisma.workspace.delete({ where: { id } })
+      return `Workspace con id ${id} eliminado`
     } catch (error) {
       console.log(error)
-      return new NotFound(`Workspace con id ${id} no encontrado`)
+      throw new Conflict('Error al eliminar el workspace')
     }
   }
 }

@@ -110,7 +110,7 @@ class UserService implements UserRepository {
   async getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<WorkspaceRole> {
+  ): Promise<WorkspaceRole | null> {
     const workspace = await this.workspaceService.get({ id: workspaceId })
 
     if (!workspace) {
@@ -122,13 +122,7 @@ class UserService implements UserRepository {
       select: { role: true },
     })
 
-    if (!role) {
-      throw new NotAuthorized(
-        `El usuario no pertenece al workspace con id ${workspaceId}`
-      )
-    }
-
-    return role.role
+    return role?.role ?? null
   }
 }
 

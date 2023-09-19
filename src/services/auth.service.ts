@@ -1,3 +1,4 @@
+import { ApplicationRole, WorkspaceRole } from '@prisma/client'
 import { hash, genSalt, compare } from 'bcryptjs'
 import SendGrid from '@sendgrid/mail'
 
@@ -91,7 +92,9 @@ class AuthService implements AuthRepository {
         data: {
           email,
           password: hashPassword,
-          role: isSuperAdmin ? 'SUPERADMIN' : 'USER',
+          role: isSuperAdmin
+            ? ApplicationRole.SUPERADMIN
+            : ApplicationRole.USER,
           profile: {
             create: {
               ...rest,
@@ -111,7 +114,7 @@ class AuthService implements AuthRepository {
                   icon: 'Diego Armando Maradona',
                 },
               },
-              role: 'OWNER',
+              role: WorkspaceRole.OWNER,
             },
           },
         },
@@ -133,7 +136,7 @@ class AuthService implements AuthRepository {
 
       this.mailObj = {
         ...this.mailObj,
-        to: 'francomusolino55@gmail.com',
+        to: email,
         dynamicTemplateData: {
           firstname: rest.firstName,
           code,
@@ -157,6 +160,9 @@ class AuthService implements AuthRepository {
 
     if (!existUser) {
       throw new UserEmailNotFound(email)
+    }
+    if (existUser.verified) {
+      throw new Conflict(`El usuario ${email} ya se encuentra verificado`)
     }
 
     const userVerficationCode = await prisma.code.findFirst({
@@ -196,6 +202,9 @@ class AuthService implements AuthRepository {
     if (!existUser) {
       throw new UserEmailNotFound(email)
     }
+    if (existUser.verified) {
+      throw new Conflict(`El usuario ${email} ya se encuentra verificado`)
+    }
 
     try {
       const { code, expiresAt } = this.generateCode()
@@ -210,7 +219,7 @@ class AuthService implements AuthRepository {
 
       this.mailObj = {
         ...this.mailObj,
-        to: 'francomusolino55@gmail.com',
+        to: email,
         dynamicTemplateData: {
           firstname: existUser.profile!.firstName,
           code,
