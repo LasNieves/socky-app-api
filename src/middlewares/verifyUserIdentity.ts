@@ -1,3 +1,4 @@
+import { ApplicationRole } from '@prisma/client'
 import { Request, Response, NextFunction } from 'express'
 
 import { NotAuthorized } from './../errors'
@@ -10,7 +11,7 @@ export const verifyUserIdentity = (
   const { ID } = req.params
   const { user } = req
 
-  if (user?.role !== 'SUPERADMIN' && user?.id !== ID) {
+  if (user?.role !== ApplicationRole.SUPERADMIN && user?.id !== ID) {
     return next(
       new NotAuthorized('Usuario no autorizado para realizar esta operación')
     )

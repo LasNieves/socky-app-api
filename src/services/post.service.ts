@@ -1,12 +1,7 @@
 import { prisma } from '../config/db'
 
-import { BadRequest, CustomError, NotAuthorized, NotFound } from '../errors'
-import {
-  CategoriesDto,
-  CreatePostDto,
-  PostDto,
-  UpdatePostDto,
-} from '../core/dtos'
+import { BadRequest, NotAuthorized, NotFound } from '../errors'
+import { CreatePostDto, PostDto, UpdatePostDto } from '../core/dtos'
 import { Post } from '../core/entities'
 import { CategoryRepository, PostRepository } from '../core/repositories'
 import { categoryService } from './category.service'
@@ -14,27 +9,8 @@ import { categoryService } from './category.service'
 class PostService implements PostRepository {
   constructor(private readonly categoryService: CategoryRepository) {}
 
-  private async categoryBelongsToWorkspace(
-    workspaceId: string,
-    categoryId: number
-  ): Promise<CategoriesDto | CustomError> {
-    const categories = await this.categoryService.getByWorkspace(workspaceId)
-
-    const category = (categories as CategoriesDto[]).find(
-      (category) => category.id === categoryId
-    )
-
-    if (!category) {
-      return new NotAuthorized(
-        `La categoría ${categoryId} no pertenece al workspace ${workspaceId} `
-      )
-    }
-
-    return category
-  }
-
-  async getByWorkspace(id: string): Promise<Post[] | CustomError> {
-    const posts = await prisma.post.findMany({
+  async getByWorkspace(id: string): Promise<Post[]> {
+    return await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
         category: {
@@ -45,12 +21,10 @@ class PostService implements PostRepository {
         },
       },
     })
-
-    return posts
   }
 
-  async get(id: string): Promise<PostDto | CustomError> {
-    const post = await prisma.post.findUnique({
+  async get(id: string): Promise<PostDto | null> {
+    return await prisma.post.findUnique({
       where: { id },
       select: {
         id: true,
@@ -66,23 +40,16 @@ class PostService implements PostRepository {
         },
       },
     })
-
-    if (!post) {
-      return new NotFound(`Post con id ${id} no encontrado`)
-    }
-
-    return post
   }
 
-  async create(
-    data: CreatePostDto & { userId: string }
-  ): Promise<Post | CustomError> {
+  async create(post: CreatePostDto & { userId: string }): Promise<Post> {
     try {
-      const post = await prisma.post.create({ data })
-      return post
+      return await prisma.post.create({
+        data: post,
+      })
     } catch (error) {
       console.log(error)
-      return new BadRequest('Error al crear el post')
+      throw new BadRequest('Error al crear el post')
     }
   }
 
@@ -90,44 +57,45 @@ class PostService implements PostRepository {
     postId: string,
     workspaceId: string,
     data: UpdatePostDto
-  ): Promise<Post | CustomError> {
+  ): Promise<Post> {
     const { categoryId } = data
-    if (categoryId) {
-      const existCategory = await this.categoryService.get(categoryId)
 
-      if (existCategory instanceof CustomError) {
-        return existCategory
+    if (categoryId) {
+      const existCategory = await this.categoryService.get({ id: categoryId })
+      if (!existCategory) {
+        throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
       }
 
-      const categoryBelongsToWorkspace = await this.categoryBelongsToWorkspace(
-        workspaceId,
-        categoryId
+      const canEditPost = await this.categoryService.categoryBelongsToWorkspace(
+        categoryId,
+        workspaceId
       )
 
-      if (categoryBelongsToWorkspace instanceof CustomError) {
-        return categoryBelongsToWorkspace
+      if (!canEditPost) {
+        throw new NotAuthorized(
+          `La categoría ${categoryId} no pertenece al workspace del post que estas editando`
+        )
       }
     }
 
     try {
-      const updatePost = await prisma.post.update({
+      return await prisma.post.update({
         where: { id: postId },
         data,
       })
-      return updatePost
     } catch (error) {
       console.log(error)
-      return new BadRequest(`Error al actualizar un post`)
+      throw new BadRequest(`Error al actualizar un post`)
     }
   }
 
-  async delete(id: string): Promise<Post | CustomError> {
+  async delete(id: string): Promise<string> {
     try {
-      const deletedPost = await prisma.post.delete({ where: { id } })
-      return deletedPost
+      await prisma.post.delete({ where: { id } })
+      return `Post con id ${id} eliminado correctamente`
     } catch (error) {
       console.log(error)
-      return new BadRequest(`Error al eliminar un post`)
+      throw new BadRequest(`Error al eliminar un post`)
     }
   }
 }

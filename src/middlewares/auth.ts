@@ -6,7 +6,7 @@ import { jwtService, userService } from '../services'
 
 export const protect = async (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   const { headers } = req
@@ -43,7 +43,7 @@ export const protect = async (
 
 export const authorization =
   (...roles: ApplicationRole[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, _res: Response, next: NextFunction) => {
     const { user } = req
     if (roles.includes(user!.role)) {
       return next()

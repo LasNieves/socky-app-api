@@ -1,4 +1,3 @@
-import { CustomError } from '../../errors'
 import {
   AuthLoginDto,
   AuthRegisterDto,
@@ -8,10 +7,8 @@ import {
 } from '../dtos'
 
 export interface AuthRepository {
-  login(data: AuthLoginDto): Promise<AuthDto | CustomError>
-  register(data: AuthRegisterDto): Promise<AuthDto | CustomError>
-  validateCode(data: AuthValidateCodeDto): Promise<string | CustomError>
-  resendValidationCode(
-    data: AuthResendValidationCodeDto
-  ): Promise<string | CustomError>
+  login(data: AuthLoginDto): Promise<AuthDto>
+  register(data: AuthRegisterDto): Promise<AuthDto>
+  validateCode(data: AuthValidateCodeDto): Promise<string>
+  resendValidationCode(data: AuthResendValidationCodeDto): Promise<string>
 }

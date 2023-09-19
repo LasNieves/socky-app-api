@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CustomError } from '../errors'
+import { NotFound } from '../errors'
 import { postService } from '../services'
 
 export const getByWorkspace = async (
@@ -11,8 +11,8 @@ export const getByWorkspace = async (
   const { ID } = req.params
   const posts = await postService.getByWorkspace(ID)
 
-  if (posts instanceof CustomError) {
-    return next(posts)
+  if (!posts) {
+    return next(new NotFound(`El workspace con id ${ID} no se ha encontrado`))
   }
 
   res.status(200).json(posts)
@@ -26,8 +26,8 @@ export const getOnePost = async (
   const { ID } = req.params
   const post = await postService.get(ID)
 
-  if (post instanceof CustomError) {
-    return next(post)
+  if (!post) {
+    return next(new NotFound(`El post con id ${ID} no se ha encontrado`))
   }
 
   res.status(200).json(post)
@@ -38,24 +38,21 @@ export const createPost = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, description, categoryId } = req.body
   const { id } = req.user!
 
-  const post = await postService.create({
-    title,
-    description,
-    categoryId,
-    userId: id,
-  })
+  try {
+    const post = await postService.create({
+      ...req.body,
+      userId: id,
+    })
 
-  if (post instanceof CustomError) {
-    return next(post)
+    res.status(201).json({
+      message: 'Post creado correctamente',
+      data: post,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(201).json({
-    message: 'Post creado correctamente',
-    data: post,
-  })
 }
 
 export const updatePost = async (
@@ -64,18 +61,17 @@ export const updatePost = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const data = req.body
 
-  const post = await postService.update(ID, req.workspaceId!, data)
+  try {
+    const post = await postService.update(ID, req.workspaceId!, req.body)
 
-  if (post instanceof CustomError) {
-    return next(post)
+    res.status(200).json({
+      message: 'Post actualizado correctamente',
+      data: post,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: 'Post actualizado correctamente',
-    data: post,
-  })
 }
 
 export const deletePost = async (
@@ -85,14 +81,13 @@ export const deletePost = async (
 ) => {
   const { ID } = req.params
 
-  const post = await postService.delete(ID)
+  try {
+    const message = await postService.delete(ID)
 
-  if (post instanceof CustomError) {
-    return next(post)
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: 'Post eliminado correctamente',
-    data: post,
-  })
 }
