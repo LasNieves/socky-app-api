@@ -134,7 +134,7 @@ authRouter.post(
  *       application/json:
  *         schema:
  *           type: object
- *           $ref: '#/components/schemas/AuthResendValidationCodeDto'
+ *           $ref: '#/components/schemas/AuthSendValidationCodeDto'
  *    responses:
  *      200:
  *        description: The email has been sent successfully

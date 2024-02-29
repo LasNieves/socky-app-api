@@ -111,7 +111,7 @@ export interface AuthValidateCodeDto {
  * @swagger
  * components:
  *  schemas:
- *    AuthResendValidationCodeDto:
+ *    AuthSendValidationCodeDto:
  *      description: Data required for resend the validation code
  *      type: object
  *      properties:
@@ -123,7 +123,7 @@ export interface AuthValidateCodeDto {
  *        - email
  */
 
-export interface AuthResendValidationCodeDto {
+export interface AuthSendValidationCodeDto {
   email: string
 }
 

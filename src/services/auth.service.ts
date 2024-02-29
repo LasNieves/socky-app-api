@@ -9,7 +9,7 @@ import {
   AuthRegisterDto,
   AuthDto,
   AuthValidateCodeDto,
-  AuthResendValidationCodeDto,
+  AuthSendValidationCodeDto,
 } from '../core/dtos'
 import {
   AuthRepository,
@@ -53,14 +53,17 @@ class AuthService implements AuthRepository {
 
   async login({ email, password }: AuthLoginDto): Promise<AuthDto> {
     const existUser = await this.userService.get({ email })
-
     if (!existUser) {
-      throw new UserEmailNotFound(email)
+      throw new Conflict('Credenciales inválidas')
     }
 
     const isValid = await compare(password, existUser.password)
     if (!isValid) {
       throw new Conflict('Credenciales inválidas')
+    }
+
+    if (!existUser.verified) {
+      await this.sendValidationCode({ email: existUser.email })
     }
 
     const token = this.jwtService.sign({
@@ -77,15 +80,12 @@ class AuthService implements AuthRepository {
     const { email, password, isSuperAdmin = false, ...rest } = data
 
     const existUser = await this.userService.get({ email })
-
     if (existUser) {
       throw new Conflict(`El email ${email} ya está en uso`)
     }
 
     const salt = await genSalt(10)
     const hashPassword = await hash(password, salt)
-
-    const { code, expiresAt } = this.generateCode()
 
     try {
       const user = await prisma.user.create({
@@ -98,12 +98,6 @@ class AuthService implements AuthRepository {
           profile: {
             create: {
               ...rest,
-            },
-          },
-          codes: {
-            create: {
-              code,
-              expiresAt,
             },
           },
           workspaces: {
@@ -129,24 +123,12 @@ class AuthService implements AuthRepository {
         },
       })
 
+      await this.sendValidationCode({ email: user.email })
+
       const token = this.jwtService.sign({
         id: user.id,
         email: user.email,
       })
-
-      this.mailObj = {
-        ...this.mailObj,
-        to: email,
-        dynamicTemplateData: {
-          firstname: rest.firstName,
-          code,
-        },
-      }
-
-      this.mailerService
-        .send(this.mailObj)
-        .then(() => console.log('Mail enviado correctamente'))
-        .catch(() => console.error('Error al enviar el mail'))
 
       return { ...user, token }
     } catch (error) {
@@ -194,9 +176,9 @@ class AuthService implements AuthRepository {
     return `Usuario ${email} verificado correctamente`
   }
 
-  async resendValidationCode({
+  async sendValidationCode({
     email,
-  }: AuthResendValidationCodeDto): Promise<string> {
+  }: AuthSendValidationCodeDto): Promise<string> {
     const existUser = await this.userService.get({ email }, { profile: true })
 
     if (!existUser) {
