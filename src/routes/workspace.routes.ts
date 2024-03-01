@@ -36,7 +36,7 @@ export const workspaceRouter = Router()
  *                $ref: '#/components/schemas/Workspace'
  */
 
-workspaceRouter.get('/', protect, authorization('SUPERADMIN'), getWorkspaces)
+workspaceRouter.get('/', protect(), authorization('SUPERADMIN'), getWorkspaces)
 
 /**
  * @swagger
@@ -66,7 +66,7 @@ workspaceRouter.get('/', protect, authorization('SUPERADMIN'), getWorkspaces)
 
 workspaceRouter.get(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOneWorkspace
 )
@@ -102,7 +102,7 @@ workspaceRouter.get(
 
 workspaceRouter.post(
   '/',
-  protect,
+  protect(),
   body('name').isString().trim().notEmpty().withMessage('Campo requerido'),
   body('icon').isString().trim().notEmpty().withMessage('Campo requerido'),
   validateRequest,

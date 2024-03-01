@@ -47,7 +47,7 @@ export const postRouter = Router()
 
 postRouter.get(
   '/workspace/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getByWorkspace
 )
@@ -80,7 +80,7 @@ postRouter.get(
 
 postRouter.get(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOnePost
 )
@@ -116,7 +116,7 @@ postRouter.get(
 
 postRouter.post(
   '/',
-  protect,
+  protect(),
   body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('description')
     .trim()
@@ -168,7 +168,7 @@ postRouter.post(
 
 postRouter.patch(
   '/:ID',
-  protect,
+  protect(),
   body('title')
     .trim()
     .isString()
@@ -223,7 +223,7 @@ postRouter.patch(
 
 postRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
   deletePost
 )

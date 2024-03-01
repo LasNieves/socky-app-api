@@ -159,7 +159,7 @@ class AuthService implements AuthRepository {
       throw new Conflict('El código ha expirado o ya ha sido utilizado')
     }
 
-    if (timingSafeEqual(code, generatedCode.code)) {
+    if (!timingSafeEqual(code, generatedCode.code)) {
       throw new BadRequest('El código es inválido')
     }
 

@@ -118,7 +118,7 @@ authRouter.post(
 
 authRouter.post(
   '/verify-account',
-  protect,
+  protect(false),
   body('code').isNumeric().notEmpty().withMessage('Código obligatorio'),
   validateRequest,
   verifyAccount

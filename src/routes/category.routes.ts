@@ -47,7 +47,7 @@ export const categoryRouter = Router()
 
 categoryRouter.get(
   '/workspace/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getByWorkspace
 )
@@ -79,7 +79,7 @@ categoryRouter.get(
 
 categoryRouter.get(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOneCategory
 )
@@ -115,7 +115,7 @@ categoryRouter.get(
 
 categoryRouter.post(
   '/',
-  protect,
+  protect(),
   body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
   body('workspaceId')
     .trim()
@@ -165,7 +165,7 @@ categoryRouter.post(
 
 categoryRouter.patch(
   '/:ID',
-  protect,
+  protect(),
   body('title').isString().trim().optional(),
   validateRequest,
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
@@ -203,7 +203,7 @@ categoryRouter.patch(
 
 categoryRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN'),
   deleteCategory
 )

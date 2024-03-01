@@ -38,7 +38,7 @@ export const usersRouter = Router()
  *                $ref: '#/components/schemas/UsersDto'
  */
 
-usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
+usersRouter.get('/', protect(), authorization('SUPERADMIN'), getUsers)
 
 /**
  * @swagger
@@ -66,7 +66,7 @@ usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
  *              $ref: '#/components/schemas/User'
  */
 
-usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
+usersRouter.get('/:ID', protect(), verifyUserIdentity, getOneUser)
 
 /**
  * @swagger
@@ -96,7 +96,7 @@ usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
 
 usersRouter.get(
   '/workspaces/:ID',
-  protect,
+  protect(),
   verifyUserIdentity,
   getUserWorkspaces
 )
@@ -140,7 +140,7 @@ usersRouter.get(
 
 usersRouter.patch(
   '/:ID',
-  protect,
+  protect(),
   verifyUserIdentity,
   body('firstName').trim().isString().optional(),
   body('lastName').trim().isString().optional(),
@@ -192,7 +192,7 @@ usersRouter.patch(
 
 usersRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   verifyUserIdentity,
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
