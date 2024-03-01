@@ -10,7 +10,6 @@ import {
   AuthRegisterDto,
   AuthDto,
   AuthVerifyAccountDto,
-  AuthSendValidationCodeDto,
 } from '../core/dtos'
 import {
   AuthRepository,
@@ -63,7 +62,7 @@ class AuthService implements AuthRepository {
       throw new Conflict('Credenciales inválidas')
     }
 
-    await this.sendValidationCode({ email: existUser.email })
+    await this.sendValidationCode(existUser.email)
 
     const token = this.jwtService.sign({
       id: existUser.id,
@@ -122,7 +121,7 @@ class AuthService implements AuthRepository {
         },
       })
 
-      await this.sendValidationCode({ email: user.email })
+      await this.sendValidationCode(user.email)
 
       const token = this.jwtService.sign({
         id: user.id,
@@ -178,16 +177,11 @@ class AuthService implements AuthRepository {
     return `Usuario ${email} verificado correctamente`
   }
 
-  async sendValidationCode({
-    email,
-  }: AuthSendValidationCodeDto): Promise<string> {
+  async sendValidationCode(email: string): Promise<string> {
     const existUser = await this.userService.get({ email }, { profile: true })
 
     if (!existUser) {
       throw new UserEmailNotFound(email)
-    }
-    if (existUser.verified) {
-      throw new Conflict(`El usuario ${email} ya se encuentra verificado`)
     }
 
     try {

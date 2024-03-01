@@ -77,7 +77,7 @@ export const resendvalidationCode = async (
   next: NextFunction
 ) => {
   try {
-    const message = await authService.sendValidationCode(req.body)
+    const message = await authService.sendValidationCode(req.user!.email)
 
     res.status(200).json({
       message,

@@ -105,26 +105,6 @@ export interface AuthVerifyAccountDto {
  * @swagger
  * components:
  *  schemas:
- *    AuthSendValidationCodeDto:
- *      description: Data required for resend the validation code
- *      type: object
- *      properties:
- *        email:
- *           type: string
- *           format: email
- *           description: The email of the existing user
- *      required:
- *        - email
- */
-
-export interface AuthSendValidationCodeDto {
-  email: string
-}
-
-/**
- * @swagger
- * components:
- *  schemas:
  *    AuthDto:
  *      description: Response for every auth endpoints
  *      type: object

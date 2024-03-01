@@ -130,13 +130,8 @@ authRouter.post(
  *   post:
  *    summary: Resend the validation code
  *    tags: [Auth]
- *    requestBody:
- *     required: true
- *     content:
- *       application/json:
- *         schema:
- *           type: object
- *           $ref: '#/components/schemas/AuthSendValidationCodeDto'
+ *    security:
+ *     - bearerAuth: []
  *    responses:
  *      200:
  *        description: The email has been sent successfully
@@ -151,7 +146,7 @@ authRouter.post(
 
 authRouter.post(
   '/resend-code',
-  body('email').isEmail().withMessage('Email inválido'),
+  protect(false),
   validateRequest,
   resendvalidationCode
 )
