@@ -5,9 +5,9 @@ import {
   login,
   register,
   resendvalidationCode,
-  validateCode,
+  verifyAccount,
 } from '../controllers/auth.controller'
-import { validateRequest } from '../middlewares'
+import { protect, validateRequest } from '../middlewares'
 
 export const authRouter = Router()
 
@@ -91,20 +91,22 @@ authRouter.post(
 
 /**
  * @swagger
- *  /auth/validate-code:
+ *  /auth/verify-account:
  *   post:
- *    summary: Verify a user
+ *    summary: Verify an account (2FA Auth)
  *    tags: [Auth]
+ *    security:
+ *     - bearerAuth: []
  *    requestBody:
  *     required: true
  *     content:
  *       application/json:
  *         schema:
  *           type: object
- *           $ref: '#/components/schemas/AuthValidateCodeDto'
+ *           $ref: '#/components/schemas/AuthVerifyAccountDto'
  *    responses:
  *      200:
- *        description: The user has been verified successfully
+ *        description: The account has been verified successfully
  *        content:
  *          application/json:
  *           schema:
@@ -115,11 +117,11 @@ authRouter.post(
  */
 
 authRouter.post(
-  '/validate-code',
-  body('email').isEmail().withMessage('Email inválido'),
+  '/verify-account',
+  protect,
   body('code').isNumeric().notEmpty().withMessage('Código obligatorio'),
   validateRequest,
-  validateCode
+  verifyAccount
 )
 
 /**

@@ -86,24 +86,18 @@ export interface AuthRegisterDto {
  * @swagger
  * components:
  *  schemas:
- *    AuthValidateCodeDto:
+ *    AuthVerifyAccountDto:
  *      description: Data required for verificate a user
  *      type: object
  *      properties:
- *        email:
- *           type: string
- *           format: email
- *           description: The email of the existing user
  *        code:
  *           type: number
  *           description: The code for validation
  *      required:
- *        - email
  *        - code
  */
 
-export interface AuthValidateCodeDto {
-  email: string
+export interface AuthVerifyAccountDto {
   code: number
 }
 

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
-import crypto from 'crypto'
 
 import { authService } from '../services'
+import { timingSafeEqual } from '../utils'
 
 export const register = async (
   req: Request,
@@ -15,10 +15,7 @@ export const register = async (
   const secretSended = headers['application-secret']
 
   if (appSecret && secretSended && typeof secretSended === 'string') {
-    const a = Buffer.from(appSecret)
-    const b = Buffer.from(secretSended)
-
-    if (a.length === b.length && crypto.timingSafeEqual(a, b)) {
+    if (timingSafeEqual(appSecret, secretSended)) {
       isSuperAdmin = true
     }
   }
@@ -55,15 +52,16 @@ export const login = async (
   }
 }
 
-export const validateCode = async (
+export const verifyAccount = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { email, code } = req.body
+  const { code } = req.body
+  const { email } = req.user!
 
   try {
-    const message = await authService.validateCode({ email, code: +code })
+    const message = await authService.verifyAccount(email, { code: +code })
 
     res.status(200).json({
       message,

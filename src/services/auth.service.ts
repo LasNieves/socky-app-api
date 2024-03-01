@@ -1,3 +1,4 @@
+import { timingSafeEqual } from './../utils/timeSafeEqual'
 import { ApplicationRole, WorkspaceRole } from '@prisma/client'
 import { hash, genSalt, compare } from 'bcryptjs'
 import SendGrid from '@sendgrid/mail'
@@ -8,7 +9,7 @@ import {
   AuthLoginDto,
   AuthRegisterDto,
   AuthDto,
-  AuthValidateCodeDto,
+  AuthVerifyAccountDto,
   AuthSendValidationCodeDto,
 } from '../core/dtos'
 import {
@@ -62,9 +63,7 @@ class AuthService implements AuthRepository {
       throw new Conflict('Credenciales inválidas')
     }
 
-    if (!existUser.verified) {
-      await this.sendValidationCode({ email: existUser.email })
-    }
+    await this.sendValidationCode({ email: existUser.email })
 
     const token = this.jwtService.sign({
       id: existUser.id,
@@ -137,39 +136,42 @@ class AuthService implements AuthRepository {
     }
   }
 
-  async validateCode({ code, email }: AuthValidateCodeDto): Promise<string> {
+  async verifyAccount(
+    email: string,
+    { code }: AuthVerifyAccountDto
+  ): Promise<string> {
     const existUser = await this.userService.get({ email })
 
     if (!existUser) {
       throw new UserEmailNotFound(email)
     }
-    if (existUser.verified) {
-      throw new Conflict(`El usuario ${email} ya se encuentra verificado`)
-    }
 
-    const userVerficationCode = await prisma.code.findFirst({
+    const generatedCode = await prisma.code.findFirst({
       where: { userId: existUser.id },
       orderBy: { createdAt: 'desc' },
     })
 
-    if (
-      userVerficationCode?.expiresAt! < new Date() ||
-      userVerficationCode?.used
-    ) {
+    if (!generatedCode) {
+      throw new Conflict(`No se ha generado ningún código para ${email}`)
+    }
+
+    if (generatedCode.expiresAt! < new Date() || generatedCode.used) {
       throw new Conflict('El código ha expirado o ya ha sido utilizado')
     }
 
-    if (userVerficationCode?.code !== code) {
+    if (timingSafeEqual(code, generatedCode.code)) {
       throw new BadRequest('El código es inválido')
     }
 
-    await prisma.user.update({
-      where: { email },
-      data: { verified: true },
-    })
+    if (!existUser.verified) {
+      await prisma.user.update({
+        where: { email },
+        data: { verified: true },
+      })
+    }
 
     await prisma.code.update({
-      where: { id: userVerficationCode.id },
+      where: { id: generatedCode.id },
       data: { used: true },
     })
 

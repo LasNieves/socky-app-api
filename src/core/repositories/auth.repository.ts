@@ -2,13 +2,13 @@ import {
   AuthLoginDto,
   AuthRegisterDto,
   AuthDto,
-  AuthValidateCodeDto,
+  AuthVerifyAccountDto,
   AuthSendValidationCodeDto,
 } from '../dtos'
 
 export interface AuthRepository {
   login(data: AuthLoginDto): Promise<AuthDto>
   register(data: AuthRegisterDto): Promise<AuthDto>
-  validateCode(data: AuthValidateCodeDto): Promise<string>
+  verifyAccount(email: string, data: AuthVerifyAccountDto): Promise<string>
   sendValidationCode(data: AuthSendValidationCodeDto): Promise<string>
 }
