@@ -42,14 +42,29 @@ authRouter.post(
   '/register',
   body('email').isEmail().withMessage('Email inválido'),
   body('password')
-    .trim()
+    .isString()
     .notEmpty()
     .withMessage('Contraseña obligatoria')
-    .isLength({ min: 6 })
-    .withMessage('Mínimo 6 caracteres'),
-  body('firstName').trim().isString().notEmpty().withMessage('Campo requerido'),
-  body('lastName').trim().isString().notEmpty().withMessage('Campo requerido'),
-  body('avatar').trim().isString().optional(),
+    .isLength({ min: 8, max: 64 })
+    .withMessage('La contraseña debe ser de, al menos, 8 caracteres')
+    .isStrongPassword()
+    .withMessage(
+      'Incluya al menos 1 minúscula, 1 mayúscula, 1 número y 1 símbolo en la contraseña'
+    ),
+  body('firstName')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Nombre requerido')
+    .isLength({ max: 55 })
+    .withMessage('El nombre no debe superar los 55 caracteres'),
+  body('lastName')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Apellido requerido')
+    .isLength({ max: 55 })
+    .withMessage('El apellido no debe superar los 55 caracteres'),
   validateRequest,
   register
 )
@@ -84,7 +99,7 @@ authRouter.post(
 authRouter.post(
   '/login',
   body('email').isEmail().withMessage('Email inválido'),
-  body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
+  body('password').notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,
   login
 )

@@ -59,10 +59,6 @@ export interface AuthLoginDto {
  *        lastName:
  *           type: string
  *           description: The last name of the user
- *        avatar:
- *           type: string
- *           format: uri
- *           description: The user's avatar
  *        isSuperAdmin:
  *           type: boolean
  *           description: Is the user SUPERADMIN or not?
@@ -78,7 +74,6 @@ export interface AuthRegisterDto {
   password: string
   firstName: string
   lastName: string
-  avatar?: string
   isSuperAdmin?: boolean
 }
 
