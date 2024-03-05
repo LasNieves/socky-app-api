@@ -81,8 +81,8 @@ export interface UserWorkspacesDto {
  * @swagger
  * components:
  *  schemas:
- *    UpdateUserDto:
- *      description: Update user profile data
+ *    UpdateProfileDto:
+ *      description: Update  profile data
  *      type: object
  *      properties:
  *        firstName:
@@ -95,9 +95,14 @@ export interface UserWorkspacesDto {
  *           type: string
  *           format: uri
  *           description: The user's avatar
+ *        color:
+ *           type: string
+ *           format: hexadecimal
+ *           description: The last name of the user
  */
-export interface UpdateUserDto {
+export interface UpdateProfileDto {
   firstName?: string
   lastName?: string
   avatar?: string
+  color?: string
 }

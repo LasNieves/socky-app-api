@@ -75,7 +75,7 @@ class AuthService implements AuthRepository {
   }
 
   async register(data: AuthRegisterDto): Promise<AuthDto> {
-    const { email, password, isSuperAdmin = false, ...rest } = data
+    const { email, password, isSuperAdmin = false, ...profile } = data
 
     const existUser = await this.userService.get({ email })
     if (existUser) {
@@ -95,7 +95,7 @@ class AuthService implements AuthRepository {
             : ApplicationRole.USER,
           profile: {
             create: {
-              ...rest,
+              ...profile,
             },
           },
           workspaces: {

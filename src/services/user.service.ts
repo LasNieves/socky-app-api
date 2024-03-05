@@ -4,9 +4,9 @@ import { compare } from 'bcryptjs'
 import { prisma } from '../config/db'
 
 import { UserRepository, WorkspaceRepository } from '../core/repositories'
-import { Conflict, NotFound, NotAuthorized } from '../errors'
+import { Conflict, NotFound } from '../errors'
 import { User } from '../core/entities'
-import { UpdateUserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
+import { UpdateProfileDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
 import { WorkspaceRole } from '../core/enums'
 import { UserWithoutPassword } from '../core/types'
 import { workspaceService } from './workspace.service'
@@ -48,22 +48,25 @@ class UserService implements UserRepository {
     })
   }
 
-  async update(id: string, data: UpdateUserDto): Promise<UserWithoutPassword> {
+  async updateProfile(
+    id: string,
+    updatedProfile: UpdateProfileDto
+  ): Promise<UserWithoutPassword> {
     await this.getFirstUserOrThrow({ id }).catch(() => {
       throw new NotFound(`Usuario con id ${id} no encontrado`)
     })
 
     try {
-      const { password, ...user } = await prisma.user.update({
+      const { password: _, ...user } = await prisma.user.update({
         where: { id },
-        data: { profile: { update: { ...data } } },
+        data: { profile: { update: updatedProfile } },
         include: { profile: true },
       })
 
       return user
     } catch (error) {
       console.log(error)
-      throw new Conflict('Error al actualizar el usuario')
+      throw new Conflict('Error al actualizar el perfil del usuario')
     }
   }
 

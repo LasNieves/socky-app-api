@@ -43,7 +43,7 @@ export const getUserWorkspaces = async (
   }
 }
 
-export const updateUser = async (
+export const updateProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -51,10 +51,10 @@ export const updateUser = async (
   const { ID } = req.params
 
   try {
-    const updatedUser = await userService.update(ID, req.body)
+    const updatedUser = await userService.updateProfile(ID, req.body)
 
     res.status(200).json({
-      message: 'Usuario actualizado correctamente',
+      message: 'Perfil actualizado correctamente',
       data: updatedUser,
     })
   } catch (err) {
