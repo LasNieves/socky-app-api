@@ -52,7 +52,7 @@ class AuthService implements AuthRepository {
   }
 
   async login({ email, password }: AuthLoginDto): Promise<AuthDto> {
-    const existUser = await this.userService.get({ email })
+    const existUser = await this.userService.get({ email }, { profile: true })
     if (!existUser) {
       throw new Conflict('Credenciales inválidas')
     }
