@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import { body } from 'express-validator'
+import { rateLimit } from 'express-rate-limit'
 
 import {
   login,
@@ -8,8 +9,23 @@ import {
   verifyAccount,
 } from '../controllers/auth.controller'
 import { protect, validateRequest } from '../middlewares'
+import { TooManyRequests } from '../errors'
+
+const authLimiter = rateLimit({
+  windowMs: 30 * 1000, // 30s
+  limit: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (_req, _res, next) =>
+    next(
+      new TooManyRequests(
+        'Demasiados intentos. Prueba nuevamente en unos segundos'
+      )
+    ),
+})
 
 export const authRouter = Router()
+authRouter.use(authLimiter)
 
 /**
  * @swagger
