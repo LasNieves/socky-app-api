@@ -70,7 +70,7 @@ usersRouter.get('/:ID', protect(), verifyUserIdentity, getOneUser)
 
 /**
  * @swagger
- *  /users/workspaces/{ID}:
+ *  /users/{ID}/workspaces:
  *   get:
  *    summary: Get the workspaces of one user
  *    tags: [Users]
@@ -95,7 +95,7 @@ usersRouter.get('/:ID', protect(), verifyUserIdentity, getOneUser)
  */
 
 usersRouter.get(
-  '/workspaces/:ID',
+  '/:ID/workspaces',
   protect(),
   verifyUserIdentity,
   getUserWorkspaces
