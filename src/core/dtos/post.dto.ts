@@ -4,6 +4,41 @@ import { Category, Post, Workspace } from '../entities'
  * @swagger
  * components:
  *  schemas:
+ *    PostByCategory:
+ *      description: Data returned when you request for posts of a category
+ *      type: object
+ *      $ref: '#/components/schemas/Post'
+ *      properties:
+ *        user:
+ *          type: object
+ *          properties:
+ *            profile:
+ *              type: object
+ *              properties:
+ *                firstName:
+ *                    type: string
+ *                avatar:
+ *                    type: string
+ *                    format: uri
+ *                color:
+ *                    type: string
+ *                    format: hexadecimal
+ */
+
+export interface PostByCategory extends Post {
+  user: {
+    profile: {
+      firstName: string
+      avatar: string | null
+      color: string | null
+    }
+  }
+}
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
  *    PostDto:
  *      description: Data returned when you request for a single post
  *      type: object

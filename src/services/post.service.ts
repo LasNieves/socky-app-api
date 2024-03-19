@@ -1,13 +1,41 @@
 import { prisma } from '../config/db'
 
 import { BadRequest, NotAuthorized, NotFound } from '../errors'
-import { CreatePostDto, PostDto, UpdatePostDto } from '../core/dtos'
+import {
+  CreatePostDto,
+  PostByCategory,
+  PostDto,
+  UpdatePostDto,
+} from '../core/dtos'
 import { Post } from '../core/entities'
 import { CategoryRepository, PostRepository } from '../core/repositories'
 import { categoryService } from './category.service'
 
 class PostService implements PostRepository {
   constructor(private readonly categoryService: CategoryRepository) {}
+
+  async getByCategory(id: number): Promise<PostByCategory[]> {
+    return (await prisma.post.findMany({
+      where: { categoryId: id },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createdAt: true,
+        user: {
+          select: {
+            profile: {
+              select: {
+                firstName: true,
+                avatar: true,
+                color: true,
+              },
+            },
+          },
+        },
+      },
+    })) as PostByCategory[]
+  }
 
   async getByWorkspace(id: string): Promise<Post[]> {
     return await prisma.post.findMany({

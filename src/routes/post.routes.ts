@@ -10,12 +10,47 @@ import {
 import {
   createPost,
   deletePost,
+  getByCategory,
   getByWorkspace,
   getOnePost,
   updatePost,
 } from './../controllers/post.controller'
 
 export const postRouter = Router()
+
+/**
+ * @swagger
+ *  /posts/category/{ID}:
+ *   get:
+ *    summary: Get all the posts of one category
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: number
+ *        required: true
+ *        description: The category id
+ *    responses:
+ *      200:
+ *        description: Posts of category found successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/PostByCategory'
+ */
+
+postRouter.get(
+  '/category/:ID',
+  protect(),
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getByCategory
+)
 
 /**
  * @swagger

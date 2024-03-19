@@ -3,17 +3,16 @@ import { NextFunction, Request, Response } from 'express'
 import { NotFound } from '../errors'
 import { postService } from '../services'
 
-export const getByWorkspace = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+export const getByCategory = async (req: Request, res: Response) => {
+  const { ID } = req.params
+  const posts = await postService.getByCategory(+ID)
+
+  res.status(200).json(posts)
+}
+
+export const getByWorkspace = async (req: Request, res: Response) => {
   const { ID } = req.params
   const posts = await postService.getByWorkspace(ID)
-
-  if (!posts) {
-    return next(new NotFound(`El workspace con id ${ID} no se ha encontrado`))
-  }
 
   res.status(200).json(posts)
 }
