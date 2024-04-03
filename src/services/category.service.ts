@@ -15,14 +15,24 @@ class CategoryService implements CategoryRepository {
   constructor(private readonly workspaceService: WorkspaceRepository) {}
 
   async getByWorkspace(id: string): Promise<CategoriesDto[]> {
-    return await prisma.category.findMany({
+    const categories = await prisma.category.findMany({
       where: { workspaceId: id },
       select: {
         id: true,
         title: true,
         createdAt: true,
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
       },
     })
+
+    return categories.map(({ _count, ...category }) => ({
+      ...category,
+      posts: _count.posts,
+    }))
   }
 
   async get(
