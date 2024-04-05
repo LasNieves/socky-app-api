@@ -3,18 +3,17 @@ import { compare } from 'bcryptjs'
 
 import { prisma } from '../config/db'
 
-import { UserRepository, WorkspaceRepository } from '../core/repositories'
 import { Conflict, NotFound } from '../errors'
 import { User } from '../core/entities'
-import { UpdateProfileDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
+import { UpdateProfileDto } from '../core/dtos'
 import { WorkspaceRole } from '../core/enums'
 import { UserWithoutPassword } from '../core/types'
-import { workspaceService } from './workspace.service'
+import { WorkspaceService, workspaceService } from '.'
 
-class UserService implements UserRepository {
-  constructor(private readonly workspaceService: WorkspaceRepository) {}
+export class UserService {
+  constructor(private readonly workspaceService: WorkspaceService) {}
 
-  async getAll(): Promise<UsersDto[]> {
+  async getAll() {
     return await prisma.user.findMany({
       select: {
         id: true,
@@ -38,10 +37,7 @@ class UserService implements UserRepository {
     return await prisma.user.findFirstOrThrow({ where })
   }
 
-  async get(
-    where: Prisma.UserWhereUniqueInput,
-    include?: Prisma.UserInclude
-  ): Promise<User | null> {
+  async get(where: Prisma.UserWhereUniqueInput, include?: Prisma.UserInclude) {
     return await prisma.user.findUnique({
       where,
       include,
@@ -88,7 +84,7 @@ class UserService implements UserRepository {
     }
   }
 
-  async getUserWorkspaces(id: string): Promise<UserWorkspacesDto> {
+  async getUserWorkspaces(id: string) {
     const userWorkspaces = await prisma.user.findUnique({
       where: { id },
       select: {

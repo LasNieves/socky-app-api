@@ -11,23 +11,18 @@ import {
   AuthDto,
   AuthVerifyAccountDto,
 } from '../core/dtos'
-import {
-  AuthRepository,
-  UserRepository,
-  JwtRepository,
-  MailerRepository,
-} from '../core/repositories'
+import { UserService, JwtService, MailerService } from '.'
 import { Conflict, BadRequest, UserEmailNotFound } from '../errors'
 import { getNumericCode } from '../utils'
 import { userService } from './user.service'
 import { jwtService } from './jwt.service'
 import { mailerService } from './mailer.service'
 
-class AuthService implements AuthRepository {
+export class AuthService {
   constructor(
-    private readonly userService: UserRepository,
-    private readonly jwtService: JwtRepository,
-    private readonly mailerService: MailerRepository,
+    private readonly userService: UserService,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
     private mailObj: SendGrid.MailDataRequired = {
       from: 'giulianodamico2019@gmail.com',
       templateId: process.env.VERIFY_USER_TEMPLATE!,
@@ -103,7 +98,9 @@ class AuthService implements AuthRepository {
               workspace: {
                 create: {
                   name: `${data.firstName}'s workspace`,
-                  icon: 'Diego Armando Maradona',
+                  trashBin: {
+                    create: {},
+                  },
                 },
               },
               role: WorkspaceRole.OWNER,
@@ -199,6 +196,7 @@ class AuthService implements AuthRepository {
         ...this.mailObj,
         to: email,
         dynamicTemplateData: {
+          //@ts-ignore
           firstname: existUser.profile!.firstName,
           code,
         },

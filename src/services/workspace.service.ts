@@ -3,11 +3,10 @@ import { Prisma, WorkspaceRole } from '@prisma/client'
 import { prisma } from '../config/db'
 
 import { BadRequest, Conflict, NotFound } from '../errors'
-import { CreateWorkspaceDto, WorkspaceDto } from '../core/dtos'
+import { CreateWorkspaceDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
-import { WorkspaceRepository } from '../core/repositories'
 
-class WorkspaceService implements WorkspaceRepository {
+export class WorkspaceService {
   async getAll(): Promise<Workspace[]> {
     return await prisma.workspace.findMany({
       include: {
@@ -25,9 +24,7 @@ class WorkspaceService implements WorkspaceRepository {
     return await prisma.workspace.findFirstOrThrow({ where })
   }
 
-  async get(
-    where: Prisma.WorkspaceWhereUniqueInput
-  ): Promise<WorkspaceDto | null> {
+  async get(where: Prisma.WorkspaceWhereUniqueInput) {
     return await prisma.workspace.findUnique({
       where,
       include: {

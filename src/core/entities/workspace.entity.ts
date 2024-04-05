@@ -15,24 +15,37 @@ import { Category } from './category.entity'
  *        name:
  *           type: string
  *           description: The name of the workspace
- *        icon:
+ *        description:
  *           type: string
- *           description: The icon of the workspace
+ *           description: The description of the workspace
  *        personal:
  *           type: boolean
  *           description: Is your personal's workspace or not? (default true)
+ *        createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date of creation of the workspace (auto-generated too)
+ *        updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Last worksapce update (change automatically to the current date when any other field is updated)
  *      required:
  *        - id
  *        - name
- *        - icon
  *        - personal
+ *        - createdAt
+ *        - updatedAt
  */
 
 export interface Workspace {
   id: string
   name: string
-  icon: string
+  description: string | null
   personal: boolean
+
+  createdAt: Date
+  updatedAt: Date
+
   categories?: Category[]
   users?: UsersOnWorkspaces[]
 }

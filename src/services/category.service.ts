@@ -2,19 +2,14 @@ import { Prisma } from '@prisma/client'
 import { prisma } from '../config/db'
 
 import { BadRequest, Conflict, NotFound } from '../errors'
-import { WorkspaceRepository, CategoryRepository } from '../core/repositories'
-import {
-  CategoriesDto,
-  CreateCategoryDto,
-  UpdateCategoryDto,
-} from '../core/dtos'
+import { CreateCategoryDto, UpdateCategoryDto } from '../core/dtos'
 import { Category } from '../core/entities'
-import { workspaceService } from './workspace.service'
+import { WorkspaceService, workspaceService } from './workspace.service'
 
-class CategoryService implements CategoryRepository {
-  constructor(private readonly workspaceService: WorkspaceRepository) {}
+export class CategoryService {
+  constructor(private readonly workspaceService: WorkspaceService) {}
 
-  async getByWorkspace(id: string): Promise<CategoriesDto[]> {
+  async getByWorkspace(id: string) {
     const categories = await prisma.category.findMany({
       where: { workspaceId: id },
       select: {
@@ -38,7 +33,7 @@ class CategoryService implements CategoryRepository {
   async get(
     where: Prisma.CategoryWhereUniqueInput,
     include?: Prisma.CategoryInclude
-  ): Promise<Category | null> {
+  ) {
     return await prisma.category.findUnique({
       where,
       include,

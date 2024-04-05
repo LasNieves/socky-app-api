@@ -15,6 +15,10 @@
  *           type: string
  *           format: date-time
  *           description: The date of creation of the category (auto-generated too)
+ *        updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Last post update (change automatically to the current date when any other field is updated)
  *        workspaceId:
  *           type: string
  *           format: uuid
@@ -23,11 +27,13 @@
  *        - id
  *        - title
  *        - createdAt
+ *        - updatedAt
  *        - workspaceId
  */
 export interface Category {
   id: number
   title: string
   createdAt: Date
+  updatedAt: Date
   workspaceId: string
 }
