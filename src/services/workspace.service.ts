@@ -50,14 +50,17 @@ export class WorkspaceService {
   }
 
   async create(
-    workspace: CreateWorkspaceDto,
+    { isPersonal = false, ...workspace }: CreateWorkspaceDto,
     userId: string
   ): Promise<Workspace> {
     try {
       return prisma.workspace.create({
         data: {
           ...workspace,
-          personal: false,
+          personal: isPersonal,
+          trashBin: {
+            create: {},
+          },
           users: {
             create: {
               userId,
@@ -69,6 +72,27 @@ export class WorkspaceService {
     } catch (error) {
       console.log(error)
       throw new BadRequest('Error al crear el workspace')
+    }
+  }
+
+  async cleanTrashBin(workspaceId: string): Promise<string> {
+    const workspace = await this.getFirstWorkspaceOrThrow({
+      id: workspaceId,
+    }).catch(() => {
+      throw new NotFound(`Workspace con id ${workspaceId} no encontrado`)
+    })
+
+    try {
+      const { count } = await prisma.post.deleteMany({
+        where: { trashBin: { workspaceId: workspace.id } },
+      })
+
+      return `Se han eliminado ${count} posts en la papelera del workspace ${workspace.name}`
+    } catch (error) {
+      console.log(error)
+      throw new Conflict(
+        `Error al vaciar la papelera del workspace ${workspace.id}`
+      )
     }
   }
 

@@ -12,6 +12,9 @@
  *        description:
  *           type: string
  *           description: The description of the Workspace
+ *        isPersonal:
+ *           type: boolean
+ *           description: Indicates whether the workspace is personal or not
  *      required:
  *        - name
  */
@@ -19,4 +22,5 @@
 export type CreateWorkspaceDto = {
   name: string
   descritpion?: string
+  isPersonal?: boolean
 }

@@ -11,7 +11,13 @@ import {
   AuthDto,
   AuthVerifyAccountDto,
 } from '../core/dtos'
-import { UserService, JwtService, MailerService } from '.'
+import {
+  UserService,
+  JwtService,
+  MailerService,
+  WorkspaceService,
+  workspaceService,
+} from '.'
 import { Conflict, BadRequest, UserEmailNotFound } from '../errors'
 import { getNumericCode } from '../utils'
 import { userService } from './user.service'
@@ -21,6 +27,7 @@ import { mailerService } from './mailer.service'
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly workspaceService: WorkspaceService,
     private readonly jwtService: JwtService,
     private readonly mailerService: MailerService,
     private mailObj: SendGrid.MailDataRequired = {
@@ -93,19 +100,6 @@ export class AuthService {
               ...profile,
             },
           },
-          workspaces: {
-            create: {
-              workspace: {
-                create: {
-                  name: `${data.firstName}'s workspace`,
-                  trashBin: {
-                    create: {},
-                  },
-                },
-              },
-              role: WorkspaceRole.OWNER,
-            },
-          },
         },
         select: {
           id: true,
@@ -117,6 +111,15 @@ export class AuthService {
           role: true,
         },
       })
+
+      await this.workspaceService.create(
+        {
+          name: `${data.firstName}'s workspace`,
+          descritpion: `Espacio personal de ${data.firstName} ${data.lastName}`,
+          isPersonal: true,
+        },
+        user.id
+      )
 
       await this.sendValidationCode(user.email)
 
@@ -217,6 +220,7 @@ export class AuthService {
 
 export const authService = new AuthService(
   userService,
+  workspaceService,
   jwtService,
   mailerService
 )
