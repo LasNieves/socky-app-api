@@ -5,8 +5,9 @@ import { BadRequest, Conflict, NotFound } from '../errors'
 import { CreateCategoryDto, UpdateCategoryDto } from '../core/dtos'
 import { Category } from '../core/entities'
 
-// Deps
-import { postService, PostService, workspaceService, WorkspaceService } from '.'
+// DEPS
+import { postService, PostService } from './post.service'
+import { workspaceService, WorkspaceService } from './workspace.service'
 
 export class CategoryService {
   constructor(

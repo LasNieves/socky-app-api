@@ -5,8 +5,6 @@ import { CreatePostDto, UpdatePostDto } from '../core/dtos'
 import { Post } from '../core/entities'
 
 export class PostService {
-  constructor() {}
-
   async getByCategory(id: number) {
     return await prisma.post.findMany({
       where: { categoryId: id },
@@ -135,10 +133,21 @@ export class PostService {
     }
   }
 
-  async delete(id: string): Promise<string> {
+  async permantlyDelete(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest(`El post no se encuentra en la papelera`)
+    }
+
     try {
-      await prisma.post.delete({ where: { id } })
-      return `Post con id ${id} eliminado correctamente`
+      await prisma.post.delete({ where: { id: postId } })
+
+      return `Post con id ${postId} eliminado de forma permanente`
     } catch (error) {
       console.log(error)
       throw new BadRequest(`Error al eliminar un post`)

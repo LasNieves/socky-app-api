@@ -1,5 +1,5 @@
 import { timingSafeEqual } from './../utils/timeSafeEqual'
-import { ApplicationRole, WorkspaceRole } from '@prisma/client'
+import { ApplicationRole } from '@prisma/client'
 import { hash, genSalt, compare } from 'bcryptjs'
 import SendGrid from '@sendgrid/mail'
 
@@ -11,18 +11,14 @@ import {
   AuthDto,
   AuthVerifyAccountDto,
 } from '../core/dtos'
-import {
-  UserService,
-  JwtService,
-  MailerService,
-  WorkspaceService,
-  workspaceService,
-} from '.'
 import { Conflict, BadRequest, UserEmailNotFound } from '../errors'
 import { getNumericCode } from '../utils'
-import { userService } from './user.service'
-import { jwtService } from './jwt.service'
-import { mailerService } from './mailer.service'
+
+// DEPS
+import { WorkspaceService, workspaceService } from './workspace.service'
+import { UserService, userService } from './user.service'
+import { JwtService, jwtService } from './jwt.service'
+import { MailerService, mailerService } from './mailer.service'
 
 export class AuthService {
   constructor(
@@ -112,10 +108,12 @@ export class AuthService {
         },
       })
 
+      console.log(`Usuario ${user.id} creado`, { user })
+
       await this.workspaceService.create(
         {
           name: `${data.firstName}'s workspace`,
-          descritpion: `Espacio personal de ${data.firstName} ${data.lastName}`,
+          description: `Espacio personal de ${data.firstName} ${data.lastName}`,
           isPersonal: true,
         },
         user.id

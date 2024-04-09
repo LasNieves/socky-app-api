@@ -8,7 +8,9 @@ import { User } from '../core/entities'
 import { UpdateProfileDto } from '../core/dtos'
 import { WorkspaceRole } from '../core/enums'
 import { UserWithoutPassword } from '../core/types'
-import { WorkspaceService, workspaceService } from '.'
+
+// DEPS
+import { WorkspaceService, workspaceService } from './workspace.service'
 
 export class UserService {
   constructor(private readonly workspaceService: WorkspaceService) {}

@@ -81,7 +81,25 @@ export const deletePost = async (
   const { ID } = req.params
 
   try {
-    const message = await postService.delete(ID)
+    const message = await postService.movePostToTrashBin(ID)
+
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
+  }
+}
+
+export const permantlyDeletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+
+  try {
+    const message = await postService.permantlyDelete(ID)
 
     res.status(200).json({
       message,

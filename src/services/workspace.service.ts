@@ -53,6 +53,8 @@ export class WorkspaceService {
     { isPersonal = false, ...workspace }: CreateWorkspaceDto,
     userId: string
   ): Promise<Workspace> {
+    console.log(`Creando Workspace ${workspace.name}`)
+
     try {
       return prisma.workspace.create({
         data: {

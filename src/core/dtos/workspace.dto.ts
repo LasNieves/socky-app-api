@@ -21,6 +21,6 @@
 
 export type CreateWorkspaceDto = {
   name: string
-  descritpion?: string
+  description?: string
   isPersonal?: boolean
 }
