@@ -12,6 +12,7 @@ import {
   getOneWorkspace,
   createWorkspace,
   getWorkspaces,
+  cleanWorkspaceTrashBin,
 } from '../controllers/workspace.controller'
 
 export const workspaceRouter = Router()
@@ -107,4 +108,39 @@ workspaceRouter.post(
   body('icon').isString().trim().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   createWorkspace
+)
+
+/**
+ * @swagger
+ *  /workspaces/{ID}/clean-trash-bin:
+ *   delete:
+ *    summary: Clean workspace's trash bin
+ *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The workspace id
+ *    responses:
+ *      200:
+ *        description: Workspace trash bin cleaned
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ */
+
+workspaceRouter.delete(
+  '/:ID/clean-trash-bin',
+  protect(),
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN'),
+  cleanWorkspaceTrashBin
 )
