@@ -14,6 +14,7 @@ import {
   getByWorkspace,
   getOnePost,
   permantlyDeletePost,
+  restorePost,
   updatePost,
 } from './../controllers/post.controller'
 
@@ -225,6 +226,53 @@ postRouter.patch(
   validateRequest,
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
   updatePost
+)
+
+/**
+ * @swagger
+ *  /posts/{ID}/restore:
+ *   patch:
+ *    summary: Restore a post from the trash bin to a category
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    requestBody:
+ *     required: false
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdatePostDto'
+ *    responses:
+ *      200:
+ *        description: Post restored succesfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+
+postRouter.patch(
+  '/:ID/restore',
+  protect(),
+  body('categoryId')
+    .isNumeric()
+    .notEmpty()
+    .withMessage('Debe enviar la categoría a la que se restablecerá el post'),
+  validateRequest,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  restorePost
 )
 
 /**

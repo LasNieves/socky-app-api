@@ -51,6 +51,7 @@ export class PostService {
             workspace: true,
           },
         },
+        trashBin: true,
       },
     })
   }
@@ -71,6 +72,17 @@ export class PostService {
     workspaceId: string,
     data: UpdatePostDto
   ): Promise<Post> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+    if (post.trashBinId) {
+      throw new BadRequest(
+        `No puedes editar un post que se encuentra en la papelera`
+      )
+    }
+
     const { categoryId } = data
 
     if (categoryId) {
@@ -84,7 +96,7 @@ export class PostService {
 
       if (!canEditPost) {
         throw new NotAuthorized(
-          `La categoría ${categoryId} no pertenece al workspace del post que estas editando`
+          'La categoría enviada no pertenece al workspace del post que estas editando'
         )
       }
     }
@@ -130,6 +142,53 @@ export class PostService {
     } catch (error) {
       console.log(error)
       throw new BadRequest(`Error al mover a la papelera el post ${postId}`)
+    }
+  }
+
+  async restorePost(postId: string, categoryId: number): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest('El post no se encuentra en la papelera')
+    }
+
+    const category = await prisma.category
+      .findUniqueOrThrow({ where: { id: categoryId } })
+      .catch(() => {
+        throw new NotAuthorized(
+          'No se encontró la categoría en la que quieres restablecer el post'
+        )
+      })
+
+    if (category.workspaceId !== post.trashBin?.workspaceId) {
+      throw new NotAuthorized(
+        'La categoría enviada no pertenece al workspace del post que estas restableciendo'
+      )
+    }
+
+    try {
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          trashBin: {
+            disconnect: true,
+          },
+          category: {
+            connect: {
+              id: categoryId,
+            },
+          },
+        },
+      })
+
+      return `El post se ha restablecido en la categoría ${category.title}`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al recuperar el post ${postId}`)
     }
   }
 

@@ -6,6 +6,9 @@ import { BadRequest, Conflict, NotFound } from '../errors'
 import { CreateWorkspaceDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
 
+// TODO:
+// MOVER TODOS / SELECCIONADOS POSTS DE LA PAPELERA A UNA CATEGORIA
+
 export class WorkspaceService {
   async getAll(): Promise<Workspace[]> {
     return await prisma.workspace.findMany({

@@ -73,6 +73,24 @@ export const updatePost = async (
   }
 }
 
+export const restorePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+
+  try {
+    const message = await postService.restorePost(ID, +req.body.categoryId)
+
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
+  }
+}
+
 export const deletePost = async (
   req: Request,
   res: Response,
