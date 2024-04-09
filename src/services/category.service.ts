@@ -4,10 +4,15 @@ import { prisma } from '../config/db'
 import { BadRequest, Conflict, NotFound } from '../errors'
 import { CreateCategoryDto, UpdateCategoryDto } from '../core/dtos'
 import { Category } from '../core/entities'
-import { WorkspaceService, workspaceService } from './workspace.service'
+
+// Deps
+import { postService, PostService, workspaceService, WorkspaceService } from '.'
 
 export class CategoryService {
-  constructor(private readonly workspaceService: WorkspaceService) {}
+  constructor(
+    private readonly workspaceService: WorkspaceService,
+    private readonly postService: PostService
+  ) {}
 
   async getByWorkspace(id: string) {
     const categories = await prisma.category.findMany({
@@ -38,17 +43,6 @@ export class CategoryService {
       where,
       include,
     })
-  }
-
-  async categoryBelongsToWorkspace(
-    categoryId: number,
-    workspaceId: string
-  ): Promise<boolean> {
-    const foundCategory = await prisma.category.findFirst({
-      where: { AND: [{ id: categoryId, workspaceId }] },
-    })
-
-    return !!foundCategory
   }
 
   async create({ title, workspaceId }: CreateCategoryDto): Promise<Category> {
@@ -96,6 +90,15 @@ export class CategoryService {
   }
 
   async delete(id: number): Promise<string> {
+    const posts = await prisma.post.findMany({
+      where: { categoryId: id },
+      select: { id: true },
+    })
+
+    for await (const post of posts) {
+      await this.postService.movePostToTrashBin(post.id)
+    }
+
     try {
       await prisma.category.delete({ where: { id } })
 
@@ -107,4 +110,7 @@ export class CategoryService {
   }
 }
 
-export const categoryService = new CategoryService(workspaceService)
+export const categoryService = new CategoryService(
+  workspaceService,
+  postService
+)

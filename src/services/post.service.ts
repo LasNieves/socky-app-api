@@ -3,10 +3,9 @@ import { prisma } from '../config/db'
 import { BadRequest, NotAuthorized, NotFound } from '../errors'
 import { CreatePostDto, UpdatePostDto } from '../core/dtos'
 import { Post } from '../core/entities'
-import { CategoryService, categoryService } from '.'
 
 export class PostService {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor() {}
 
   async getByCategory(id: number) {
     return await prisma.post.findMany({
@@ -77,15 +76,13 @@ export class PostService {
     const { categoryId } = data
 
     if (categoryId) {
-      const existCategory = await this.categoryService.get({ id: categoryId })
-      if (!existCategory) {
-        throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
-      }
+      const existCategory = await prisma.category
+        .findUniqueOrThrow({ where: { id: categoryId } })
+        .catch(() => {
+          throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
+        })
 
-      const canEditPost = await this.categoryService.categoryBelongsToWorkspace(
-        categoryId,
-        workspaceId
-      )
+      const canEditPost = existCategory.workspaceId === workspaceId
 
       if (!canEditPost) {
         throw new NotAuthorized(
@@ -105,6 +102,39 @@ export class PostService {
     }
   }
 
+  async movePostToTrashBin(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (post.trashBinId) {
+      throw new BadRequest(`El post ya se encuentra en la papelera`)
+    }
+
+    try {
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          category: {
+            disconnect: true,
+          },
+          trashBin: {
+            connect: {
+              workspaceId: post.category?.workspaceId,
+            },
+          },
+        },
+      })
+
+      return `Post en papelera`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al mover a la papelera el post ${postId}`)
+    }
+  }
+
   async delete(id: string): Promise<string> {
     try {
       await prisma.post.delete({ where: { id } })
@@ -116,4 +146,4 @@ export class PostService {
   }
 }
 
-export const postService = new PostService(categoryService)
+export const postService = new PostService()
