@@ -3,13 +3,13 @@ import { Prisma, WorkspaceRole } from '@prisma/client'
 import { prisma } from '../config/db'
 
 import { BadRequest, Conflict, NotFound } from '../errors'
-import { CreateWorkspaceDto } from '../core/dtos'
+import { CreateWorkspaceDto, RestorePostsDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
-
-// TODO:
-// MOVER TODOS / SELECCIONADOS POSTS DE LA PAPELERA A UNA CATEGORIA
+import { PostService, postService } from './post.service'
 
 export class WorkspaceService {
+  constructor(private readonly postService: PostService) {}
+
   async getAll(): Promise<Workspace[]> {
     return await prisma.workspace.findMany({
       include: {
@@ -80,6 +80,34 @@ export class WorkspaceService {
     }
   }
 
+  async restorePosts(
+    workspaceId: string,
+    { posts, categoryId }: RestorePostsDto
+  ): Promise<string> {
+    const postsOnWorkspaceTrashBin = (
+      await prisma.post.findMany({
+        where: { trashBin: { workspaceId } },
+        select: { id: true },
+      })
+    ).map((post) => post.id)
+
+    const allAreInWorkspaceTrash = posts.every((post) =>
+      postsOnWorkspaceTrashBin.includes(post)
+    )
+
+    if (!allAreInWorkspaceTrash) {
+      throw new BadRequest(
+        'Algún post enviado no se encuentra en la papelera del workspace'
+      )
+    }
+
+    for await (const post of posts) {
+      await this.postService.restorePost(post, categoryId)
+    }
+
+    return `Se han restaurado ${posts.length} posts`
+  }
+
   async cleanTrashBin(workspaceId: string): Promise<string> {
     const workspace = await this.getFirstWorkspaceOrThrow({
       id: workspaceId,
@@ -116,4 +144,4 @@ export class WorkspaceService {
   }
 }
 
-export const workspaceService = new WorkspaceService()
+export const workspaceService = new WorkspaceService(postService)

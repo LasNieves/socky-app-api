@@ -112,6 +112,51 @@ workspaceRouter.post(
 
 /**
  * @swagger
+ *  /workspaces/{ID}/restore-posts:
+ *   patch:
+ *    summary: Restore X posts from a workspace trash bin
+ *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The workspace id
+ *    requestBody:
+ *     required: true
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/RestorePostsDto'
+ *    responses:
+ *      200:
+ *        description: Posts restored successfully
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ */
+
+workspaceRouter.patch(
+  '/:ID/restore-posts',
+  protect(),
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN'),
+  body('posts').isArray().isString().notEmpty().withMessage('Campo requerido'),
+  body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
+  validateRequest,
+  createWorkspace
+)
+
+/**
+ * @swagger
  *  /workspaces/{ID}/clean-trash-bin:
  *   delete:
  *    summary: Clean workspace's trash bin

@@ -42,6 +42,20 @@ export const createWorkspace = async (
   }
 }
 
+export const restoreWorkspacePosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const message = await workspaceService.restorePosts(req.params.ID, req.body)
+
+    res.status(200).json({ message })
+  } catch (err) {
+    return next(err)
+  }
+}
+
 export const cleanWorkspaceTrashBin = async (
   req: Request,
   res: Response,

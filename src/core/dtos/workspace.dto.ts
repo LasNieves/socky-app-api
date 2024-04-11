@@ -24,3 +24,29 @@ export type CreateWorkspaceDto = {
   description?: string
   isPersonal?: boolean
 }
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    RestorePostsDto:
+ *      description: Data required for restore posts from trash bin
+ *      type: object
+ *      properties:
+ *        posts:
+ *           type: array
+ *           items:
+ *            type: string
+ *           description: Array of posts to be restored
+ *        categoryId:
+ *           type: number
+ *           description: What category does the posts restored go?
+ *      required:
+ *        - posts
+ *        - categoryId
+ */
+
+export type RestorePostsDto = {
+  posts: string[]
+  categoryId: number
+}
