@@ -24,6 +24,22 @@ export const getOneWorkspace = async (
   res.status(200).json(workspace)
 }
 
+export const getWorkspaceUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const usersOnWorkspace = await workspaceService.getWorkspaceUsers(
+    req.params.ID
+  )
+
+  if (usersOnWorkspace.length === 0) {
+    return next(new NotFound('No se ha encontrado el workspace'))
+  }
+
+  res.status(200).json(usersOnWorkspace)
+}
+
 export const createWorkspace = async (
   req: Request,
   res: Response,

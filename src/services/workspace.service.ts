@@ -52,6 +52,29 @@ export class WorkspaceService {
     })
   }
 
+  async getWorkspaceUsers(workspaceId: string) {
+    return await prisma.usersOnWorkspaces.findMany({
+      where: { workspaceId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        role: true,
+        createdAt: true,
+        user: {
+          select: {
+            id: true,
+            profile: {
+              select: {
+                firstName: true,
+                lastName: true,
+                avatar: true,
+              },
+            },
+          },
+        },
+      },
+    })
+  }
+
   async create(
     { isPersonal = false, ...workspace }: CreateWorkspaceDto,
     userId: string

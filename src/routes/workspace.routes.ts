@@ -13,6 +13,7 @@ import {
   createWorkspace,
   getWorkspaces,
   cleanWorkspaceTrashBin,
+  getWorkspaceUsers,
 } from '../controllers/workspace.controller'
 
 export const workspaceRouter = Router()
@@ -70,6 +71,34 @@ workspaceRouter.get(
   protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOneWorkspace
+)
+
+/**
+ * @swagger
+ *  /workspaces/{ID}/users:
+ *   get:
+ *    summary: Get users of a workspace by id
+ *    tags: [Workspaces]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The workspace id
+ *    responses:
+ *      200:
+ *        description: Workspace found
+ */
+
+workspaceRouter.get(
+  '/:ID/users',
+  protect(),
+  workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getWorkspaceUsers
 )
 
 /**
