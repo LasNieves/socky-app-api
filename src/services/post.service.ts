@@ -1,21 +1,12 @@
 import { prisma } from '../config/db'
 
 import { BadRequest, NotAuthorized, NotFound } from '../errors'
-import {
-  CreatePostDto,
-  PostByCategory,
-  PostDto,
-  UpdatePostDto,
-} from '../core/dtos'
+import { CreatePostDto, UpdatePostDto } from '../core/dtos'
 import { Post } from '../core/entities'
-import { CategoryRepository, PostRepository } from '../core/repositories'
-import { categoryService } from './category.service'
 
-class PostService implements PostRepository {
-  constructor(private readonly categoryService: CategoryRepository) {}
-
-  async getByCategory(id: number): Promise<PostByCategory[]> {
-    return (await prisma.post.findMany({
+export class PostService {
+  async getByCategory(id: number) {
+    return await prisma.post.findMany({
       where: { categoryId: id },
       select: {
         id: true,
@@ -34,10 +25,10 @@ class PostService implements PostRepository {
           },
         },
       },
-    })) as PostByCategory[]
+    })
   }
 
-  async getByWorkspace(id: string): Promise<Post[]> {
+  async getByWorkspace(id: string) {
     return await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
@@ -51,21 +42,16 @@ class PostService implements PostRepository {
     })
   }
 
-  async get(id: string): Promise<PostDto | null> {
+  async get(id: string) {
     return await prisma.post.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        createdAt: true,
-        categoryId: true,
-        userId: true,
+      include: {
         category: {
           include: {
             workspace: true,
           },
         },
+        trashBin: true,
       },
     })
   }
@@ -86,22 +72,31 @@ class PostService implements PostRepository {
     workspaceId: string,
     data: UpdatePostDto
   ): Promise<Post> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+    if (post.trashBinId) {
+      throw new BadRequest(
+        `No puedes editar un post que se encuentra en la papelera`
+      )
+    }
+
     const { categoryId } = data
 
     if (categoryId) {
-      const existCategory = await this.categoryService.get({ id: categoryId })
-      if (!existCategory) {
-        throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
-      }
+      const existCategory = await prisma.category
+        .findUniqueOrThrow({ where: { id: categoryId } })
+        .catch(() => {
+          throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
+        })
 
-      const canEditPost = await this.categoryService.categoryBelongsToWorkspace(
-        categoryId,
-        workspaceId
-      )
+      const canEditPost = existCategory.workspaceId === workspaceId
 
       if (!canEditPost) {
         throw new NotAuthorized(
-          `La categoría ${categoryId} no pertenece al workspace del post que estas editando`
+          'La categoría enviada no pertenece al workspace del post que estas editando'
         )
       }
     }
@@ -117,10 +112,101 @@ class PostService implements PostRepository {
     }
   }
 
-  async delete(id: string): Promise<string> {
+  async movePostToTrashBin(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (post.trashBinId) {
+      throw new BadRequest(`El post ya se encuentra en la papelera`)
+    }
+
     try {
-      await prisma.post.delete({ where: { id } })
-      return `Post con id ${id} eliminado correctamente`
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          category: {
+            disconnect: true,
+          },
+          trashBin: {
+            connect: {
+              workspaceId: post.category?.workspaceId,
+            },
+          },
+        },
+      })
+
+      return `Post en papelera`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al mover a la papelera el post ${postId}`)
+    }
+  }
+
+  async restorePost(postId: string, categoryId: number): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest('El post no se encuentra en la papelera')
+    }
+
+    const category = await prisma.category
+      .findUniqueOrThrow({ where: { id: categoryId } })
+      .catch(() => {
+        throw new NotAuthorized(
+          'No se encontró la categoría en la que quieres restablecer el post'
+        )
+      })
+
+    if (category.workspaceId !== post.trashBin?.workspaceId) {
+      throw new NotAuthorized(
+        'La categoría enviada no pertenece al workspace del post que estas restableciendo'
+      )
+    }
+
+    try {
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          trashBin: {
+            disconnect: true,
+          },
+          category: {
+            connect: {
+              id: categoryId,
+            },
+          },
+        },
+      })
+
+      return `El post se ha restablecido en la categoría ${category.title}`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al recuperar el post ${postId}`)
+    }
+  }
+
+  async permantlyDelete(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest(`El post no se encuentra en la papelera`)
+    }
+
+    try {
+      await prisma.post.delete({ where: { id: postId } })
+
+      return `Post con id ${postId} eliminado de forma permanente`
     } catch (error) {
       console.log(error)
       throw new BadRequest(`Error al eliminar un post`)
@@ -128,4 +214,4 @@ class PostService implements PostRepository {
   }
 }
 
-export const postService = new PostService(categoryService)
+export const postService = new PostService()

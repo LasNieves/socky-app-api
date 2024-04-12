@@ -1,8 +1,6 @@
 import SendGrid from '@sendgrid/mail'
 
-import { MailerRepository } from '../core/repositories'
-
-class MailerService implements MailerRepository {
+export class MailerService {
   constructor() {
     SendGrid.setApiKey(process.env.SENDGRID_API_KEY!)
   }

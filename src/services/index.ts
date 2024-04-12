@@ -1,6 +1,7 @@
 export * from './auth.service'
 export * from './category.service'
 export * from './jwt.service'
+export * from './mailer.service'
 export * from './post.service'
 export * from './user.service'
 export * from './workspace.service'

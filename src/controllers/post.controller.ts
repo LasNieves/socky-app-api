@@ -73,6 +73,24 @@ export const updatePost = async (
   }
 }
 
+export const restorePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+
+  try {
+    const message = await postService.restorePost(ID, +req.body.categoryId)
+
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
+  }
+}
+
 export const deletePost = async (
   req: Request,
   res: Response,
@@ -81,7 +99,25 @@ export const deletePost = async (
   const { ID } = req.params
 
   try {
-    const message = await postService.delete(ID)
+    const message = await postService.movePostToTrashBin(ID)
+
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
+  }
+}
+
+export const permantlyDeletePost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { ID } = req.params
+
+  try {
+    const message = await postService.permantlyDelete(ID)
 
     res.status(200).json({
       message,

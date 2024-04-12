@@ -47,7 +47,7 @@ export const workspaceAuthorization =
         return next(new NotFound(`El post con id ${ID} no se ha encontrado`))
       }
 
-      id = post.category.workspaceId
+      id = post!.category!.workspaceId
     }
 
     const { id: userId } = req.user!

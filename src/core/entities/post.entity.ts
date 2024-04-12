@@ -19,9 +19,17 @@
  *           type: string
  *           format: date-time
  *           description: The date of creation of the post (auto-generated too)
+ *        updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: Last post update (change automatically to the current date when any other field is updated)
  *        categoryId:
  *           type: number
  *           description: What category does the post belong to?
+ *        trashBinId:
+ *           type: string
+ *           format: uuid
+ *           description: The post belong to a trash bin?
  *        userId:
  *           type: string
  *           format: uuid
@@ -31,7 +39,7 @@
  *        - title
  *        - description
  *        - createdAt
- *        - categoryId
+ *        - updatedAt
  *        - userId
  */
 
@@ -40,6 +48,8 @@ export interface Post {
   title: string
   description: string
   createdAt: Date
-  categoryId: number
+  updatedAt: Date
+  categoryId: number | null
+  trashBinId: string | null
   userId: string
 }

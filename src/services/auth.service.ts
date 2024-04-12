@@ -1,5 +1,5 @@
 import { timingSafeEqual } from './../utils/timeSafeEqual'
-import { ApplicationRole, WorkspaceRole } from '@prisma/client'
+import { ApplicationRole } from '@prisma/client'
 import { hash, genSalt, compare } from 'bcryptjs'
 import SendGrid from '@sendgrid/mail'
 
@@ -11,23 +11,21 @@ import {
   AuthDto,
   AuthVerifyAccountDto,
 } from '../core/dtos'
-import {
-  AuthRepository,
-  UserRepository,
-  JwtRepository,
-  MailerRepository,
-} from '../core/repositories'
 import { Conflict, BadRequest, UserEmailNotFound } from '../errors'
 import { getNumericCode } from '../utils'
-import { userService } from './user.service'
-import { jwtService } from './jwt.service'
-import { mailerService } from './mailer.service'
 
-class AuthService implements AuthRepository {
+// DEPS
+import { WorkspaceService, workspaceService } from './workspace.service'
+import { UserService, userService } from './user.service'
+import { JwtService, jwtService } from './jwt.service'
+import { MailerService, mailerService } from './mailer.service'
+
+export class AuthService {
   constructor(
-    private readonly userService: UserRepository,
-    private readonly jwtService: JwtRepository,
-    private readonly mailerService: MailerRepository,
+    private readonly userService: UserService,
+    private readonly workspaceService: WorkspaceService,
+    private readonly jwtService: JwtService,
+    private readonly mailerService: MailerService,
     private mailObj: SendGrid.MailDataRequired = {
       from: 'giulianodamico2019@gmail.com',
       templateId: process.env.VERIFY_USER_TEMPLATE!,
@@ -98,17 +96,6 @@ class AuthService implements AuthRepository {
               ...profile,
             },
           },
-          workspaces: {
-            create: {
-              workspace: {
-                create: {
-                  name: `${data.firstName}'s workspace`,
-                  icon: 'Diego Armando Maradona',
-                },
-              },
-              role: WorkspaceRole.OWNER,
-            },
-          },
         },
         select: {
           id: true,
@@ -120,6 +107,17 @@ class AuthService implements AuthRepository {
           role: true,
         },
       })
+
+      console.log(`Usuario ${user.id} creado`, { user })
+
+      await this.workspaceService.create(
+        {
+          name: `${data.firstName}'s workspace`,
+          description: `Espacio personal de ${data.firstName} ${data.lastName}`,
+          isPersonal: true,
+        },
+        user.id
+      )
 
       await this.sendValidationCode(user.email)
 
@@ -199,6 +197,7 @@ class AuthService implements AuthRepository {
         ...this.mailObj,
         to: email,
         dynamicTemplateData: {
+          //@ts-ignore
           firstname: existUser.profile!.firstName,
           code,
         },
@@ -219,6 +218,7 @@ class AuthService implements AuthRepository {
 
 export const authService = new AuthService(
   userService,
+  workspaceService,
   jwtService,
   mailerService
 )

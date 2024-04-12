@@ -10,6 +10,10 @@
  *           type: string
  *           format: uuid
  *           description: The auto-generated id of the register (a mix between userId and workspaceId)
+ *        createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date of the user joined to the workspace (auto-generated too)
  *        userId:
  *           type: string
  *           format: uuid
@@ -22,16 +26,18 @@
  *           $ref: '#/components/schemas/WorkspaceRoles'
  *      required:
  *        - id
+ *        - createdAt
+ *        - role
  *        - userId
  *        - workspaceId
- *        - role
  */
 
 import { WorkspaceRole } from '../enums'
 
 export interface UsersOnWorkspaces {
   id: string
+  createdAt: Date
+  role: WorkspaceRole
   userId: string
   workspaceId: string
-  role: WorkspaceRole
 }

@@ -13,6 +13,8 @@ import {
   getByCategory,
   getByWorkspace,
   getOnePost,
+  permantlyDeletePost,
+  restorePost,
   updatePost,
 } from './../controllers/post.controller'
 
@@ -228,9 +230,56 @@ postRouter.patch(
 
 /**
  * @swagger
+ *  /posts/{ID}/restore:
+ *   patch:
+ *    summary: Restore a post from the trash bin to a category
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    requestBody:
+ *     required: false
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdatePostDto'
+ *    responses:
+ *      200:
+ *        description: Post restored succesfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+
+postRouter.patch(
+  '/:ID/restore',
+  protect(),
+  body('categoryId')
+    .isNumeric()
+    .notEmpty()
+    .withMessage('Debe enviar la categoría a la que se restablecerá el post'),
+  validateRequest,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  restorePost
+)
+
+/**
+ * @swagger
  *  /posts/{ID}:
  *   delete:
- *    summary: Delete one post
+ *    summary: Move one post to trash bin
  *    tags: [Posts]
  *    security:
  *     - bearerAuth: []
@@ -244,7 +293,7 @@ postRouter.patch(
  *        description: The post id
  *    responses:
  *      200:
- *        description: Post deleted successfully
+ *        description: Post moved to trash bin successfully
  *        content:
  *          application/json:
  *           schema:
@@ -261,4 +310,41 @@ postRouter.delete(
   protect(),
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
   deletePost
+)
+
+/**
+ * @swagger
+ *  /posts/{ID}/permantly:
+ *   delete:
+ *    summary: Permantly delete a post
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    responses:
+ *      200:
+ *        description: Post deleted permantly
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
+ */
+
+postRouter.delete(
+  '/:ID/permantly',
+  protect(),
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  permantlyDeletePost
 )
