@@ -62,10 +62,12 @@ export class WorkspaceService {
         user: {
           select: {
             id: true,
+            email: true,
             profile: {
               select: {
                 firstName: true,
                 lastName: true,
+                color: true,
                 avatar: true,
               },
             },
