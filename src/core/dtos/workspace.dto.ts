@@ -9,6 +9,10 @@
  *        name:
  *           type: string
  *           description: The name of the Workspace
+ *        userId:
+ *           type: string
+ *           format: uuid
+ *           description: The user owner of the new Workspace
  *        description:
  *           type: string
  *           description: The description of the Workspace
@@ -17,10 +21,12 @@
  *           description: Indicates whether the workspace is personal or not
  *      required:
  *        - name
+ *        - userId
  */
 
 export type CreateWorkspaceDto = {
   name: string
+  userId: string
   description?: string
   isPersonal?: boolean
 }

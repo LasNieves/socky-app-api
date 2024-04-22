@@ -7,6 +7,8 @@ import { CreateWorkspaceDto, RestorePostsDto } from '../core/dtos'
 import { Workspace } from '../core/entities'
 import { PostService, postService } from './post.service'
 
+const MAX_WORKSPACES_CREATED_PER_USER = 3
+
 export class WorkspaceService {
   constructor(private readonly postService: PostService) {}
 
@@ -77,11 +79,28 @@ export class WorkspaceService {
     })
   }
 
-  async create(
-    { isPersonal = false, ...workspace }: CreateWorkspaceDto,
-    userId: string
-  ): Promise<Workspace> {
+  async create({
+    userId,
+    isPersonal = false,
+    ...workspace
+  }: CreateWorkspaceDto): Promise<Workspace> {
     console.log(`Creando Workspace ${workspace.name}`)
+
+    const workspacesWhereUserIsOwner = await prisma.usersOnWorkspaces.findMany({
+      where: {
+        userId,
+        role: WorkspaceRole.OWNER,
+      },
+      select: {
+        userId: true,
+      },
+    })
+
+    if (workspacesWhereUserIsOwner.length >= MAX_WORKSPACES_CREATED_PER_USER) {
+      throw new Conflict(
+        'Has alcanzado el máximo de workspaces creados para tu cuenta'
+      )
+    }
 
     try {
       return prisma.workspace.create({

@@ -110,14 +110,12 @@ export class AuthService {
 
       console.log(`Usuario ${user.id} creado`, { user })
 
-      await this.workspaceService.create(
-        {
-          name: `${data.firstName}'s workspace`,
-          description: `Espacio personal de ${data.firstName} ${data.lastName}`,
-          isPersonal: true,
-        },
-        user.id
-      )
+      await this.workspaceService.create({
+        name: `${data.firstName}'s workspace`,
+        userId: user.id,
+        description: `Espacio personal de ${data.firstName} ${data.lastName}`,
+        isPersonal: true,
+      })
 
       await this.sendValidationCode(user.email)
 

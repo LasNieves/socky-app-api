@@ -133,8 +133,21 @@ workspaceRouter.get(
 workspaceRouter.post(
   '/',
   protect(),
-  body('name').isString().trim().notEmpty().withMessage('Campo requerido'),
-  body('icon').isString().trim().notEmpty().withMessage('Campo requerido'),
+  body('name')
+    .isString()
+    .trim()
+    .notEmpty()
+    .withMessage('Campo requerido')
+    .isLength({ max: 55 })
+    .withMessage('El nombre del workspace no debe superar los 55 caracteres'),
+  body('description')
+    .isString()
+    .trim()
+    .optional()
+    .isLength({ max: 512 })
+    .withMessage(
+      'La descripción del workspace no debe superar los 512 caracteres'
+    ),
   validateRequest,
   createWorkspace
 )

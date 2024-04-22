@@ -48,7 +48,11 @@ export const createWorkspace = async (
   const { id } = req.user!
 
   try {
-    const workspace = await workspaceService.create(req.body, id)
+    const workspace = await workspaceService.create({
+      ...req.body,
+      userId: id,
+      isPersonal: false,
+    })
 
     res
       .status(201)
