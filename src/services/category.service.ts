@@ -18,6 +18,7 @@ export class CategoryService {
   async getByWorkspace(id: string) {
     const categories = await prisma.category.findMany({
       where: { workspaceId: id },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         title: true,

@@ -116,7 +116,13 @@ categoryRouter.get(
 categoryRouter.post(
   '/',
   protect(),
-  body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido')
+    .isLength({ max: 55 })
+    .withMessage('El nombre de la categoría no debe superar los 55 caracteres'),
   body('workspaceId')
     .trim()
     .isString()
