@@ -8,6 +8,7 @@ export class PostService {
   async getByCategory(id: number) {
     return await prisma.post.findMany({
       where: { categoryId: id },
+      orderBy: { createdAt: 'desc' },
       select: {
         id: true,
         title: true,

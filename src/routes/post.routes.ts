@@ -154,12 +154,20 @@ postRouter.get(
 postRouter.post(
   '/',
   protect(),
-  body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido')
+    .isLength({ max: 255 })
+    .withMessage('El título del post no debe superar los 255 cacteres'),
   body('description')
     .trim()
     .isString()
     .notEmpty()
-    .withMessage('Campo requerido'),
+    .withMessage('Campo requerido')
+    .isLength({ max: 5000 })
+    .withMessage('La descripción del post no debe superar los 5000 cacteres'),
   body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
