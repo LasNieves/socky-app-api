@@ -47,7 +47,7 @@ export const categoryRouter = Router()
 
 categoryRouter.get(
   '/workspace/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getByWorkspace
 )
@@ -79,7 +79,7 @@ categoryRouter.get(
 
 categoryRouter.get(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOneCategory
 )
@@ -115,8 +115,14 @@ categoryRouter.get(
 
 categoryRouter.post(
   '/',
-  protect,
-  body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
+  protect(),
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido')
+    .isLength({ max: 55 })
+    .withMessage('El nombre de la categoría no debe superar los 55 caracteres'),
   body('workspaceId')
     .trim()
     .isString()
@@ -165,8 +171,15 @@ categoryRouter.post(
 
 categoryRouter.patch(
   '/:ID',
-  protect,
-  body('title').isString().trim().optional(),
+  protect(),
+  body('title')
+    .isString()
+    .trim()
+    .optional()
+    .notEmpty()
+    .withMessage('El nombre de la categoría debe contener un valor')
+    .isLength({ max: 55 })
+    .withMessage('El nombre de la categoría no debe superar los 55 caracteres'),
   validateRequest,
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
   updateCategory
@@ -203,7 +216,7 @@ categoryRouter.patch(
 
 categoryRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN'),
   deleteCategory
 )

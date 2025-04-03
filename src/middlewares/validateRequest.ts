@@ -4,7 +4,7 @@ import { BadRequestBody } from '../errors'
 
 export const validateRequest = (
   req: Request,
-  res: Response,
+  _res: Response,
   next: NextFunction
 ) => {
   const requestedData = matchedData(req, {

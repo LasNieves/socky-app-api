@@ -19,6 +19,10 @@
  *           type: string
  *           format: uri
  *           description: The user's avatar
+ *        color:
+ *           type: string
+ *           format: hexadecimal
+ *           description: The user's color
  *        userId:
  *           type: string
  *           format: uuid
@@ -35,5 +39,6 @@ export interface Profile {
   firstName: string
   lastName: string
   avatar?: string | null
+  color?: string | null
   userId: string
 }

@@ -2,14 +2,15 @@ import { Request, Response, NextFunction } from 'express'
 
 import { WorkspaceRole } from '../core/enums'
 
-import { CustomError, NotAuthorized } from '../errors'
+import { BadRequest, NotAuthorized, NotFound } from '../errors'
 import { categoryService, postService, userService } from '../services'
+import { canCoerceToNumber } from '../utils'
 
 type ValidateBy = 'workspaceId' | 'categoryId' | 'postId'
 
 export const workspaceAuthorization =
   (validateBy: ValidateBy, ...roles: WorkspaceRole[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, _res: Response, next: NextFunction) => {
     const { ID } = req.params
 
     let id: string = ''
@@ -22,11 +23,16 @@ export const workspaceAuthorization =
 
     if (validateBy === 'categoryId') {
       const { categoryId } = req.body
+      if (!categoryId && !canCoerceToNumber(ID)) {
+        return next(new BadRequest('El id de la categoría debe ser un número'))
+      }
 
-      const category = await categoryService.get(categoryId ?? +ID)
+      const category = await categoryService.get({ id: categoryId ?? +ID })
 
-      if (category instanceof CustomError) {
-        return next(category)
+      if (!category) {
+        return next(
+          new NotFound(`La categoría con id ${ID} no se ha encontrado`)
+        )
       }
 
       id = category.workspaceId
@@ -37,25 +43,31 @@ export const workspaceAuthorization =
 
       const post = await postService.get(postId ?? ID)
 
-      if (post instanceof CustomError) {
-        return next(post)
+      if (!post) {
+        return next(new NotFound(`El post con id ${ID} no se ha encontrado`))
       }
 
-      id = post.category.workspaceId
+      id = post!.category!.workspaceId
     }
 
     const { id: userId } = req.user!
 
-    const userRole = await userService.getUserRoleInWorkspace(userId, id)
+    try {
+      const userRole = await userService.getUserRoleInWorkspace(userId, id)
 
-    if (userRole instanceof CustomError) {
-      return next(userRole)
-    }
+      if (!userRole) {
+        return next(new NotAuthorized('No formas parte del workspace'))
+      }
 
-    if (roles.includes(userRole)) {
+      if (!roles.includes(userRole)) {
+        throw new NotAuthorized(
+          'No posees el rol necesario dentro del workspace para realizar esta acción'
+        )
+      }
+
       req.workspaceId = id
       return next()
+    } catch (err) {
+      return next(err)
     }
-
-    return next(new NotAuthorized('Usuario no autorizado'))
   }

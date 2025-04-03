@@ -1,30 +1,3 @@
-import { Category, Post, Workspace } from '../entities'
-
-/**
- * @swagger
- * components:
- *  schemas:
- *    PostDto:
- *      description: Data returned when you request for a single post
- *      type: object
- *      $ref: '#/components/schemas/Post'
- *      properties:
- *        category:
- *          type: object
- *          $ref: '#/components/schemas/Category'
- *          properties:
- *            workspace:
- *              type: object
- *              $ref: '#/components/schemas/Workspace'
- */
-
-type CategoryWithWorkspace = Category & {
-  workspace: Workspace
-}
-export interface PostDto extends Post {
-  category: CategoryWithWorkspace
-}
-
 /**
  * @swagger
  * components:

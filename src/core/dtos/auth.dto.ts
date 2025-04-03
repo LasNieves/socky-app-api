@@ -59,10 +59,6 @@ export interface AuthLoginDto {
  *        lastName:
  *           type: string
  *           description: The last name of the user
- *        avatar:
- *           type: string
- *           format: uri
- *           description: The user's avatar
  *        isSuperAdmin:
  *           type: boolean
  *           description: Is the user SUPERADMIN or not?
@@ -78,7 +74,6 @@ export interface AuthRegisterDto {
   password: string
   firstName: string
   lastName: string
-  avatar?: string
   isSuperAdmin?: boolean
 }
 
@@ -86,45 +81,19 @@ export interface AuthRegisterDto {
  * @swagger
  * components:
  *  schemas:
- *    AuthValidateCodeDto:
+ *    AuthVerifyAccountDto:
  *      description: Data required for verificate a user
  *      type: object
  *      properties:
- *        email:
- *           type: string
- *           format: email
- *           description: The email of the existing user
  *        code:
  *           type: number
  *           description: The code for validation
  *      required:
- *        - email
  *        - code
  */
 
-export interface AuthValidateCodeDto {
-  email: string
+export interface AuthVerifyAccountDto {
   code: number
-}
-
-/**
- * @swagger
- * components:
- *  schemas:
- *    AuthResendValidationCodeDto:
- *      description: Data required for resend the validation code
- *      type: object
- *      properties:
- *        email:
- *           type: string
- *           format: email
- *           description: The email of the existing user
- *      required:
- *        - email
- */
-
-export interface AuthResendValidationCodeDto {
-  email: string
 }
 
 /**

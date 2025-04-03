@@ -13,7 +13,7 @@ import {
   getOneUser,
   deleteUser,
   getUserWorkspaces,
-  updateUser,
+  updateProfile,
 } from '../controllers/user.controller'
 
 export const usersRouter = Router()
@@ -38,7 +38,7 @@ export const usersRouter = Router()
  *                $ref: '#/components/schemas/UsersDto'
  */
 
-usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
+usersRouter.get('/', protect(), authorization('SUPERADMIN'), getUsers)
 
 /**
  * @swagger
@@ -66,11 +66,11 @@ usersRouter.get('/', protect, authorization('SUPERADMIN'), getUsers)
  *              $ref: '#/components/schemas/User'
  */
 
-usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
+usersRouter.get('/:ID', protect(), verifyUserIdentity, getOneUser)
 
 /**
  * @swagger
- *  /users/workspaces/{ID}:
+ *  /users/{ID}/workspaces:
  *   get:
  *    summary: Get the workspaces of one user
  *    tags: [Users]
@@ -95,17 +95,17 @@ usersRouter.get('/:ID', protect, verifyUserIdentity, getOneUser)
  */
 
 usersRouter.get(
-  '/workspaces/:ID',
-  protect,
+  '/:ID/workspaces',
+  protect(),
   verifyUserIdentity,
   getUserWorkspaces
 )
 
 /**
  * @swagger
- *  /users/{ID}:
+ *  /users/{ID}/profile:
  *   patch:
- *    summary: Update one User
+ *    summary: Update user profile
  *    tags: [Users]
  *    security:
  *     - bearerAuth: []
@@ -123,10 +123,10 @@ usersRouter.get(
  *       application/json:
  *         schema:
  *           type: object
- *           $ref: '#/components/schemas/UpdateUserDto'
+ *           $ref: '#/components/schemas/UpdateProfileDto'
  *    responses:
  *      200:
- *        description: User updated successfully
+ *        description: User's profile updated successfully
  *        content:
  *          application/json:
  *            schema:
@@ -139,14 +139,35 @@ usersRouter.get(
  */
 
 usersRouter.patch(
-  '/:ID',
-  protect,
+  '/:ID/profile',
+  protect(),
   verifyUserIdentity,
-  body('firstName').trim().isString().optional(),
-  body('lastName').trim().isString().optional(),
-  body('avatar').trim().isString().optional(),
+  body('firstName')
+    .isString()
+    .trim()
+    .isLength({ max: 55 })
+    .withMessage('El nombre no debe superar los 55 caracteres')
+    .optional(),
+  body('lastName')
+    .isString()
+    .trim()
+    .isLength({ max: 55 })
+    .withMessage('El apellido no debe superar los 55 caracteres')
+    .optional(),
+  body('avatar')
+    .isString()
+    .trim()
+    .isURL({ protocols: ['https'] })
+    .withMessage('El avatar debe seguir el formato de una URL')
+    .optional(),
+  body('color')
+    .isString()
+    .trim()
+    .isHexColor()
+    .withMessage('El color debe ser enviado en formato hexadecimal')
+    .optional(),
   validateRequest,
-  updateUser
+  updateProfile
 )
 
 /**
@@ -192,7 +213,7 @@ usersRouter.patch(
 
 usersRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   verifyUserIdentity,
   body('password').trim().notEmpty().withMessage('Contraseña obligatoria'),
   validateRequest,

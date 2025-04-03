@@ -1,41 +1,38 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CustomError } from '../errors'
 import { authService } from '../services'
+import { timingSafeEqual } from '../utils'
 
 export const register = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { email, password, firstName, lastName, avatar } = req.body
-
   const { headers } = req
 
   let isSuperAdmin = false
+  const appSecret = process.env.APPLICATION_SECRET
+  const secretSended = headers['application-secret']
 
-  if (headers['application-secret']) {
-    isSuperAdmin =
-      headers['application-secret'] === process.env.APPLICATION_SECRET
+  if (appSecret && secretSended && typeof secretSended === 'string') {
+    if (timingSafeEqual(appSecret, secretSended)) {
+      isSuperAdmin = true
+    }
   }
 
-  const credentials = await authService.register({
-    email,
-    password,
-    firstName,
-    lastName,
-    avatar,
-    isSuperAdmin,
-  })
+  try {
+    const credentials = await authService.register({
+      ...req.body,
+      isSuperAdmin,
+    })
 
-  if (credentials instanceof CustomError) {
-    return next(credentials)
+    res.status(201).json({
+      message: 'Usuario registrado correctamente',
+      data: credentials,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(201).json({
-    message: 'Usuario registrado correctamente',
-    data: credentials,
-  })
 }
 
 export const login = async (
@@ -43,36 +40,35 @@ export const login = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email, password } = req.body
+  try {
+    const credentials = await authService.login(req.body)
 
-  const credentials = await authService.login({ email, password })
-
-  if (credentials instanceof CustomError) {
-    return next(credentials)
+    res.status(200).json({
+      message: 'Usuario logeado correctamente',
+      data: credentials,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: 'Usuario logeado correctamente',
-    data: credentials,
-  })
 }
 
-export const validateCode = async (
+export const verifyAccount = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  const { email, code } = req.body
+  const { code } = req.body
+  const { email } = req.user!
 
-  const isVerified = await authService.validateCode({ email, code: +code })
+  try {
+    const message = await authService.verifyAccount(email, { code: +code })
 
-  if (isVerified instanceof CustomError) {
-    return next(isVerified)
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: isVerified,
-  })
 }
 
 export const resendvalidationCode = async (
@@ -80,15 +76,13 @@ export const resendvalidationCode = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { email } = req.body
+  try {
+    const message = await authService.sendValidationCode(req.user!.email)
 
-  const resendValidationCode = await authService.resendValidationCode({ email })
-
-  if (resendValidationCode instanceof CustomError) {
-    return next(resendValidationCode)
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(200).json({
-    message: resendValidationCode,
-  })
 }

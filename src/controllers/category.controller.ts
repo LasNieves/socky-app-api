@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CustomError } from '../errors'
+import { BadRequest, NotFound } from '../errors'
 import { categoryService } from '../services'
+import { canCoerceToNumber } from '../utils'
 
 export const getByWorkspace = async (
   req: Request,
@@ -20,10 +21,14 @@ export const getOneCategory = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const category = await categoryService.get(+ID)
+  if (!canCoerceToNumber(ID)) {
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
+  }
 
-  if (category instanceof CustomError) {
-    return next(category)
+  const category = await categoryService.get({ id: +ID }, { posts: true })
+
+  if (!category) {
+    next(new NotFound(`La categoría con id ${ID} no se ha encontrado`))
   }
 
   res.status(200).json(category)
@@ -34,21 +39,16 @@ export const createCategory = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { title, workspaceId } = req.body
+  try {
+    const category = await categoryService.create(req.body)
 
-  const category = await categoryService.create({
-    title,
-    workspaceId,
-  })
-
-  if (category instanceof CustomError) {
-    return next(category)
+    res.status(201).json({
+      message: 'Categoría creada correctamente',
+      data: category,
+    })
+  } catch (err) {
+    return next(err)
   }
-
-  res.status(201).json({
-    message: 'Categoría creada correctamente',
-    data: category,
-  })
 }
 
 export const updateCategory = async (
@@ -57,18 +57,20 @@ export const updateCategory = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-  const data = req.body
-
-  const category = await categoryService.update(+ID, data)
-
-  if (category instanceof CustomError) {
-    return next(category)
+  if (!canCoerceToNumber(ID)) {
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
   }
 
-  res.status(200).json({
-    message: 'Categoría actualizada correctamente',
-    data: category,
-  })
+  try {
+    const category = await categoryService.update(+ID, req.body)
+
+    res.status(200).json({
+      message: 'Categoría actualizada correctamente',
+      data: category,
+    })
+  } catch (err) {
+    return next(err)
+  }
 }
 
 export const deleteCategory = async (
@@ -77,15 +79,17 @@ export const deleteCategory = async (
   next: NextFunction
 ) => {
   const { ID } = req.params
-
-  const category = await categoryService.delete(+ID)
-
-  if (category instanceof CustomError) {
-    return next(category)
+  if (!canCoerceToNumber(ID)) {
+    return next(new BadRequest(`El ID de la categoría debe ser un número`))
   }
 
-  res.status(200).json({
-    message: 'Categoría eliminada correctamente',
-    data: category,
-  })
+  try {
+    const message = await categoryService.delete(+ID)
+
+    res.status(200).json({
+      message,
+    })
+  } catch (err) {
+    return next(err)
+  }
 }

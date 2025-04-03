@@ -3,26 +3,20 @@ import { compare } from 'bcryptjs'
 
 import { prisma } from '../config/db'
 
-import { UserRepository, WorkspaceRepository } from '../core/repositories'
-import { Conflict, CustomError, NotFound, NotAuthorized } from '../errors'
+import { Conflict, NotFound } from '../errors'
 import { User } from '../core/entities'
-import { UpdateUserDto, UsersDto, UserWorkspacesDto } from '../core/dtos'
+import { UpdateProfileDto } from '../core/dtos'
 import { WorkspaceRole } from '../core/enums'
 import { UserWithoutPassword } from '../core/types'
-import { workspaceService } from './workspace.service'
 
-class UserService implements UserRepository {
-  constructor(private readonly workspaceService: WorkspaceRepository) {}
+// DEPS
+import { WorkspaceService, workspaceService } from './workspace.service'
 
-  private async isValidPassword(
-    passwordToCompare: string,
-    password: string
-  ): Promise<boolean> {
-    return await compare(passwordToCompare, password)
-  }
+export class UserService {
+  constructor(private readonly workspaceService: WorkspaceService) {}
 
-  async getAll(): Promise<UsersDto[]> {
-    const users = await prisma.user.findMany({
+  async getAll() {
+    return await prisma.user.findMany({
       select: {
         id: true,
         email: true,
@@ -39,85 +33,60 @@ class UserService implements UserRepository {
         },
       },
     })
-
-    return users
   }
 
-  async getFirstUserOrThrow(where: Prisma.UserWhereUniqueInput) {
+  async getFirstUserOrThrow(where: Prisma.UserWhereInput) {
     return await prisma.user.findFirstOrThrow({ where })
   }
 
-  async get(
-    where: Prisma.UserWhereUniqueInput,
-    include?: Prisma.UserInclude
-  ): Promise<CustomError | User> {
-    const user = await prisma.user.findUnique({
+  async get(where: Prisma.UserWhereUniqueInput, include?: Prisma.UserInclude) {
+    return await prisma.user.findUnique({
       where,
       include,
     })
-
-    if (!user) {
-      return new NotFound(
-        `Usuario con ${
-          where.email ? `email ${where.email}` : `id ${where.id}`
-        } no encontrado`
-      )
-    }
-
-    return user
   }
 
-  async update(
+  async updateProfile(
     id: string,
-    data: UpdateUserDto
-  ): Promise<UserWithoutPassword | CustomError> {
-    const existUser = await this.getFirstUserOrThrow({ id }).catch((error) => {
-      console.log(error)
-      return new NotFound(`Usuario con id ${id} no encontrado`)
+    updatedProfile: UpdateProfileDto
+  ): Promise<UserWithoutPassword> {
+    await this.getFirstUserOrThrow({ id }).catch(() => {
+      throw new NotFound(`Usuario con id ${id} no encontrado`)
     })
 
-    if (existUser instanceof CustomError) {
-      return existUser
-    }
-
     try {
-      const { password, ...user } = await prisma.user.update({
+      const { password: _, ...user } = await prisma.user.update({
         where: { id },
-        data: { profile: { update: { ...data } } },
+        data: { profile: { update: updatedProfile } },
         include: { profile: true },
       })
 
       return user
     } catch (error) {
-      return new Conflict('Error al actualizar el usuario')
+      console.log(error)
+      throw new Conflict('Error al actualizar el perfil del usuario')
     }
   }
 
-  async delete(id: string, password: string): Promise<User | CustomError> {
-    const user = await this.getFirstUserOrThrow({ id }).catch((error) => {
-      console.log(error)
+  async delete(id: string, password: string): Promise<User> {
+    const user = await this.getFirstUserOrThrow({ id }).catch(() => {
       throw new NotFound(`Usuario con id ${id} no encontrado`)
     })
 
-    const isValid = await this.isValidPassword(password, user.password)
-
+    const isValid = await compare(password, user.password)
     if (!isValid) {
-      return new Conflict('Credenciales inválidas')
+      throw new Conflict('Credenciales inválidas')
     }
 
     try {
-      const deletedUser = await prisma.user.delete({ where: { id } })
-
-      return deletedUser
+      return await prisma.user.delete({ where: { id } })
     } catch (error) {
       console.log(error)
-      return new Conflict('Error al eliminar el usuario')
+      throw new Conflict('Error al eliminar el usuario')
     }
   }
 
-  async getUserWorkspaces(
-    id: string
-  ): Promise<UserWorkspacesDto | CustomError> {
+  async getUserWorkspaces(id: string) {
     const userWorkspaces = await prisma.user.findUnique({
       where: { id },
       select: {
@@ -133,7 +102,7 @@ class UserService implements UserRepository {
     })
 
     if (!userWorkspaces) {
-      return new NotFound(`Usuario con id ${id} no encontrado`)
+      throw new NotFound(`Usuario con id ${id} no encontrado`)
     }
 
     return userWorkspaces
@@ -142,11 +111,11 @@ class UserService implements UserRepository {
   async getUserRoleInWorkspace(
     userId: string,
     workspaceId: string
-  ): Promise<WorkspaceRole | CustomError> {
+  ): Promise<WorkspaceRole | null> {
     const workspace = await this.workspaceService.get({ id: workspaceId })
 
-    if (workspace instanceof CustomError) {
-      return workspace
+    if (!workspace) {
+      throw new NotFound(`Workspace con id ${workspaceId} no encontrado`)
     }
 
     const role = await prisma.usersOnWorkspaces.findUnique({
@@ -154,13 +123,7 @@ class UserService implements UserRepository {
       select: { role: true },
     })
 
-    if (!role) {
-      return new NotAuthorized(
-        `El usuario no pertenece al workspace con id ${workspaceId}`
-      )
-    }
-
-    return role.role
+    return role?.role ?? null
   }
 }
 

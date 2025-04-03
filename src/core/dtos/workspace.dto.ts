@@ -1,56 +1,3 @@
-import { Category, User } from '../entities'
-
-/**
- * @swagger
- * components:
- *  schemas:
- *    WorkspaceDto:
- *      description: Response for the request of one Workspace
- *      type: object
- *      properties:
- *        id:
- *           type: string
- *           format: uuid
- *           description: The auto-generated id for the Workspace
- *        name:
- *           type: string
- *           description: The name of the Workspace
- *        icon:
- *           type: string
- *           description: The icon of the Workspace
- *        personal:
- *           type: boolean
- *           description: The field to define if the workspace is personal or shared
- *        categories:
- *            type: array
- *            items:
- *              $ref: '#/components/schemas/Category'
- *        users:
- *            type: array
- *            items:
- *              type: object
- *              properties:
- *                id:
- *                  type: string
- *                  format: uuid
- *                  description: The auto-generated id for the User
- *                email:
- *                  type: string
- *                  format: email
- *                  description: The email of the User
- */
-
-export type WorkspaceDto = {
-  id: string
-  name: string
-  icon: string
-  personal: boolean
-  categories: Category[]
-  users: {
-    user: Pick<User, 'id' | 'email'>
-  }[]
-}
-
 /**
  * @swagger
  * components:
@@ -62,15 +9,50 @@ export type WorkspaceDto = {
  *        name:
  *           type: string
  *           description: The name of the Workspace
- *        icon:
+ *        userId:
  *           type: string
- *           description: The icon of the Workspace
+ *           format: uuid
+ *           description: The user owner of the new Workspace
+ *        description:
+ *           type: string
+ *           description: The description of the Workspace
+ *        isPersonal:
+ *           type: boolean
+ *           description: Indicates whether the workspace is personal or not
  *      required:
  *        - name
- *        - icon
+ *        - userId
  */
 
 export type CreateWorkspaceDto = {
   name: string
-  icon: string
+  userId: string
+  description?: string
+  isPersonal?: boolean
+}
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    RestorePostsDto:
+ *      description: Data required for restore posts from trash bin
+ *      type: object
+ *      properties:
+ *        posts:
+ *           type: array
+ *           items:
+ *            type: string
+ *           description: Array of posts to be restored
+ *        categoryId:
+ *           type: number
+ *           description: What category does the posts restored go?
+ *      required:
+ *        - posts
+ *        - categoryId
+ */
+
+export type RestorePostsDto = {
+  posts: string[]
+  categoryId: number
 }

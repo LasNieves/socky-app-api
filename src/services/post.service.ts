@@ -1,40 +1,36 @@
 import { prisma } from '../config/db'
 
-import { BadRequest, CustomError, NotAuthorized, NotFound } from '../errors'
-import {
-  CategoriesDto,
-  CreatePostDto,
-  PostDto,
-  UpdatePostDto,
-} from '../core/dtos'
+import { BadRequest, NotAuthorized, NotFound } from '../errors'
+import { CreatePostDto, UpdatePostDto } from '../core/dtos'
 import { Post } from '../core/entities'
-import { CategoryRepository, PostRepository } from '../core/repositories'
-import { categoryService } from './category.service'
 
-class PostService implements PostRepository {
-  constructor(private readonly categoryService: CategoryRepository) {}
-
-  private async categoryBelongsToWorkspace(
-    workspaceId: string,
-    categoryId: number
-  ): Promise<CategoriesDto | CustomError> {
-    const categories = await this.categoryService.getByWorkspace(workspaceId)
-
-    const category = (categories as CategoriesDto[]).find(
-      (category) => category.id === categoryId
-    )
-
-    if (!category) {
-      return new NotAuthorized(
-        `La categoría ${categoryId} no pertenece al workspace ${workspaceId} `
-      )
-    }
-
-    return category
+export class PostService {
+  async getByCategory(id: number) {
+    return await prisma.post.findMany({
+      where: { categoryId: id },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        createdAt: true,
+        user: {
+          select: {
+            profile: {
+              select: {
+                firstName: true,
+                avatar: true,
+                color: true,
+              },
+            },
+          },
+        },
+      },
+    })
   }
 
-  async getByWorkspace(id: string): Promise<Post[] | CustomError> {
-    const posts = await prisma.post.findMany({
+  async getByWorkspace(id: string) {
+    return await prisma.post.findMany({
       where: { category: { workspaceId: id } },
       include: {
         category: {
@@ -45,44 +41,30 @@ class PostService implements PostRepository {
         },
       },
     })
-
-    return posts
   }
 
-  async get(id: string): Promise<PostDto | CustomError> {
-    const post = await prisma.post.findUnique({
+  async get(id: string) {
+    return await prisma.post.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        createdAt: true,
-        categoryId: true,
-        userId: true,
+      include: {
         category: {
           include: {
             workspace: true,
           },
         },
+        trashBin: true,
       },
     })
-
-    if (!post) {
-      return new NotFound(`Post con id ${id} no encontrado`)
-    }
-
-    return post
   }
 
-  async create(
-    data: CreatePostDto & { userId: string }
-  ): Promise<Post | CustomError> {
+  async create(post: CreatePostDto & { userId: string }): Promise<Post> {
     try {
-      const post = await prisma.post.create({ data })
-      return post
+      return await prisma.post.create({
+        data: post,
+      })
     } catch (error) {
       console.log(error)
-      return new BadRequest('Error al crear el post')
+      throw new BadRequest('Error al crear el post')
     }
   }
 
@@ -90,46 +72,147 @@ class PostService implements PostRepository {
     postId: string,
     workspaceId: string,
     data: UpdatePostDto
-  ): Promise<Post | CustomError> {
-    const { categoryId } = data
-    if (categoryId) {
-      const existCategory = await this.categoryService.get(categoryId)
+  ): Promise<Post> {
+    const post = await this.get(postId)
 
-      if (existCategory instanceof CustomError) {
-        return existCategory
-      }
-
-      const categoryBelongsToWorkspace = await this.categoryBelongsToWorkspace(
-        workspaceId,
-        categoryId
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+    if (post.trashBinId) {
+      throw new BadRequest(
+        `No puedes editar un post que se encuentra en la papelera`
       )
+    }
 
-      if (categoryBelongsToWorkspace instanceof CustomError) {
-        return categoryBelongsToWorkspace
+    const { categoryId } = data
+
+    if (categoryId) {
+      const existCategory = await prisma.category
+        .findUniqueOrThrow({ where: { id: categoryId } })
+        .catch(() => {
+          throw new NotFound(`Categoría con id ${categoryId} no encontrada`)
+        })
+
+      const canEditPost = existCategory.workspaceId === workspaceId
+
+      if (!canEditPost) {
+        throw new NotAuthorized(
+          'La categoría enviada no pertenece al workspace del post que estas editando'
+        )
       }
     }
 
     try {
-      const updatePost = await prisma.post.update({
+      return await prisma.post.update({
         where: { id: postId },
         data,
       })
-      return updatePost
     } catch (error) {
       console.log(error)
-      return new BadRequest(`Error al actualizar un post`)
+      throw new BadRequest(`Error al actualizar un post`)
     }
   }
 
-  async delete(id: string): Promise<Post | CustomError> {
+  async movePostToTrashBin(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (post.trashBinId) {
+      throw new BadRequest(`El post ya se encuentra en la papelera`)
+    }
+
     try {
-      const deletedPost = await prisma.post.delete({ where: { id } })
-      return deletedPost
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          category: {
+            disconnect: true,
+          },
+          trashBin: {
+            connect: {
+              workspaceId: post.category?.workspaceId,
+            },
+          },
+        },
+      })
+
+      return `Post en papelera`
     } catch (error) {
       console.log(error)
-      return new BadRequest(`Error al eliminar un post`)
+      throw new BadRequest(`Error al mover a la papelera el post ${postId}`)
+    }
+  }
+
+  async restorePost(postId: string, categoryId: number): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest('El post no se encuentra en la papelera')
+    }
+
+    const category = await prisma.category
+      .findUniqueOrThrow({ where: { id: categoryId } })
+      .catch(() => {
+        throw new NotAuthorized(
+          'No se encontró la categoría en la que quieres restablecer el post'
+        )
+      })
+
+    if (category.workspaceId !== post.trashBin?.workspaceId) {
+      throw new NotAuthorized(
+        'La categoría enviada no pertenece al workspace del post que estas restableciendo'
+      )
+    }
+
+    try {
+      await prisma.post.update({
+        where: { id: postId },
+        data: {
+          trashBin: {
+            disconnect: true,
+          },
+          category: {
+            connect: {
+              id: categoryId,
+            },
+          },
+        },
+      })
+
+      return `El post se ha restablecido en la categoría ${category.title}`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al recuperar el post ${postId}`)
+    }
+  }
+
+  async permantlyDelete(postId: string): Promise<string> {
+    const post = await this.get(postId)
+
+    if (!post) {
+      throw new NotFound(`No se ha encontrado el post ${postId}`)
+    }
+
+    if (!post.trashBinId) {
+      throw new BadRequest(`El post no se encuentra en la papelera`)
+    }
+
+    try {
+      await prisma.post.delete({ where: { id: postId } })
+
+      return `Post con id ${postId} eliminado de forma permanente`
+    } catch (error) {
+      console.log(error)
+      throw new BadRequest(`Error al eliminar un post`)
     }
   }
 }
 
-export const postService = new PostService(categoryService)
+export const postService = new PostService()

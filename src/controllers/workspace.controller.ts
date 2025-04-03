@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 
-import { CustomError } from '../errors'
+import { NotFound } from '../errors'
 import { workspaceService } from '../services'
 
 export const getWorkspaces = async (req: Request, res: Response) => {
@@ -17,11 +17,27 @@ export const getOneWorkspace = async (
   const { ID } = req.params
   const workspace = await workspaceService.get({ id: ID })
 
-  if (workspace instanceof CustomError) {
-    return next(workspace)
+  if (!workspace) {
+    return next(new NotFound(`No se ha encontrado el workspace con id ${ID}`))
   }
 
   res.status(200).json(workspace)
+}
+
+export const getWorkspaceUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const usersOnWorkspace = await workspaceService.getWorkspaceUsers(
+    req.params.ID
+  )
+
+  if (usersOnWorkspace.length === 0) {
+    return next(new NotFound('No se ha encontrado el workspace'))
+  }
+
+  res.status(200).json(usersOnWorkspace)
 }
 
 export const createWorkspace = async (
@@ -29,14 +45,47 @@ export const createWorkspace = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { name, icon } = req.body
   const { id } = req.user!
 
-  const workspace = await workspaceService.create({ name, icon }, id)
+  try {
+    const workspace = await workspaceService.create({
+      ...req.body,
+      userId: id,
+      isPersonal: false,
+    })
 
-  if (workspace instanceof CustomError) {
-    return next(workspace)
+    res
+      .status(201)
+      .json({ message: `Workspace ${workspace.name} creado`, data: workspace })
+  } catch (err) {
+    return next(err)
   }
+}
 
-  res.status(201).json(workspace)
+export const restoreWorkspacePosts = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const message = await workspaceService.restorePosts(req.params.ID, req.body)
+
+    res.status(200).json({ message })
+  } catch (err) {
+    return next(err)
+  }
+}
+
+export const cleanWorkspaceTrashBin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const message = await workspaceService.cleanTrashBin(req.params.ID)
+
+    res.status(200).json({ message })
+  } catch (err) {
+    return next(err)
+  }
 }

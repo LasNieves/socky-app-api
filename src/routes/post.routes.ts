@@ -10,12 +10,49 @@ import {
 import {
   createPost,
   deletePost,
+  getByCategory,
   getByWorkspace,
   getOnePost,
+  permantlyDeletePost,
+  restorePost,
   updatePost,
 } from './../controllers/post.controller'
 
 export const postRouter = Router()
+
+/**
+ * @swagger
+ *  /posts/category/{ID}:
+ *   get:
+ *    summary: Get all the posts of one category
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: number
+ *        required: true
+ *        description: The category id
+ *    responses:
+ *      200:
+ *        description: Posts of category found successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                type: object
+ *                $ref: '#/components/schemas/PostByCategory'
+ */
+
+postRouter.get(
+  '/category/:ID',
+  protect(),
+  workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
+  getByCategory
+)
 
 /**
  * @swagger
@@ -47,7 +84,7 @@ export const postRouter = Router()
 
 postRouter.get(
   '/workspace/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('workspaceId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getByWorkspace
 )
@@ -80,7 +117,7 @@ postRouter.get(
 
 postRouter.get(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER', 'CAN_VIEW'),
   getOnePost
 )
@@ -116,13 +153,21 @@ postRouter.get(
 
 postRouter.post(
   '/',
-  protect,
-  body('title').trim().isString().notEmpty().withMessage('Campo requerido'),
+  protect(),
+  body('title')
+    .trim()
+    .isString()
+    .notEmpty()
+    .withMessage('Campo requerido')
+    .isLength({ max: 255 })
+    .withMessage('El título del post no debe superar los 255 cacteres'),
   body('description')
     .trim()
     .isString()
     .notEmpty()
-    .withMessage('Campo requerido'),
+    .withMessage('Campo requerido')
+    .isLength({ max: 5000 })
+    .withMessage('La descripción del post no debe superar los 5000 cacteres'),
   body('categoryId').isNumeric().notEmpty().withMessage('Campo requerido'),
   validateRequest,
   workspaceAuthorization('categoryId', 'OWNER', 'ADMIN', 'MEMBER'),
@@ -168,7 +213,7 @@ postRouter.post(
 
 postRouter.patch(
   '/:ID',
-  protect,
+  protect(),
   body('title')
     .trim()
     .isString()
@@ -193,9 +238,56 @@ postRouter.patch(
 
 /**
  * @swagger
+ *  /posts/{ID}/restore:
+ *   patch:
+ *    summary: Restore a post from the trash bin to a category
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    requestBody:
+ *     required: false
+ *     content:
+ *       application/json:
+ *         schema:
+ *           type: object
+ *           $ref: '#/components/schemas/UpdatePostDto'
+ *    responses:
+ *      200:
+ *        description: Post restored succesfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                message:
+ *                  type: string
+ */
+
+postRouter.patch(
+  '/:ID/restore',
+  protect(),
+  body('categoryId')
+    .isNumeric()
+    .notEmpty()
+    .withMessage('Debe enviar la categoría a la que se restablecerá el post'),
+  validateRequest,
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  restorePost
+)
+
+/**
+ * @swagger
  *  /posts/{ID}:
  *   delete:
- *    summary: Delete one post
+ *    summary: Move one post to trash bin
  *    tags: [Posts]
  *    security:
  *     - bearerAuth: []
@@ -209,7 +301,7 @@ postRouter.patch(
  *        description: The post id
  *    responses:
  *      200:
- *        description: Post deleted successfully
+ *        description: Post moved to trash bin successfully
  *        content:
  *          application/json:
  *           schema:
@@ -223,7 +315,44 @@ postRouter.patch(
 
 postRouter.delete(
   '/:ID',
-  protect,
+  protect(),
   workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
   deletePost
+)
+
+/**
+ * @swagger
+ *  /posts/{ID}/permantly:
+ *   delete:
+ *    summary: Permantly delete a post
+ *    tags: [Posts]
+ *    security:
+ *     - bearerAuth: []
+ *    parameters:
+ *      - in: path
+ *        name: ID
+ *        schema:
+ *          type: string
+ *          format: uuid
+ *        required: true
+ *        description: The post id
+ *    responses:
+ *      200:
+ *        description: Post deleted permantly
+ *        content:
+ *          application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               data:
+ *                 $ref: '#/components/schemas/Post'
+ */
+
+postRouter.delete(
+  '/:ID/permantly',
+  protect(),
+  workspaceAuthorization('postId', 'OWNER', 'ADMIN', 'MEMBER'),
+  permantlyDeletePost
 )

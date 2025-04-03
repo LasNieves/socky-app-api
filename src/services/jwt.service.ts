@@ -1,10 +1,9 @@
 import jwt from 'jsonwebtoken'
 
 import { NotAuthorized } from '../errors/NotAuthorized'
-import { JwtRepository } from '../core/repositories/jwt.repository'
 import { JwtPayload } from '../core/types'
 
-class JwtService implements JwtRepository {
+export class JwtService {
   private signature: string
 
   constructor() {
